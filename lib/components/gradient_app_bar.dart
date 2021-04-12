@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 
 class GradientAppBar extends AppBar {
 
-  GradientAppBar({title}): super(
+  GradientAppBar({
+    Widget leading,
+    Widget title,
+    List<Widget> actions,
+    PreferredSizeWidget bottom
+  }): super(
       flexibleSpace: Container(
         decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -12,6 +17,10 @@ class GradientAppBar extends AppBar {
             )
         ),
       ),
-      title: title);
+      leading: leading,
+      title: title,
+      actions: actions,
+      bottom: bottom,
+  );
 
 }

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1094155102432",
+    "project_id": "pv239-sport-buddy",
+    "storage_bucket": "pv239-sport-buddy.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1094155102432:android:e15f5e50e928b24c290885",
+        "android_client_info": {
+          "package_name": "cz.muni.fi.pv239.sport_buddy"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1094155102432-u77ddl9o745m628jiqss3tnifq299q3b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAJdP_Ylvj7vA4AR3CISTYFvu06byjPHOk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1094155102432-u77ddl9o745m628jiqss3tnifq299q3b.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

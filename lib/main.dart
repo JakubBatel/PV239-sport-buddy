@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:sport_buddy/components/gradient_app_bar.dart';
 import 'package:sport_buddy/components/gradient_button.dart';
-import 'package:sport_buddy/main_page.dart';
+import 'package:sport_buddy/screens/main_screen.dart';
 import 'package:sport_buddy/profil_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'bloc/user_cubit.dart';
+
 
 
 void main() {
