@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sport_buddy/components/gradient_app_bar.dart';
-import 'package:sport_buddy/components/gradient_button.dart';
+import 'package:sport_buddy/screens/main_screen.dart';
 
 void main() {
   runApp(SportBuddyApp());
@@ -14,15 +13,7 @@ class SportBuddyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.red,
       ),
-      home: Scaffold(
-          appBar: GradientAppBar(
-            title: Text('PV239 Sport buddy'),
-          ),
-          body: GradientButton(
-            child: Text('Hello'),
-            onPressed: () {},
-          )
-      ),
+      home: MainScreen(),
     );
   }
 }
