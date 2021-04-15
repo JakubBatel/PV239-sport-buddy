@@ -41,7 +41,7 @@ class ProfilPage extends StatelessWidget {
       children: [
         Container(
             height: 250,
-            child: Image.asset(userCubit.state.profilePicture, height: 200, width: 200)
+            child: Image.asset('assets/images/ProfilPlaceHolder.jpg', height: 250, width: 200)
         ),
         Center(
             child: Padding(
