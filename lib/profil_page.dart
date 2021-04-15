@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:sport_buddy/model/event_model.dart';
 import 'package:sport_buddy/enum/activity_enum.dart';
@@ -60,9 +61,9 @@ class ProfilPage extends StatelessWidget {
 
   Widget _buildPastEvents() {
     //TODO: real events
-    EventModel e = EventModel('Fotbal na Svoboďáku', 'desc', Activity.football, LocationModel(1,22), DateTime.now(), User('Joe', ""), 6, []);
-    EventModel e2 = EventModel('StreetWorkout', 'desc', Activity.workout, LocationModel(1,22), DateTime.now(), User('Joe', ""), 6, []);
-    EventModel e3 = EventModel('Čunča', 'desc', Activity.basketball, LocationModel(1,22), DateTime.now(), User('Joe', ""), 6, []);
+    EventModel e = EventModel('Fotbal na Svoboďáku', 'desc', Activity.football, LocationModel(1,22), DateTime.now(), UserModel('Joe', ""), 6, []);
+    EventModel e2 = EventModel('StreetWorkout', 'desc', Activity.workout, LocationModel(1,22), DateTime.now(), UserModel('Joe', ""), 6, []);
+    EventModel e3 = EventModel('Čunča', 'desc', Activity.basketball, LocationModel(1,22), DateTime.now(), UserModel('Joe', ""), 6, []);
     final List<EventModel> eventsMock = [e, e2, e3, e2,e2, e3, e2, e,e];
 
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sport_buddy/model/event_model.dart';
-import 'package:sport_buddy/enum/acitivity_enum.dart';
+import 'package:sport_buddy/enum/activity_enum.dart';
 
 class EventRow extends StatelessWidget {
 
