@@ -5,6 +5,8 @@ import 'package:latlong/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:sport_buddy/components/gradient_app_bar.dart';
 
+import '../profil_page.dart';
+
 class MainScreen extends StatelessWidget {
 
   Widget _buildMenuButton() {
@@ -27,15 +29,22 @@ class MainScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildProfileButton() {
+  Widget _buildProfileButton(BuildContext context) {
     return IconButton(
       icon: Icon(
         Icons.account_circle,
         color: Colors.white,
       ),
-      onPressed: () {}, // TODO add action
+      onPressed: () {
+        _showProfile(context);
+      }, //
     );
   }
+
+  void _showProfile(BuildContext context) async {
+    await Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilPage()));
+  }
+
 
   Widget _buildGpsButton() {
     return FloatingActionButton(
@@ -81,13 +90,13 @@ class MainScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAppBar() {
+  Widget _buildAppBar(BuildContext context) {
     return GradientAppBar(
       leading: _buildMenuButton(),
       title: _buildSearchBar(),
       actions: [
         _buildFilterButton(),
-        _buildProfileButton(),
+        _buildProfileButton(context),
       ],
     );
   }
@@ -136,7 +145,7 @@ class MainScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildAppBar(),
+      appBar: _buildAppBar(context),
       body: _buildMap(),
       floatingActionButton: _buildFloatingActionButtons(),
     );
