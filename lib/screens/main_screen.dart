@@ -48,6 +48,11 @@ class MainScreen extends StatelessWidget {
     );
   }
 
+  void _showProfile(BuildContext context) async {
+    await Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilPage()));
+  }
+
+
   Widget _buildGpsButton() {
     return FloatingActionButton(
       child: Icon(
