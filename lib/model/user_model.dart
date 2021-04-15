@@ -1,7 +1,7 @@
-class User {
+class UserModel {
   //TODO: add more properties
   final String name;
   final String profilePicture;
 
-  User(this.name, this.profilePicture);
+  UserModel(this.name, this.profilePicture);
 }

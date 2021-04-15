@@ -8,9 +8,9 @@ class EventModel{
   final Activity _activity;
   final LocationModel _location;
   final DateTime _time;
-  final User _owner;
+  final UserModel _owner;
   final int _maxParticipants;
-  final List<User> _participants;
+  final List<UserModel> _participants;
 
 
 
