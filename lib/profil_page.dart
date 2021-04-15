@@ -10,15 +10,12 @@ import 'package:sport_buddy/bloc/user_cubit.dart';
 
 class ProfilPage extends StatelessWidget {
 
-
-
-
   @override
   Widget build(BuildContext context) {
 
     final userCubit = context.read<UserCubit>();
     //TODO: real events
-    EventModel e = EventModel('Event1', 'desc', Activity.football, LocationModel(1,22), DateTime.now(), User('Joe', ""), 6, []);
+    EventModel e = EventModel('Event1', 'desc', Activity.football, LocationModel(1,22), DateTime.now(), UserModel('Joe', ""), 6, []);
     final List<EventModel> eventsMock = [e, e, e, e, e, ];
 
     return Scaffold(
