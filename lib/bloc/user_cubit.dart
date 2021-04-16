@@ -2,7 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sport_buddy/model/user_model.dart';
 
 class UserCubit extends Cubit<UserModel> {
-  UserCubit() : super(UserModel('Joe Doe', ''));
+  UserCubit() : super(UserModel('Joe Doe', 'assets/images/ProfilPlaceHolder.jpg'));
 
 
   void updatePicturePath(String newPicturePath) {

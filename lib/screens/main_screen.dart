@@ -49,12 +49,13 @@ class MainScreen extends StatelessWidget {
   }
 
   void _showProfile(BuildContext context) async {
-    await Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilPage()));
+    await Navigator.push(
+        context, MaterialPageRoute(builder: (context) => ProfilPage()));
   }
-
 
   Widget _buildGpsButton() {
     return FloatingActionButton(
+      heroTag: "btn1",
       child: Icon(
         Icons.gps_fixed,
         size: 30,
@@ -67,6 +68,7 @@ class MainScreen extends StatelessWidget {
 
   Widget _buildAddButton() {
     return FloatingActionButton(
+      heroTag: "btn2",
       child: Icon(
         Icons.add,
         size: 40,
