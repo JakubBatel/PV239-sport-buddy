@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sport_buddy/model/event_model.dart';
 import 'package:sport_buddy/enum/activity_enum.dart';
 import 'package:sport_buddy/model/location_model.dart';
@@ -9,6 +10,7 @@ import 'package:sport_buddy/views/login.dart';
 import 'components/event_row.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sport_buddy/bloc/user_cubit.dart';
+
 
 class ProfilPage extends StatelessWidget {
   @override
@@ -79,10 +81,11 @@ class ProfilPage extends StatelessWidget {
   }
 
   void _openLogin(BuildContext context) {
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (ctx) => BlocProvider.value(
-                value: BlocProvider.of<UserCubit>(context), child: Login())));
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (ctx) => BlocProvider.value(
+                  value: BlocProvider.of<UserCubit>(context),
+                  child: Login())));
   }
 }
