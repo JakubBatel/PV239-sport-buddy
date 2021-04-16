@@ -11,7 +11,6 @@ import 'components/event_row.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sport_buddy/bloc/user_cubit.dart';
 
-import 'components/gradient_button.dart';
 
 class ProfilPage extends StatelessWidget {
   @override
@@ -21,16 +20,18 @@ class ProfilPage extends StatelessWidget {
           title: Text('My profile'),
           actions: [
             IconButton(
-                icon: Icon(Icons.mode_edit),
-                onPressed: () => _editProfile(context))
+                icon: Icon(Icons.logout), onPressed: () => _openLogin(context))
           ],
         ),
-        body: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [_buildUserInfo(context), _buildPastEvents()],
-            )));
+        body: Center(
+            child: ListView(
+          padding: EdgeInsets.all(20.0),
+          children: [
+            _buildUserInfo(context),
+            SizedBox(height: 20),
+            _buildPastEvents(context)
+          ],
+        )));
   }
 
   Widget _buildUserInfo(BuildContext context) {
@@ -39,32 +40,26 @@ class ProfilPage extends StatelessWidget {
       children: [
         Container(
             height: 250,
-            child: Image.asset('assets/images/ProfilPlaceHolder.jpg',
+            child: Image.asset(userCubit.state.profilePicture,
                 height: 250, width: 200)),
-        Center(
-          child: Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: Text(userCubit.state.name,
-                  style: TextStyle(
-                      fontSize: 30.0,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black))),
-        ),
-        GradientButton(
-          onPressed: () {
-            FirebaseAuth.instance.signOut();
-            _openLogin(context);
-          },
-          child: Text(
-            "Logout",
-            style: TextStyle(color: Colors.white),
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Center(
+              child: Padding(
+                padding: EdgeInsets.only(left: 40),
+                child: Text(userCubit.state.name,
+                    style: Theme.of(context).textTheme.headline4),
+              ),
+            ),
+            IconButton(icon: Icon(Icons.mode_edit), onPressed: () => {}),
+          ],
         )
       ],
     );
   }
 
-  Widget _buildPastEvents() {
+  Widget _buildPastEvents(BuildContext context) {
     //TODO: real events
     EventModel e = EventModel('Fotbal na Svoboďáku', 'desc', Activity.football,
         LocationModel(1, 22), DateTime.now(), UserModel('Joe', ""), 6, []);
@@ -78,23 +73,13 @@ class ProfilPage extends StatelessWidget {
       Align(
           alignment: Alignment.centerLeft,
           child: Text("Past Events:",
-              style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                  fontSize: 18))),
-      Container(
-        height: 310,
-        child: ListView(
-          children: [...(eventsMock.map((event) => EventRow(event)).toList())],
-        ),
+              style: Theme.of(context).textTheme.headline6)),
+      Column(
+        children: [...(eventsMock.map((event) => EventRow(event)).toList())],
       ),
     ]);
   }
 
-  void _editProfile(BuildContext context) async {
-    // TODO: implement edit profile
-  }
-  
   void _openLogin(BuildContext context) {
       Navigator.push(
           context,

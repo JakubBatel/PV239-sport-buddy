@@ -3,24 +3,14 @@ import 'package:sport_buddy/model/user_model.dart';
 import 'package:sport_buddy/enum/activity_enum.dart';
 
 class EventModel{
-  final String _name;
-  final String _description;
-  final Activity _activity;
-  final LocationModel _location;
-  final DateTime _time;
-  final UserModel _owner;
-  final int _maxParticipants;
-  final List<UserModel> _participants;
+  final String name;
+  final String description;
+  final Activity activity;
+  final LocationModel location;
+  final DateTime time;
+  final UserModel owner;
+  final int maxParticipants;
+  final List<UserModel> participants;
 
-
-
-  EventModel(this._name,this._description, this._activity, this._location, this._time, this._owner, this._maxParticipants, this._participants);
-
-
-  get activity => _activity;
-
-  get name => _name;
-
-
-
+  EventModel(this.name,this.description, this.activity, this.location, this.time, this.owner, this.maxParticipants, this.participants);
 }
