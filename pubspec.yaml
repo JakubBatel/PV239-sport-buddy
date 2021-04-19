@@ -39,6 +39,9 @@ dependencies:
   flutter_signin_button: ^2.0.0
   google_sign_in: ^4.5.3
   location_permissions: ^3.0.0
+  image_picker: ^0.7.4
+  image: ^3.0.2
+
 
 
 dev_dependencies:

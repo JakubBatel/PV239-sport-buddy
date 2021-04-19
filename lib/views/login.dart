@@ -26,9 +26,13 @@ class Login extends StatelessWidget {
             text: "Sign up with Google",
             onPressed: () {
               final credential = signInWithGoogle();
-              credential.then((cred) {
+              credential.then((cred) async {
                 if (cred.user != null) {
                   userCubit.updateUserName(cred.user.displayName);
+                  final uid = FirebaseAuth.instance.currentUser.uid;
+                  print(uid);
+                  userCubit.setUserID(uid);
+                  userCubit.setPicture();
                   _openMainScreen(context);
                 }
               });
@@ -108,6 +112,10 @@ Future<UserCredential> signInWithGoogle() async {
     idToken: googleAuth.idToken,
   );
 
+
+
   // Once signed in, return the UserCredential
   return await FirebaseAuth.instance.signInWithCredential(credential);
+
+
 }
