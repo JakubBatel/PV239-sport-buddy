@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image/image.dart' as img;
@@ -12,6 +13,7 @@ import 'package:sport_buddy/enum/activity_enum.dart';
 import 'package:sport_buddy/model/location_model.dart';
 import 'package:sport_buddy/model/user_model.dart';
 import 'package:sport_buddy/screens/main_screen.dart';
+import 'package:sport_buddy/services/DatabaseService.dart';
 import 'package:sport_buddy/views/login.dart';
 import 'components/event_row.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -52,8 +54,8 @@ class ProfilPage extends StatelessWidget {
               height: 250,
               child: model.profilePicture == ''
                   ? CircleAvatar(
-                  radius: 150.0,
-                  child: Icon(Icons.add_photo_alternate_outlined),
+                    radius: 150.0,
+                    child: Icon(Icons.add_photo_alternate_outlined),
                   )
                   : CircleAvatar(
                     radius: 150.0,
@@ -96,22 +98,30 @@ class ProfilPage extends StatelessWidget {
   }
 
   Widget _buildPastEvents(BuildContext context) {
-    //TODO: real events
-    EventModel e = EventModel('Fotbal na Svoboďáku', 'desc', Activity.football,
-        LocationModel(1, 22), DateTime.now(), UserModel('Joe', "", ""), 6, []);
-    EventModel e2 = EventModel('StreetWorkout', 'desc', Activity.workout,
-        LocationModel(1, 22), DateTime.now(), UserModel('Joe', "", ''), 6, []);
-    EventModel e3 = EventModel('Čunča', 'desc', Activity.basketball,
-        LocationModel(1, 22), DateTime.now(), UserModel('Joe', "", ''), 6, []);
-    final List<EventModel> eventsMock = [e, e2, e3, e2, e2, e3, e2, e, e];
+    final userCubit = context.read<UserCubit>();
 
     return Column(children: [
       Align(
           alignment: Alignment.centerLeft,
           child: Text("Past Events:",
               style: Theme.of(context).textTheme.headline6)),
-      Column(
-        children: [...(eventsMock.map((event) => EventRow(event)).toList())],
+      StreamBuilder<QuerySnapshot>(
+          stream: DatabaseService(userCubit.state.userID).returnPastParticipatedEvents(),
+          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            if (snapshot.hasError) {
+              print(snapshot.error.toString());
+              return Center(child: Text(snapshot.error.toString()));
+            }
+
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return CircularProgressIndicator();
+            }
+          if(snapshot.data == null) return CircularProgressIndicator();
+          return Column(
+            children: snapshot.data.docs.map((DocumentSnapshot doc) =>
+                EventRow(EventModel(doc.data()['name'],doc.data()['description'],ActivityConverter.fromJSON(doc.data()['activity']),doc.data()['time'],doc.data()['owner'], doc.data()['maxParticipants'],List.from(doc.data()['participants'])))).toList()
+          );
+        }
       ),
     ]);
   }

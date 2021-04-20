@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "1094155102432-7g31jpv5tqd2941esrkhm82alnbkj88q.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "cz.muni.fi.pv239.sport_buddy",
+            "certificate_hash": "2a911235761edef535619b4cc1ae7f632af660ae"
+          }
+        },
+        {
           "client_id": "1094155102432-u77ddl9o745m628jiqss3tnifq299q3b.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -29,6 +37,13 @@
             {
               "client_id": "1094155102432-u77ddl9o745m628jiqss3tnifq299q3b.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "1094155102432-9tp57mecpt3j9q9ehtjal01teetr0467.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "cz.muni.fi.pv239.sportBuddy"
+              }
             }
           ]
         }
