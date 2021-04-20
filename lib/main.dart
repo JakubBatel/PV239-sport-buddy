@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sport_buddy/screens/main_screen.dart';
@@ -11,14 +12,17 @@ import 'views/login.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  Firebase.initializeApp().whenComplete(() => runApp(SportBuddyApp()));
+  Firebase.initializeApp().whenComplete(() =>
+
+      runApp(SportBuddyApp()));
 }
 
 class SportBuddyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+
     return BlocProvider<UserCubit>(
-        create: (context) => UserCubit(),
+        create: (context) => FirebaseAuth.instance.currentUser != null ? UserCubit() : UserCubit(),
         child: MaterialApp(
             title: 'PV239 Sport Buddy',
             theme: ThemeData(
@@ -28,11 +32,11 @@ class SportBuddyApp extends StatelessWidget {
   }
 
   Widget _content(BuildContext context) {
+
     if (FirebaseAuth.instance.currentUser != null) {
       return BlocBuilder<UserCubit, UserModel>(builder: (context, state) {
-        final userCubit = context.read<UserCubit>();
-        userCubit.updateUserName(FirebaseAuth.instance.currentUser.displayName);
         return MainScreen();
+
       });
     } else {
       return Login();

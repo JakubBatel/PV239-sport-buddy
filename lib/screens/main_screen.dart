@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -38,17 +39,23 @@ class MainScreen extends StatelessWidget {
         color: Colors.white,
       ),
       onPressed: () {
-        Navigator.push(
+        _showProfile(context);
+        /*Navigator.push(
             context,
             MaterialPageRoute(
                 builder: (ctx) => BlocProvider.value(
                     value: BlocProvider.of<UserCubit>(context),
-                    child: ProfilPage())));
+                    child: ProfilPage())));*/
       }, // TODO add action
     );
   }
 
   void _showProfile(BuildContext context) async {
+    // TODO: this user setting must be somewhere else - probably before launching first screen
+    final userCubit = context.read<UserCubit>();
+    userCubit.updateUserName(FirebaseAuth.instance.currentUser.displayName);
+    userCubit.setUserID(FirebaseAuth.instance.currentUser.uid);
+    await userCubit.setPicture();
     await Navigator.push(
         context, MaterialPageRoute(builder: (context) => ProfilPage()));
   }
