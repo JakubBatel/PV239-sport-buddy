@@ -7,8 +7,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong/latlong.dart';
 import 'package:sport_buddy/bloc/user_cubit.dart';
 import 'package:sport_buddy/components/gradient_app_bar.dart';
-
-import 'profile_screen.dart';
+import 'package:sport_buddy/screens/profile_screen.dart';
 
 class MainScreen extends StatelessWidget {
   Widget _buildMenuButton() {
@@ -56,7 +55,8 @@ class MainScreen extends StatelessWidget {
     userCubit.setUserID(FirebaseAuth.instance.currentUser.uid);
     await userCubit.setPicture();
     await Navigator.push(
-        context, MaterialPageRoute(builder: (context) => ProfileScreen()));
+      context,
+      MaterialPageRoute(builder: (context) => ProfileScreen(),),);
   }
 
   Widget _buildGpsButton() {
@@ -130,7 +130,7 @@ class MainScreen extends StatelessWidget {
   Widget _buildMap() {
     return StreamBuilder<Position>(
       stream:
-          Geolocator.getPositionStream(desiredAccuracy: LocationAccuracy.high),
+      Geolocator.getPositionStream(desiredAccuracy: LocationAccuracy.high),
       builder: (context, snapshot) {
         if (snapshot.data == null) {
           return Center(
@@ -142,10 +142,11 @@ class MainScreen extends StatelessWidget {
           options: MapOptions(
             center: LatLng(snapshot.data.latitude, snapshot.data.longitude),
             zoom: 15.0,
-            onPositionChanged: (MapPosition pos, bool b) => print(
-                pos.center.latitude.toString() +
-                    ' ' +
-                    pos.center.longitude.toString()),
+            onPositionChanged: (MapPosition pos, bool b) =>
+                print(
+                    pos.center.latitude.toString() +
+                        ' ' +
+                        pos.center.longitude.toString()),
           ),
           layers: [
             new TileLayerOptions(
