@@ -10,6 +10,7 @@ import 'package:sport_buddy/bloc/user_cubit.dart';
 import 'package:sport_buddy/components/gradient_app_bar.dart';
 
 import '../profil_page.dart';
+import 'event_detail.dart';
 
 class MainScreen extends StatelessWidget {
   Widget _buildMenuButton() {
@@ -57,7 +58,7 @@ class MainScreen extends StatelessWidget {
     userCubit.setUserID(FirebaseAuth.instance.currentUser.uid);
     await userCubit.setPicture();
     await Navigator.push(
-        context, MaterialPageRoute(builder: (context) => ProfilPage()));
+        context, MaterialPageRoute(builder: (context) => EventDetail()));
   }
 
   Widget _buildGpsButton() {

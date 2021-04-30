@@ -15,7 +15,7 @@ class EventRow extends StatelessWidget {
       child: Row(
         children: [
           Padding(padding: EdgeInsets.all(10.0),
-            child:Image.asset(choosePicture(),
+            child:Image.asset(choosePicture(event.activity),
               height: 50,
               width: 50,)),
           Text(event.name)
@@ -24,10 +24,10 @@ class EventRow extends StatelessWidget {
     );
   }
 
-  String choosePicture(){
+  static String choosePicture(Activity activity){
     String path;
 
-    switch(event.activity) {
+    switch(activity) {
       case Activity.badminton:
         path = 'assets/icons_png/badminton.png';
         break;
