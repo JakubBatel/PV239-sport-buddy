@@ -9,7 +9,7 @@ import 'package:sport_buddy/components/gradient_button.dart';
 import 'package:sport_buddy/screens/main_screen.dart';
 import 'package:sport_buddy/views/user_input_form.dart';
 
-class Login extends StatelessWidget {
+class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userCubit = context.read<UserCubit>();

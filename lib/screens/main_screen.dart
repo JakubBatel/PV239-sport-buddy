@@ -3,13 +3,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong/latlong.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:location_permissions/location_permissions.dart';
+import 'package:latlong/latlong.dart';
 import 'package:sport_buddy/bloc/user_cubit.dart';
 import 'package:sport_buddy/components/gradient_app_bar.dart';
 
-import '../profil_page.dart';
+import 'profile_screen.dart';
 
 class MainScreen extends StatelessWidget {
   Widget _buildMenuButton() {
@@ -24,12 +23,12 @@ class MainScreen extends StatelessWidget {
 
   Widget _buildFilterButton() {
     return IconButton(
-        icon: Icon(
-          Icons.filter_alt,
-          color: Colors.white,
-        ),
-        onPressed: () {} // TODO add action
-        );
+      icon: Icon(
+        Icons.filter_alt,
+        color: Colors.white,
+      ),
+      onPressed: () {}, // TODO add action
+    );
   }
 
   Widget _buildProfileButton(BuildContext context) {
@@ -57,7 +56,7 @@ class MainScreen extends StatelessWidget {
     userCubit.setUserID(FirebaseAuth.instance.currentUser.uid);
     await userCubit.setPicture();
     await Navigator.push(
-        context, MaterialPageRoute(builder: (context) => ProfilPage()));
+        context, MaterialPageRoute(builder: (context) => ProfileScreen()));
   }
 
   Widget _buildGpsButton() {
@@ -89,18 +88,19 @@ class MainScreen extends StatelessWidget {
       height: 40,
       child: TextField(
         decoration: InputDecoration(
-            contentPadding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-            filled: true,
-            fillColor: Colors.white,
-            hintText: 'Search',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide.none,
-            ),
-            icon: Icon(
-              Icons.search,
-              color: Colors.white,
-            )),
+          contentPadding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+          filled: true,
+          fillColor: Colors.white,
+          hintText: 'Search',
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none,
+          ),
+          icon: Icon(
+            Icons.search,
+            color: Colors.white,
+          ),
+        ),
       ),
     );
   }
@@ -142,12 +142,16 @@ class MainScreen extends StatelessWidget {
           options: MapOptions(
             center: LatLng(snapshot.data.latitude, snapshot.data.longitude),
             zoom: 15.0,
+            onPositionChanged: (MapPosition pos, bool b) => print(
+                pos.center.latitude.toString() +
+                    ' ' +
+                    pos.center.longitude.toString()),
           ),
           layers: [
             new TileLayerOptions(
-                urlTemplate:
-                    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                subdomains: ['a', 'b', 'c']),
+              urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+              subdomains: ['a', 'b', 'c'],
+            ),
           ],
         );
       },

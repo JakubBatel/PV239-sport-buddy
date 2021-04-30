@@ -14,14 +14,13 @@ import 'package:sport_buddy/model/location_model.dart';
 import 'package:sport_buddy/model/user_model.dart';
 import 'package:sport_buddy/screens/main_screen.dart';
 import 'package:sport_buddy/services/DatabaseService.dart';
-import 'package:sport_buddy/views/login.dart';
-import 'components/event_row.dart';
+import 'package:sport_buddy/screens/login_screen.dart';
+import '../components/event_row.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sport_buddy/bloc/user_cubit.dart';
 
 
-class ProfilPage extends StatelessWidget {
-
+class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
@@ -132,7 +131,7 @@ class ProfilPage extends StatelessWidget {
           MaterialPageRoute(
               builder: (ctx) => BlocProvider.value(
                   value: BlocProvider.of<UserCubit>(context),
-                  child: Login())));
+                  child: LoginScreen())));
   }
 }
 
