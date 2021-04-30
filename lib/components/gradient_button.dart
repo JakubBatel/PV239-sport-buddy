@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 
 class GradientButton extends StatelessWidget {
-
   final Function onPressed;
   final Widget child;
 
-  GradientButton({ this.onPressed, this.child });
+  GradientButton({this.onPressed, this.child});
 
   @override
   Widget build(BuildContext context) {
     final shape = RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(7.5)
+      borderRadius: BorderRadius.circular(7.5),
     );
 
     return Container(
@@ -30,5 +29,4 @@ class GradientButton extends StatelessWidget {
       ),
     );
   }
-
 }
