@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sport_buddy/screens/event_detail.dart';
 import 'package:sport_buddy/screens/main_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -27,6 +28,12 @@ class SportBuddyApp extends StatelessWidget {
             title: 'PV239 Sport Buddy',
             theme: ThemeData(
               primarySwatch: Colors.red,
+              textTheme: TextTheme(
+                headline4: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold, color: Colors.black),
+                headline5: TextStyle(fontWeight: FontWeight.bold),
+                headline6: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w300),
+
+              ),
             ),
             home: _content(context)));
   }
