@@ -15,16 +15,6 @@ import 'package:sport_buddy/screens/profile_screen.dart';
 class MainScreen extends StatelessWidget {
   final mapController = MapController();
 
-  Widget _buildMenuButton() {
-    return IconButton(
-      icon: Icon(
-        Icons.menu,
-        color: Colors.white,
-      ),
-      onPressed: () {}, // TODO add action
-    );
-  }
-
   Widget _buildFilterButton() {
     return IconButton(
       icon: Icon(
@@ -109,12 +99,29 @@ class MainScreen extends StatelessWidget {
 
   Widget _buildAppBar(BuildContext context) {
     return GradientAppBar(
-      leading: _buildMenuButton(),
       title: _buildSearchBar(),
       actions: [
         _buildFilterButton(),
         _buildProfileButton(context),
       ],
+    );
+  }
+
+  Widget _buildDrawer() {
+    return Drawer(
+      child: ListView(
+        children: [
+          SizedBox(height: 20),
+          ListTile(
+            title: Text('My upcoming events'),
+            onTap: () {}, // TODO add action
+          ),
+          ListTile(
+            title: Text('About'),
+            onTap: () {}, // TODO add action
+          ),
+        ],
+      ),
     );
   }
 
@@ -195,6 +202,7 @@ class MainScreen extends StatelessWidget {
     return Scaffold(
       appBar: _buildAppBar(context),
       body: _buildMap(),
+      drawer: _buildDrawer(),
       floatingActionButton: _buildFloatingActionButtons(context),
     );
   }
