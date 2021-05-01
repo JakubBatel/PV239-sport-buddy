@@ -3,10 +3,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:latlong/latlong.dart';
+import 'package:sport_buddy/bloc/map_data_cubit.dart';
 import 'package:sport_buddy/bloc/user_cubit.dart';
+import 'package:sport_buddy/components/event_marker_icon_button.dart';
 import 'package:sport_buddy/components/gradient_app_bar.dart';
+import 'package:sport_buddy/model/location_model.dart';
+import 'package:sport_buddy/model/map_data_model.dart';
 import 'package:sport_buddy/screens/profile_screen.dart';
 
 class MainScreen extends StatelessWidget {
@@ -36,15 +39,7 @@ class MainScreen extends StatelessWidget {
         Icons.account_circle,
         color: Colors.white,
       ),
-      onPressed: () {
-        _showProfile(context);
-        /*Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (ctx) => BlocProvider.value(
-                    value: BlocProvider.of<UserCubit>(context),
-                    child: ProfilPage())));*/
-      }, // TODO add action
+      onPressed: () => _showProfile(context),
     );
   }
 
@@ -56,10 +51,13 @@ class MainScreen extends StatelessWidget {
     await userCubit.setPicture();
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => ProfileScreen(),),);
+      MaterialPageRoute(
+        builder: (context) => ProfileScreen(),
+      ),
+    );
   }
 
-  Widget _buildGpsButton() {
+  Widget _buildGpsButton(BuildContext context) {
     return FloatingActionButton(
       heroTag: "btn1",
       child: Icon(
@@ -68,7 +66,7 @@ class MainScreen extends StatelessWidget {
         color: Colors.red,
       ),
       backgroundColor: Colors.white,
-      onPressed: () {}, // TODO add action
+      onPressed: () => context.read<MapDataCubit>().setToCurrentLocation(),
     );
   }
 
@@ -116,23 +114,43 @@ class MainScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFloatingActionButtons() {
+  Widget _buildFloatingActionButtons(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _buildGpsButton(),
+        _buildGpsButton(context),
         SizedBox(height: 15),
         _buildAddButton(),
       ],
     );
   }
 
+  List<LayerOptions> _buildMapLayers(MapDataModel state) {
+    return [
+      TileLayerOptions(
+        urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        subdomains: ['a', 'b', 'c'],
+      ),
+      MarkerLayerOptions(
+        markers: state.events.map(
+          (event) => Marker(
+            point: LatLng(event.location.latitude, event.location.longitude),
+            builder: (context) => Container(
+              child: EventMarkerIconButton(event: event),
+            ),
+          ),
+        ).toList(),
+      ),
+    ];
+  }
+
   Widget _buildMap() {
-    return StreamBuilder<Position>(
-      stream:
-      Geolocator.getPositionStream(desiredAccuracy: LocationAccuracy.high),
-      builder: (context, snapshot) {
-        if (snapshot.data == null) {
+    return BlocBuilder<MapDataCubit, MapDataModel>(
+      builder: (context, state) {
+        final mapDataCubit = context.read<MapDataCubit>();
+        mapDataCubit.setToCurrentLocation();
+
+        if (state.center == null) {
           return Center(
             child: Text('Locating...'),
           );
@@ -140,20 +158,19 @@ class MainScreen extends StatelessWidget {
 
         return FlutterMap(
           options: MapOptions(
-            center: LatLng(snapshot.data.latitude, snapshot.data.longitude),
+            center: LatLng(state.center.latitude, state.center.longitude),
             zoom: 15.0,
-            onPositionChanged: (MapPosition pos, bool b) =>
-                print(
-                    pos.center.latitude.toString() +
-                        ' ' +
-                        pos.center.longitude.toString()),
+            onPositionChanged: (pos, _) {
+
+              mapDataCubit.setToLocation(
+                LocationModel(
+                  latitude: pos.center.latitude,
+                  longitude: pos.center.longitude,
+                ),
+              );
+            },
           ),
-          layers: [
-            new TileLayerOptions(
-              urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-              subdomains: ['a', 'b', 'c'],
-            ),
-          ],
+          layers: _buildMapLayers(state),
         );
       },
     );
@@ -164,7 +181,7 @@ class MainScreen extends StatelessWidget {
     return Scaffold(
       appBar: _buildAppBar(context),
       body: _buildMap(),
-      floatingActionButton: _buildFloatingActionButtons(),
+      floatingActionButton: _buildFloatingActionButtons(context),
     );
   }
 }
