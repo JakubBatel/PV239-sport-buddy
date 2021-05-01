@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/plugin_api.dart';
 import 'package:latlong/latlong.dart';
 import 'package:sport_buddy/bloc/map_data_cubit.dart';
 import 'package:sport_buddy/bloc/user_cubit.dart';
@@ -13,6 +13,8 @@ import 'package:sport_buddy/model/map_data_model.dart';
 import 'package:sport_buddy/screens/profile_screen.dart';
 
 class MainScreen extends StatelessWidget {
+  final mapController = MapController();
+
   Widget _buildMenuButton() {
     return IconButton(
       icon: Icon(
@@ -66,7 +68,9 @@ class MainScreen extends StatelessWidget {
         color: Colors.red,
       ),
       backgroundColor: Colors.white,
-      onPressed: () => context.read<MapDataCubit>().setToCurrentLocation(),
+      onPressed: () {
+        context.read<MapDataCubit>().setToCurrentLocation();
+      },
     );
   }
 
@@ -128,18 +132,23 @@ class MainScreen extends StatelessWidget {
   List<LayerOptions> _buildMapLayers(MapDataModel state) {
     return [
       TileLayerOptions(
-        urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        urlTemplate: 'https://mt0.google.com/vt/lyrs=m&hl=en&x={x}&y={y}&z={z}',
         subdomains: ['a', 'b', 'c'],
       ),
       MarkerLayerOptions(
-        markers: state.events.map(
-          (event) => Marker(
-            point: LatLng(event.location.latitude, event.location.longitude),
-            builder: (context) => Container(
-              child: EventMarkerIconButton(event: event),
-            ),
-          ),
-        ).toList(),
+        markers: state.events
+            .map(
+              (event) => Marker(
+                point: LatLng(
+                  event.location.latitude,
+                  event.location.longitude,
+                ),
+                builder: (context) => Container(
+                  child: EventMarkerIconButton(event: event),
+                ),
+              ),
+            )
+            .toList(),
       ),
     ];
   }
@@ -147,21 +156,26 @@ class MainScreen extends StatelessWidget {
   Widget _buildMap() {
     return BlocBuilder<MapDataCubit, MapDataModel>(
       builder: (context, state) {
-        final mapDataCubit = context.read<MapDataCubit>();
-        mapDataCubit.setToCurrentLocation();
-
         if (state.center == null) {
           return Center(
             child: Text('Locating...'),
           );
         }
 
+        mapController.onReady.then((result) {
+          mapController.move(
+            LatLng(state.center.latitude, state.center.longitude),
+            mapController.zoom,
+          );
+        });
+
         return FlutterMap(
+          mapController: mapController,
           options: MapOptions(
             center: LatLng(state.center.latitude, state.center.longitude),
             zoom: 15.0,
             onPositionChanged: (pos, _) {
-
+              final mapDataCubit = context.read<MapDataCubit>();
               mapDataCubit.setToLocation(
                 LocationModel(
                   latitude: pos.center.latitude,
