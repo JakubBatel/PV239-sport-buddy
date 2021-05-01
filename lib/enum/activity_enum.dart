@@ -55,5 +55,7 @@ T _$enumDecode<T>(Map<T, dynamic> enumValues, dynamic source) {
 class ActivityConverter {
 
   static Activity fromJSON(source) => _$enumDecode(_$ActivityEnumMap, source);
+  
+  static String toJSON(Activity activity) => activity.toString().split('.')[1];
 
 }

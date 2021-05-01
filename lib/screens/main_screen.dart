@@ -6,8 +6,10 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:location_permissions/location_permissions.dart';
+import 'package:sport_buddy/bloc/event_cubit.dart';
 import 'package:sport_buddy/bloc/user_cubit.dart';
 import 'package:sport_buddy/components/gradient_app_bar.dart';
+import 'package:sport_buddy/views/create_event.dart';
 
 import '../profil_page.dart';
 import 'event_detail.dart';
@@ -58,7 +60,7 @@ class MainScreen extends StatelessWidget {
     userCubit.setUserID(FirebaseAuth.instance.currentUser.uid);
     await userCubit.setPicture();
     await Navigator.push(
-        context, MaterialPageRoute(builder: (context) => EventDetail()));
+        context, MaterialPageRoute(builder: (context) => CreateEvent()));
   }
 
   Widget _buildGpsButton() {
@@ -74,14 +76,28 @@ class MainScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAddButton() {
+  Widget _buildAddButton(BuildContext context) {
     return FloatingActionButton(
       heroTag: "btn2",
       child: Icon(
         Icons.add,
         size: 40,
       ),
-      onPressed: () {}, // TODO add action
+      onPressed: () {
+        // TODO: this user setting must be somewhere else - probably before launching first screen
+        final userCubit = context.read<UserCubit>();
+        userCubit.updateUserName(FirebaseAuth.instance.currentUser.displayName);
+        userCubit.setUserID(FirebaseAuth.instance.currentUser.uid);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (ctx) => BlocProvider<EventCubit>(
+              create: (context) => EventCubit(),
+              child: CreateEvent(),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -117,13 +133,13 @@ class MainScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFloatingActionButtons() {
+  Widget _buildFloatingActionButtons(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         _buildGpsButton(),
         SizedBox(height: 15),
-        _buildAddButton(),
+        _buildAddButton(context),
       ],
     );
   }
@@ -160,7 +176,7 @@ class MainScreen extends StatelessWidget {
     return Scaffold(
       appBar: _buildAppBar(context),
       body: _buildMap(),
-      floatingActionButton: _buildFloatingActionButtons(),
+      floatingActionButton: _buildFloatingActionButtons(context),
     );
   }
 }

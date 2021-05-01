@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:sport_buddy/enum/activity_enum.dart';
 import 'package:sport_buddy/model/event_model.dart';
 
 class DatabaseService {
@@ -15,12 +16,12 @@ class DatabaseService {
     return eventsCollection.add({
       'name': event.name,
       'description': event.description,
-      //TODO 'activity': event.activity,
+      'activity': ActivityConverter.toJSON(event.activity),
       //TODO 'location': event.location,
       'time': event.time,
-      'owner': event.owner,
-      'maxParticipants': event.maxParticipants,
-      'participants': event.participants
+      'owner': uid,
+      'maxParticipants': event.unlimitedParticipants ? 0 : event.maxParticipants,
+      'participants': [...event.participants, '/users/$uid']
     });
   }
 

@@ -124,6 +124,7 @@ class ProfilPage extends StatelessWidget {
                           doc.data()['time'],
                           (doc.data()['owner']).toString(),
                           doc.data()['maxParticipants'],
+                          doc.data()['maxParticipants'] < 1,
                           (List.from(doc.data()['participants']))
                               .map((e) => e.toString())
                               .toList(),
