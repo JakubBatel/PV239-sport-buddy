@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sport_buddy/bloc/map_data_cubit.dart';
 import 'package:sport_buddy/bloc/user_cubit.dart';
 import 'package:sport_buddy/model/user_model.dart';
 import 'package:sport_buddy/screens/main_screen.dart';
@@ -24,6 +25,9 @@ class SportBuddyApp extends StatelessWidget {
       providers: [
         BlocProvider(
           create: (context) => UserCubit(),
+        ),
+        BlocProvider(
+          create: (context) => MapDataCubit(),
         ),
       ],
       child: MaterialApp(

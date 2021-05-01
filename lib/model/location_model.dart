@@ -1,9 +1,8 @@
-class LocationModel{
+class LocationModel {
 
-  // TODO: different type
-  final int latitude;
-  final int longitude;
+  final double latitude;
+  final double longitude;
 
-  LocationModel(this.latitude, this.longitude);
+  LocationModel({this.latitude, this.longitude});
 
 }
