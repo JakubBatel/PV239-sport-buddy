@@ -5,7 +5,9 @@ import 'package:sport_buddy/model/location_model.dart';
 import 'package:sport_buddy/model/map_data_model.dart';
 
 class MapDataCubit extends Cubit<MapDataModel> {
-  MapDataCubit() : super(MapDataModel(center: null, events: []));
+  MapDataCubit() : super(MapDataModel(center: null, events: [])) {
+    setToCurrentLocation();
+  }
 
   void setToCurrentLocation() async {
     final currentPosition = await Geolocator.getCurrentPosition();
