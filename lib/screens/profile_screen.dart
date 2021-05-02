@@ -125,6 +125,7 @@ class ProfileScreen extends StatelessWidget {
                           time: doc.data()['time'],
                           owner: (doc.data()['owner']).toString(),
                           maxParticipants: doc.data()['maxParticipants'],
+                          unlimitedParticipants: doc.data()['maxParticipants'] < 1,
                           participants: (List.from(doc.data()['participants']))
                               .map((e) => e.toString())
                               .toList(),

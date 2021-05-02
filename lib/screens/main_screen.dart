@@ -4,10 +4,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:latlong/latlong.dart';
+import 'package:sport_buddy/bloc/event_cubit.dart';
 import 'package:sport_buddy/bloc/map_data_cubit.dart';
 import 'package:sport_buddy/bloc/user_cubit.dart';
 import 'package:sport_buddy/components/event_marker_icon_button.dart';
 import 'package:sport_buddy/components/gradient_app_bar.dart';
+import 'package:sport_buddy/views/create_event.dart';
 import 'package:sport_buddy/model/location_model.dart';
 import 'package:sport_buddy/model/map_data_model.dart';
 import 'package:sport_buddy/screens/profile_screen.dart';
@@ -74,14 +76,28 @@ class MainScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAddButton() {
+  Widget _buildAddButton(BuildContext context) {
     return FloatingActionButton(
       heroTag: "btn2",
       child: Icon(
         Icons.add,
         size: 40,
       ),
-      onPressed: () {}, // TODO add action
+      onPressed: () {
+        // TODO: this user setting must be somewhere else - probably before launching first screen
+        final userCubit = context.read<UserCubit>();
+        userCubit.updateUserName(FirebaseAuth.instance.currentUser.displayName);
+        userCubit.setUserID(FirebaseAuth.instance.currentUser.uid);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (ctx) => BlocProvider<EventCubit>(
+              create: (context) => EventCubit(),
+              child: CreateEvent(),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -124,7 +140,7 @@ class MainScreen extends StatelessWidget {
       children: [
         _buildGpsButton(context),
         SizedBox(height: 15),
-        _buildAddButton(),
+        _buildAddButton(context),
       ],
     );
   }
