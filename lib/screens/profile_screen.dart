@@ -16,28 +16,30 @@ import 'package:sport_buddy/bloc/user_cubit.dart';
 class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final userCubit = context.read<UserCubit>();
     return Scaffold(
-        appBar: AppBar(
-          title: Text('My profile'),
-          actions: [
-            IconButton(
-                icon: Icon(Icons.logout), onPressed: () => _openLogin(context))
-          ],
-        ),
-        body: Center(
-            child: ListView(
+      appBar: AppBar(
+        title: Text('My profile'),
+        actions: [
+          IconButton(
+              icon: Icon(Icons.logout), onPressed: () => _openLogin(context))
+        ],
+      ),
+      body: Center(
+        child: ListView(
           padding: EdgeInsets.all(20.0),
           children: [
             _buildUserInfo(context),
             SizedBox(height: 20),
             _buildPastEvents(context),
           ],
-        )));
+        ),
+      ),
+    );
   }
 
   Widget _buildUserInfo(BuildContext context) {
     final userCubit = context.read<UserCubit>();
+    double _width = MediaQuery.of(context).size.width;
     return BlocBuilder<UserCubit, UserModel>(
         builder: (context, model) => Column(
               children: [
@@ -63,10 +65,9 @@ class ProfileScreen extends StatelessWidget {
                     Center(
                       child: Padding(
                           padding: EdgeInsets.only(left: 40),
-                          // TODO: fix textformfield overflow on smaller display
                           child: userCubit.editUser
                               ? Container(
-                                  width: 300,
+                                  width: _width * 0.60,
                                   child: TextFormField(
                                       initialValue: model.name,
                                       textAlign: TextAlign.center,
@@ -122,10 +123,11 @@ class ProfileScreen extends StatelessWidget {
                           description: doc.data()['description'],
                           activity:
                               getActivityFromString(doc.data()['activity']),
-                          time: doc.data()['time'],
+                          time: (doc.data()['time']).toDate(),
                           owner: (doc.data()['owner']).toString(),
                           maxParticipants: doc.data()['maxParticipants'],
-                          unlimitedParticipants: doc.data()['maxParticipants'] < 1,
+                          unlimitedParticipants:
+                              doc.data()['maxParticipants'] < 1,
                           participants: (List.from(doc.data()['participants']))
                               .map((e) => e.toString())
                               .toList(),

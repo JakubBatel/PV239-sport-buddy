@@ -181,7 +181,7 @@ class CreateEvent extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Padding(
-              padding: EdgeInsets.only(left: 30, right: 10),
+              padding: EdgeInsets.only(left: 30, right: 5),
               child: Icon(Icons.people, size: 40),
             ),
             Container(
@@ -211,8 +211,8 @@ class CreateEvent extends StatelessWidget {
         ),
         Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
           Padding(
-            padding: const EdgeInsets.only(left: 100.0, right: 25),
-            child: Text('Unlimited participants',
+            padding: const EdgeInsets.only(left: 100.0, right: 90),
+            child: Text('Unlimited',
                 style: Theme.of(context).textTheme.headline6),
           ),
           Switch(
