@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sport_buddy/bloc/event_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sport_buddy/enum/activity_enum.dart';
+import 'package:sport_buddy/utils/activity_utils.dart';
 
 class ActivityDropdown extends StatefulWidget {
   @override
@@ -72,6 +72,6 @@ class _ActivityDropdownState extends State<ActivityDropdown> {
       _selected = newVal;
     });
     eventCubit.updateActivity(
-        ActivityConverter.fromJSON(getSelectedActivity.toLowerCase()));
+        getActivityFromString(getSelectedActivity.toLowerCase()));
   }
 }

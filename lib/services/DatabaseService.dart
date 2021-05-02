@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:sport_buddy/enum/activity_enum.dart';
 import 'package:sport_buddy/model/event_model.dart';
+import 'package:sport_buddy/utils/activity_utils.dart';
 
 class DatabaseService {
   final String uid;
@@ -16,7 +16,7 @@ class DatabaseService {
     return eventsCollection.add({
       'name': event.name,
       'description': event.description,
-      'activity': ActivityConverter.toJSON(event.activity),
+      'activity': getActivityName(event.activity),
       //TODO 'location': event.location,
       'time': event.time,
       'owner': uid,

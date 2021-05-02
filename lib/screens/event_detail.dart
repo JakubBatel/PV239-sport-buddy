@@ -1,15 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sport_buddy/bloc/user_cubit.dart';
-import 'package:sport_buddy/components/event_row.dart';
+import 'package:sport_buddy/components/activity_icon.dart';
 import 'package:sport_buddy/components/gradient_button.dart';
-import 'package:sport_buddy/enum/activity_enum.dart';
+import 'package:sport_buddy/model/event_model.dart';
 import 'package:sport_buddy/services/DatabaseService.dart';
 import 'package:intl/intl.dart';
+import 'package:sport_buddy/utils/activity_utils.dart';
 
 class EventDetail extends StatelessWidget {
+  // TODO rewrite build method so it uses this model
+  final EventModel event;
+
+  EventDetail({this.event});
+
   @override
   Widget build(BuildContext context) {
     // TODO: get real event - load cubit when click on event in map???
@@ -105,11 +110,9 @@ class EventDetail extends StatelessWidget {
         children: [
           Padding(
             padding: EdgeInsets.only(left: 15, right: 20),
-            child: Image.asset(
-              EventRow.choosePicture(
-                  ActivityConverter.fromJSON(snapshot.data.get('activity'))),
-              height: 70,
-              width: 70,
+            child: ActivityIcon(
+              activity: getActivityFromString(snapshot.data.get('activity')),
+              size: 70,
             ),
           ),
           Text(

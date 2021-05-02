@@ -1,20 +1,22 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/plugin_api.dart';
 import 'package:latlong/latlong.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:location_permissions/location_permissions.dart';
 import 'package:sport_buddy/bloc/event_cubit.dart';
+import 'package:sport_buddy/bloc/map_data_cubit.dart';
 import 'package:sport_buddy/bloc/user_cubit.dart';
+import 'package:sport_buddy/components/event_marker_icon_button.dart';
 import 'package:sport_buddy/components/gradient_app_bar.dart';
 import 'package:sport_buddy/views/create_event.dart';
-
-import '../profil_page.dart';
-import 'event_detail.dart';
+import 'package:sport_buddy/model/location_model.dart';
+import 'package:sport_buddy/model/map_data_model.dart';
+import 'package:sport_buddy/screens/profile_screen.dart';
 
 class MainScreen extends StatelessWidget {
+  final mapController = MapController();
+
   Widget _buildMenuButton() {
     return IconButton(
       icon: Icon(
@@ -27,12 +29,12 @@ class MainScreen extends StatelessWidget {
 
   Widget _buildFilterButton() {
     return IconButton(
-        icon: Icon(
-          Icons.filter_alt,
-          color: Colors.white,
-        ),
-        onPressed: () {} // TODO add action
-        );
+      icon: Icon(
+        Icons.filter_alt,
+        color: Colors.white,
+      ),
+      onPressed: () {}, // TODO add action
+    );
   }
 
   Widget _buildProfileButton(BuildContext context) {
@@ -41,15 +43,7 @@ class MainScreen extends StatelessWidget {
         Icons.account_circle,
         color: Colors.white,
       ),
-      onPressed: () {
-        _showProfile(context);
-        /*Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (ctx) => BlocProvider.value(
-                    value: BlocProvider.of<UserCubit>(context),
-                    child: ProfilPage())));*/
-      }, // TODO add action
+      onPressed: () => _showProfile(context),
     );
   }
 
@@ -60,10 +54,14 @@ class MainScreen extends StatelessWidget {
     userCubit.setUserID(FirebaseAuth.instance.currentUser.uid);
     await userCubit.setPicture();
     await Navigator.push(
-        context, MaterialPageRoute(builder: (context) => CreateEvent()));
+      context,
+      MaterialPageRoute(
+        builder: (context) => ProfileScreen(),
+      ),
+    );
   }
 
-  Widget _buildGpsButton() {
+  Widget _buildGpsButton(BuildContext context) {
     return FloatingActionButton(
       heroTag: "btn1",
       child: Icon(
@@ -72,7 +70,9 @@ class MainScreen extends StatelessWidget {
         color: Colors.red,
       ),
       backgroundColor: Colors.white,
-      onPressed: () {}, // TODO add action
+      onPressed: () {
+        context.read<MapDataCubit>().setToCurrentLocation();
+      },
     );
   }
 
@@ -106,18 +106,19 @@ class MainScreen extends StatelessWidget {
       height: 40,
       child: TextField(
         decoration: InputDecoration(
-            contentPadding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-            filled: true,
-            fillColor: Colors.white,
-            hintText: 'Search',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide.none,
-            ),
-            icon: Icon(
-              Icons.search,
-              color: Colors.white,
-            )),
+          contentPadding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+          filled: true,
+          fillColor: Colors.white,
+          hintText: 'Search',
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none,
+          ),
+          icon: Icon(
+            Icons.search,
+            color: Colors.white,
+          ),
+        ),
       ),
     );
   }
@@ -137,35 +138,69 @@ class MainScreen extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _buildGpsButton(),
+        _buildGpsButton(context),
         SizedBox(height: 15),
         _buildAddButton(context),
       ],
     );
   }
 
+  List<LayerOptions> _buildMapLayers(MapDataModel state) {
+    return [
+      TileLayerOptions(
+        urlTemplate: 'https://mt0.google.com/vt/lyrs=m&hl=en&x={x}&y={y}&z={z}',
+        subdomains: ['a', 'b', 'c'],
+      ),
+      MarkerLayerOptions(
+        markers: state.events
+            .map(
+              (event) => Marker(
+                point: LatLng(
+                  event.location.latitude,
+                  event.location.longitude,
+                ),
+                builder: (context) => Container(
+                  child: EventMarkerIconButton(event: event),
+                ),
+              ),
+            )
+            .toList(),
+      ),
+    ];
+  }
+
   Widget _buildMap() {
-    return StreamBuilder<Position>(
-      stream:
-          Geolocator.getPositionStream(desiredAccuracy: LocationAccuracy.high),
-      builder: (context, snapshot) {
-        if (snapshot.data == null) {
+    return BlocBuilder<MapDataCubit, MapDataModel>(
+      builder: (context, state) {
+        if (state.center == null) {
           return Center(
             child: Text('Locating...'),
           );
         }
 
+        mapController.onReady.then((result) {
+          mapController.move(
+            LatLng(state.center.latitude, state.center.longitude),
+            mapController.zoom,
+          );
+        });
+
         return FlutterMap(
+          mapController: mapController,
           options: MapOptions(
-            center: LatLng(snapshot.data.latitude, snapshot.data.longitude),
+            center: LatLng(state.center.latitude, state.center.longitude),
             zoom: 15.0,
+            onPositionChanged: (pos, _) {
+              final mapDataCubit = context.read<MapDataCubit>();
+              mapDataCubit.setToLocation(
+                LocationModel(
+                  latitude: pos.center.latitude,
+                  longitude: pos.center.longitude,
+                ),
+              );
+            },
           ),
-          layers: [
-            new TileLayerOptions(
-                urlTemplate:
-                    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                subdomains: ['a', 'b', 'c']),
-          ],
+          layers: _buildMapLayers(state),
         );
       },
     );

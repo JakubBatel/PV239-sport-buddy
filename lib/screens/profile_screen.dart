@@ -5,15 +5,15 @@ import 'package:flutter/widgets.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:sport_buddy/model/event_model.dart';
-import 'package:sport_buddy/enum/activity_enum.dart';
 import 'package:sport_buddy/model/user_model.dart';
 import 'package:sport_buddy/services/DatabaseService.dart';
-import 'package:sport_buddy/views/login.dart';
-import 'components/event_row.dart';
+import 'package:sport_buddy/screens/login_screen.dart';
+import 'package:sport_buddy/utils/activity_utils.dart';
+import '../components/event_row.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sport_buddy/bloc/user_cubit.dart';
 
-class ProfilPage extends StatelessWidget {
+class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userCubit = context.read<UserCubit>();
@@ -118,14 +118,15 @@ class ProfilPage extends StatelessWidget {
                     .map(
                       (DocumentSnapshot doc) => EventRow(
                         EventModel(
-                          doc.data()['name'],
-                          doc.data()['description'],
-                          ActivityConverter.fromJSON(doc.data()['activity']),
-                          doc.data()['time'],
-                          (doc.data()['owner']).toString(),
-                          doc.data()['maxParticipants'],
-                          doc.data()['maxParticipants'] < 1,
-                          (List.from(doc.data()['participants']))
+                          name: doc.data()['name'],
+                          description: doc.data()['description'],
+                          activity:
+                              getActivityFromString(doc.data()['activity']),
+                          time: doc.data()['time'],
+                          owner: (doc.data()['owner']).toString(),
+                          maxParticipants: doc.data()['maxParticipants'],
+                          unlimitedParticipants: doc.data()['maxParticipants'] < 1,
+                          participants: (List.from(doc.data()['participants']))
                               .map((e) => e.toString())
                               .toList(),
                         ),
@@ -142,7 +143,7 @@ class ProfilPage extends StatelessWidget {
       MaterialPageRoute(
         builder: (ctx) => BlocProvider.value(
           value: BlocProvider.of<UserCubit>(context),
-          child: Login(),
+          child: LoginScreen(),
         ),
       ),
     );
