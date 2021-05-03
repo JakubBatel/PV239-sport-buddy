@@ -35,9 +35,9 @@ class SportBuddyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.red,
           textTheme: TextTheme(
-            headline4: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold, color: Colors.black),
-            headline5: TextStyle(fontWeight: FontWeight.bold),
-            headline6: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w300),
+             headline4: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold, color: Colors.black),
+             headline5: TextStyle(fontWeight: FontWeight.bold),
+             headline6: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w300),
 
           ),
         ),
