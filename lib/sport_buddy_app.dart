@@ -34,6 +34,12 @@ class SportBuddyApp extends StatelessWidget {
         title: 'PV239 Sport Buddy',
         theme: ThemeData(
           primarySwatch: Colors.red,
+          textTheme: TextTheme(
+            headline4: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold, color: Colors.black),
+            headline5: TextStyle(fontWeight: FontWeight.bold),
+            headline6: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w300),
+
+          ),
         ),
         home: _buildHome(context),
       ),

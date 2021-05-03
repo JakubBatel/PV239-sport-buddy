@@ -28,10 +28,9 @@ class LoginScreen extends StatelessWidget {
               final credential = signInWithGoogle();
               credential.then((cred) async {
                 if (cred.user != null) {
-                  userCubit.updateUserName(cred.user.displayName);
+                  //userCubit.updateUserName(cred.user.displayName);
                   final uid = FirebaseAuth.instance.currentUser.uid;
-                  print(uid);
-                  userCubit.setUserID(uid);
+                  userCubit.setUser(uid);
                   userCubit.setPicture();
                   _openMainScreen(context);
                 }

@@ -55,4 +55,18 @@ class DatabaseService {
       'participants': FieldValue.arrayRemove([user])
     });
   }
+
+  Future<void> updateUsername(String newName) {
+    return usersCollection.doc(uid).update({
+        'name' : newName
+    });
+  }
+
+
+  Future<void> createUser(name) {
+    return usersCollection.add({
+        'name' : name
+    });
+  }
+
 }
