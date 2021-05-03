@@ -48,7 +48,8 @@ class ProfileScreen extends StatelessWidget {
                   child: model.profilePicture == ''
                       ? CircleAvatar(
                           radius: 150.0,
-                          child: Icon(Icons.add_photo_alternate_outlined),
+                          child: Icon(Icons.perm_identity_outlined,
+                          size: 100),
                         )
                       : CircleAvatar(
                           radius: 150.0,
@@ -72,12 +73,12 @@ class ProfileScreen extends StatelessWidget {
                                       initialValue: model.name,
                                       textAlign: TextAlign.center,
                                       style:
-                                          Theme.of(context).textTheme.headline4,
+                                          Theme.of(context).textTheme.headline3,
                                       onChanged: (text) =>
                                           userCubit.updateUserName(text)))
                               : Text(model.name,
                                   style:
-                                      Theme.of(context).textTheme.headline4)),
+                                      Theme.of(context).textTheme.headline3)),
                     ),
                     userCubit.editUser
                         ? IconButton(
@@ -99,7 +100,7 @@ class ProfileScreen extends StatelessWidget {
       Align(
           alignment: Alignment.centerLeft,
           child: Text("Past Events:",
-              style: Theme.of(context).textTheme.headline6)),
+              style: Theme.of(context).textTheme.headline4)),
       StreamBuilder<QuerySnapshot>(
           stream: DatabaseService(userCubit.state.userID)
               .getPastParticipatedEvents(),

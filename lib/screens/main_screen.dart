@@ -40,8 +40,8 @@ class MainScreen extends StatelessWidget {
   void _showProfile(BuildContext context) async {
     // TODO: this user setting must be somewhere else - probably before launching first screen
     final userCubit = context.read<UserCubit>();
-    userCubit.updateUserName(FirebaseAuth.instance.currentUser.displayName);
-    userCubit.setUserID(FirebaseAuth.instance.currentUser.uid);
+    userCubit.setUser(FirebaseAuth.instance.currentUser.uid);
+    //userCubit.updateUserName(FirebaseAuth.instance.currentUser.displayName);
     await userCubit.setPicture();
     await Navigator.push(
       context,
@@ -77,7 +77,7 @@ class MainScreen extends StatelessWidget {
         // TODO: this user setting must be somewhere else - probably before launching first screen
         final userCubit = context.read<UserCubit>();
         userCubit.updateUserName(FirebaseAuth.instance.currentUser.displayName);
-        userCubit.setUserID(FirebaseAuth.instance.currentUser.uid);
+        userCubit.setUser(FirebaseAuth.instance.currentUser.uid);
         Navigator.push(
           context,
           MaterialPageRoute(
