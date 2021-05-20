@@ -7,6 +7,7 @@ import 'package:sport_buddy/components/gradient_button.dart';
 import 'package:sport_buddy/model/event_model.dart';
 import 'package:sport_buddy/services/DatabaseService.dart';
 import 'package:intl/intl.dart';
+import 'package:sport_buddy/utils/alert_dialog.dart';
 
 class CreateEvent extends StatelessWidget {
   @override
@@ -50,8 +51,19 @@ class CreateEvent extends StatelessWidget {
   void createNewEvent(BuildContext context) {
     final userCubit = context.read<UserCubit>();
     final eventCubit = context.read<EventCubit>();
-    eventCubit.addOwner(userCubit.state.userID);
-    DatabaseService().addEvent(eventCubit.state);
+    if (_isFormFilledEnough(context)) {
+      eventCubit.addOwner(userCubit.state.userID);
+      DatabaseService().addEvent(eventCubit.state);
+    } else {
+      showErrorDialog(context, "Name can't be empty!");
+    }
+
+  }
+
+
+  bool _isFormFilledEnough(BuildContext context) {
+    final eventCubit = context.read<EventCubit>();
+    return eventCubit.state.name != '';
   }
 
   Widget _buildEventDetail(BuildContext context, EventModel model) {
