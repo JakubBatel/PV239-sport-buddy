@@ -3,9 +3,8 @@ import 'package:sport_buddy/model/event_model.dart';
 import 'package:sport_buddy/utils/activity_utils.dart';
 
 class DatabaseService {
-  final String uid;
 
-  DatabaseService(this.uid);
+  DatabaseService();
 
   final CollectionReference eventsCollection =
       FirebaseFirestore.instance.collection('events');
@@ -19,13 +18,20 @@ class DatabaseService {
       'activity': getActivityName(event.activity),
       //TODO 'location': event.location,
       'time': event.time,
-      'owner': uid,
+      'owner': event.owner, // TODO: posilat referenci???
       'maxParticipants': event.unlimitedParticipants ? 0 : event.maxParticipants,
-      'participants': [...event.participants, '/users/$uid']
+      'participants': [],
+      'pendingParticipants': [],
     });
   }
 
-  Stream<QuerySnapshot> getPastParticipatedEvents() {
+  void deleteEvent(String eventId) {
+    eventsCollection.doc(eventId).delete();
+  }
+
+
+
+  Stream<QuerySnapshot> getPastParticipatedEvents(String uid) {
     print(uid);
     return eventsCollection
         .where('participants', arrayContains: '/users/$uid')
@@ -34,12 +40,35 @@ class DatabaseService {
         .snapshots();
   }
 
-  Stream<QuerySnapshot> getUserOwnEvents() {
+  Stream<QuerySnapshot> getUserOwnEvents(String uid) {
     return eventsCollection.where('owner', isEqualTo: uid).snapshots();
   }
 
-  Stream<DocumentSnapshot> getEvent(String eventId) {
-    return eventsCollection.doc(eventId).snapshots();
+  Future<EventModel> fetchEvent(String eventId) async {
+    final id = eventsCollection.doc(eventId).id;
+    final doc = await eventsCollection.doc(eventId).get();
+
+
+    return EventModel(
+      id: id,
+      name: doc['name'],
+      description: doc['description'],
+      activity: getActivityFromString(doc['activity']),
+      time: DateTime.parse(doc['time'].toDate().toString()),
+      owner: doc['owner'],
+      maxParticipants: doc['maxParticipants'],
+      unlimitedParticipants: doc['maxParticipants'] == 0,
+      participants: [],
+      pendingParticipants: [],
+    );
+  }
+
+
+  void addParticipantToPending(String participantId, String eventId) {
+    DocumentReference user = usersCollection.doc(participantId);
+    eventsCollection.doc(eventId).update({
+      'pendingParticipants': FieldValue.arrayUnion([user])
+    });
   }
 
   void addParticipant(String participantId, String eventId) {
@@ -47,7 +76,11 @@ class DatabaseService {
     eventsCollection.doc(eventId).update({
       'participants': FieldValue.arrayUnion([user])
     });
+    eventsCollection.doc(eventId).update({
+      'pendingParticipants': FieldValue.arrayRemove([user])
+    });
   }
+
 
   void deleteParticipant(String participantId, String eventId) {
     DocumentReference user = usersCollection.doc(participantId);
@@ -56,7 +89,17 @@ class DatabaseService {
     });
   }
 
-  Future<void> updateUsername(String newName) {
+  void deletePendingParticipant(String participantId, String eventId) {
+    DocumentReference user = usersCollection.doc(participantId);
+    eventsCollection.doc(eventId).update({
+      'pendingParticipants': FieldValue.arrayRemove([user])
+    });
+  }
+  
+
+
+
+  Future<void> updateUsername(String uid, String newName) {
     return usersCollection.doc(uid).update({
         'name' : newName
     });

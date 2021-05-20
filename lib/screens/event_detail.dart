@@ -1,107 +1,126 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sport_buddy/bloc/event_cubit.dart';
 import 'package:sport_buddy/bloc/user_cubit.dart';
 import 'package:sport_buddy/components/activity_icon.dart';
 import 'package:sport_buddy/components/gradient_button.dart';
 import 'package:sport_buddy/model/event_model.dart';
 import 'package:sport_buddy/services/DatabaseService.dart';
 import 'package:intl/intl.dart';
-import 'package:sport_buddy/utils/activity_utils.dart';
+import 'package:sport_buddy/utils/alert_dialog.dart';
 
 class EventDetail extends StatelessWidget {
-  // TODO rewrite build method so it uses this model
-  final EventModel event;
-
-  EventDetail({this.event});
-
   @override
   Widget build(BuildContext context) {
-    // TODO: get real event - load cubit when click on event in map???
-    final eventId = '3EBttdcxjuRBI8BAWVQx';
-
-    final userCubit = context.read<UserCubit>();
-    var databaseService = DatabaseService(userCubit.state.userID);
-    return StreamBuilder<DocumentSnapshot>(
-        stream: databaseService.getEvent(eventId),
-        builder:
-            (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-          if (snapshot.hasError) {
-            print(snapshot.error.toString());
-            return Center(child: Text(snapshot.error.toString()));
-          }
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator();
-          }
-          if (snapshot.data == null) return CircularProgressIndicator();
-
-          return Scaffold(
-            appBar: AppBar(
-              title: Text('Event Detail'),
-            ),
-            bottomNavigationBar: _buildBottomButton(context, snapshot),
-            body: Center(
-              child: ListView(
-                padding: EdgeInsets.all(20.0),
-                children: [
-                  _buildEventDetail(context, snapshot),
-                  _buildEventDescription(context, snapshot),
-                  SizedBox(height: 20),
-                  _buildEventParticipants(context, snapshot),
-                ],
-              ),
-            ),
-          );
-        });
+    return BlocBuilder<EventCubit, EventModel>(
+      builder: (context, model) => Scaffold(
+        appBar: AppBar(
+          title: Text('Event Detail'),
+        ),
+        bottomNavigationBar: _buildBottomButton(context, model),
+        body: Center(
+          child: ListView(
+            padding: EdgeInsets.all(20.0),
+            children: [
+              _buildEventDetail(context, model),
+              _buildEventDescription(context, model),
+              SizedBox(height: 20),
+              _buildEventParticipants(context, model),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
-  Widget _buildBottomButton(
-      BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+  bool _isOwner(BuildContext context) {
     final userCubit = context.read<UserCubit>();
-    final databaseService = DatabaseService(userCubit.state.userID);
-    final participate = snapshot.data
-        .get('participants')
-        .map((u) => u.id)
-        .toList()
+    final eventCubit = context.read<EventCubit>();
+    return userCubit.state.userID == eventCubit.state.owner;
+  }
+
+  bool _participate(BuildContext context) {
+    final userCubit = context.read<UserCubit>();
+    final eventCubit = context.read<EventCubit>();
+    return eventCubit.state.participants.contains(userCubit.state.userID);
+  }
+
+  bool _requestPending(BuildContext context) {
+    final userCubit = context.read<UserCubit>();
+    final eventCubit = context.read<EventCubit>();
+    return eventCubit.state.pendingParticipants
         .contains(userCubit.state.userID);
+  }
+
+  Widget _buildBottomButton(BuildContext context, model) {
     return BottomAppBar(
       color: Colors.transparent,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 100),
-        child: GradientButton(
-          onPressed: () => participate
-              ? databaseService.deleteParticipant(
-                  userCubit.state.userID, snapshot.data.id)
-              : databaseService.addParticipant(
-                  userCubit.state.userID, snapshot.data.id),
-          child: Text(
-            participate ? 'Leave event' : 'Join event',
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
+        child: getBottomButton(context, model),
       ),
       elevation: 0,
     );
   }
 
-  Widget _buildEventDetail(
-      BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+  Widget getBottomButton(BuildContext context, EventModel model) {
+    final userCubit = context.read<UserCubit>();
+    final databaseService = DatabaseService();
+
+    if (_isOwner(context)) {
+      return GradientButton(
+        onPressed: () {
+          showAlertDialog(context, () {
+            databaseService.deleteEvent(model.id);
+          }, "Are sure you want to completely delete this event?");
+          // TODO: if yes, return to map screen and show some alert that it was deleted
+        },
+        child: Text(
+          'Cancel event',
+          style: TextStyle(color: Colors.white),
+        ),
+      );
+    }
+    if (_requestPending(context)) {
+      return MaterialButton(
+        color: Colors.black12,
+        onPressed: () {},
+        child: Text(
+          'pending',
+          style: TextStyle(color: Colors.white),
+        ),
+      );
+    }
+
+    return GradientButton(
+      onPressed: () => _participate(context)
+          ? databaseService.deleteParticipant(userCubit.state.userID, model.id)
+          : databaseService.addParticipantToPending(
+              userCubit.state.userID, model.id),
+      child: Text(
+        _participate(context) ? 'Leave event' : 'Join event',
+        style: TextStyle(color: Colors.white),
+      ),
+    );
+  }
+
+  Widget _buildEventDetail(BuildContext context, EventModel model) {
     return Container(
         height: 350,
         child: Column(
           children: [
-            _buildEventName(context, snapshot),
-            _buildEventLocation(context, snapshot),
+            _buildEventName(context, model),
+            _buildEventLocation(context, model),
             SizedBox(height: 30),
-            _buildEventDate(context, snapshot),
+            _buildEventDate(context, model),
             SizedBox(height: 30),
-            _buildEventTime(context, snapshot),
+            _buildEventTime(context, model),
           ],
         ));
   }
 
-  Widget _buildEventName(
-      BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+  Widget _buildEventName(BuildContext context, EventModel model) {
     return Container(
       height: 120,
       alignment: Alignment.center,
@@ -111,12 +130,12 @@ class EventDetail extends StatelessWidget {
           Padding(
             padding: EdgeInsets.only(left: 15, right: 20),
             child: ActivityIcon(
-              activity: getActivityFromString(snapshot.data.get('activity')),
+              activity: model.activity,
               size: 70,
             ),
           ),
           Text(
-            snapshot.data.get('name'),
+            model.name,
             style: Theme.of(context).textTheme.headline5,
           ),
         ],
@@ -124,8 +143,7 @@ class EventDetail extends StatelessWidget {
     );
   }
 
-  Widget _buildEventLocation(
-      BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+  Widget _buildEventLocation(BuildContext context, EventModel model) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -145,8 +163,7 @@ class EventDetail extends StatelessWidget {
     );
   }
 
-  Widget _buildEventDate(
-      BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+  Widget _buildEventDate(BuildContext context, EventModel model) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -154,16 +171,13 @@ class EventDetail extends StatelessWidget {
           padding: EdgeInsets.only(left: 30, right: 40),
           child: Icon(Icons.calendar_today, size: 40),
         ),
-        Text(
-            DateFormat('dd. MM. yyyy').format(
-                DateTime.parse(snapshot.data.get('time').toDate().toString())),
+        Text(DateFormat('dd. MM. yyyy').format(model.time).toString(),
             style: Theme.of(context).textTheme.headline6),
       ],
     );
   }
 
-  Widget _buildEventTime(
-      BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+  Widget _buildEventTime(BuildContext context, EventModel model) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -174,16 +188,13 @@ class EventDetail extends StatelessWidget {
             size: 40,
           ),
         ),
-        Text(
-            DateFormat('kk:mm').format(
-                DateTime.parse(snapshot.data.get('time').toDate().toString())),
+        Text(DateFormat('kk:mm').format(model.time).toString(),
             style: Theme.of(context).textTheme.headline6),
       ],
     );
   }
 
-  Widget _buildEventDescription(
-      BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+  Widget _buildEventDescription(BuildContext context, EventModel model) {
     return Column(
       children: [
         Align(
@@ -199,15 +210,14 @@ class EventDetail extends StatelessWidget {
         SizedBox(height: 20),
         Align(
           alignment: Alignment.centerLeft,
-          child: Text(snapshot.data.get('description')),
+          child: Text(model.description),
         ),
       ],
     );
   }
 
-  Widget _buildEventParticipants(
-      BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-    final userCubit = context.read<UserCubit>();
+  Widget _buildEventParticipants(BuildContext context, EventModel model) {
+
     return Column(children: [
       Align(
         alignment: Alignment.centerLeft,
@@ -218,7 +228,7 @@ class EventDetail extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(right: 15.0),
               child: Text(
-                  '${snapshot.data.get('participants').length}/${snapshot.data.get('maxParticipants')}',
+                  '${model.participants.length}/${model.maxParticipants}',
                   style: Theme.of(context).textTheme.headline4),
             ),
           ],
@@ -226,17 +236,24 @@ class EventDetail extends StatelessWidget {
       ),
       SizedBox(height: 20),
       Column(
-        children: snapshot.data
-            .get('participants')
-            .map<Widget>((ref) => getNameByUserRef(
-                ref, snapshot.data.get('owner'), userCubit.state.userID))
+        children: model.participants
+            .map<Widget>(
+                (participantId) => getParticipantRowByUserRef(participantId))
             .toList(),
       ),
+      if (_isOwner(context))
+        Column(
+          children: model.pendingParticipants
+              .map<Widget>((participantId) =>
+                  getParticipantRowByUserRef(participantId, pending: true))
+              .toList(),
+        ),
     ]);
   }
 
-  Widget getNameByUserRef(
-      DocumentReference userRef, String ownerId, String userId) {
+  Widget getParticipantRowByUserRef(String participantId, {pending: false}) {
+    DocumentReference userRef =
+        FirebaseFirestore.instance.collection('users').doc(participantId);
     Future<DocumentSnapshot> user = userRef.get();
 
     return FutureBuilder<DocumentSnapshot>(
@@ -252,36 +269,93 @@ class EventDetail extends StatelessWidget {
         }
 
         if (snapshotFuture.connectionState == ConnectionState.done) {
-          Map<String, dynamic> data = snapshotFuture.data.data();
-
-          if (userRef.id == ownerId) {
-            return _buildParticipantRow(context, data['name'], 'Organizer');
-          } else if (userRef.id == userId) {
-            return _buildParticipantRow(context, data['name'], 'You');
-          }
-          return _buildParticipantRow(context, data['name'], '');
+          return _buildParticipantRow(context, snapshotFuture.data, pending);
         }
+
         return Text('loading');
       },
     );
   }
 
-  Widget _buildParticipantRow(BuildContext context, String name, String sign) {
+  Widget _buildParticipantRow(
+      BuildContext context, DocumentSnapshot data, pending) {
+    String name = data.data()['name'];
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(name, style: Theme.of(context).textTheme.headline6),
-          if (sign != '')
-            GradientButton(
-              child: Text(
-                sign,
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
+          Row(children: [...chooseButtons(context, data.id, pending)]),
         ],
       ),
+    );
+  }
+
+  List<Widget> chooseButtons(
+      BuildContext context, String participantId, pending) {
+    final userCubit = context.read<UserCubit>();
+    final eventCubit = context.read<EventCubit>();
+    String sign = '';
+    if (participantId == userCubit.state.userID ) {
+      sign = 'You';
+    }
+    if (participantId == eventCubit.state.owner) {
+      sign = 'Organizer';
+    }
+
+    if (pending && _isOwner(context)) {
+      return [
+        _buildConfirmationButton(() {
+          showAlertDialog(context, () {
+            eventCubit.addParticipant(participantId, eventCubit.state.id);
+          }, "Are sure you want to add this user to the event?");
+        }, disallow: false),
+        _buildConfirmationButton(() {
+          showAlertDialog(context, () {
+            eventCubit.deletePendingParticipant(
+                participantId, eventCubit.state.id);
+          }, "Are sure you want to delete this user request?");
+        })
+      ];
+    }
+
+    if (sign == '' && _isOwner(context)) {
+      return [
+        _buildConfirmationButton(() {
+          showAlertDialog(context, () {
+            eventCubit.deleteParticipant(participantId, eventCubit.state.id);
+          }, "Are sure you want to delete this user from the event?");
+        })
+      ];
+    }
+
+    if (sign != '') {
+      return [
+        GradientButton(
+          child: Text(
+            sign,
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+      ];
+    }
+
+    return [];
+  }
+
+  Widget _buildConfirmationButton(Function action, {bool disallow = true}) {
+    return RawMaterialButton(
+      onPressed: action,
+      elevation: 2.0,
+      fillColor: disallow ? Colors.red : Colors.green,
+      child: Icon(
+        disallow ? Icons.delete_forever_rounded : Icons.done_outline,
+        color: Colors.white,
+      ),
+      padding: EdgeInsets.all(15.0),
+      shape: CircleBorder(),
     );
   }
 }

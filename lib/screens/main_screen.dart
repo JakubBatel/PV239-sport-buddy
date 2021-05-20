@@ -9,10 +9,15 @@ import 'package:sport_buddy/bloc/map_data_cubit.dart';
 import 'package:sport_buddy/bloc/user_cubit.dart';
 import 'package:sport_buddy/components/event_marker_icon_button.dart';
 import 'package:sport_buddy/components/gradient_app_bar.dart';
+import 'package:sport_buddy/enum/activity_enum.dart';
+import 'package:sport_buddy/model/event_model.dart';
+import 'package:sport_buddy/services/DatabaseService.dart';
 import 'package:sport_buddy/views/create_event.dart';
 import 'package:sport_buddy/model/location_model.dart';
 import 'package:sport_buddy/model/map_data_model.dart';
 import 'package:sport_buddy/screens/profile_screen.dart';
+
+import 'event_detail.dart';
 
 class MainScreen extends StatelessWidget {
   final mapController = MapController();
@@ -38,6 +43,22 @@ class MainScreen extends StatelessWidget {
   }
 
   void _showProfile(BuildContext context) async {
+
+    // TODO: only for dev purpose MOCK for EventModel
+    /*
+    final EventModel eventModel = EventModel(
+      id: 'ikIrM9ofgaVw0rGdi7aC',
+      name: 'From android',
+      description: 'popisek',
+      activity: Activity.run,
+      time: DateTime.now(),
+      owner: 'UwK3D1XxoAa1ILmP9FnLnx9bBgq2',
+      maxParticipants: 8,
+      unlimitedParticipants: false,
+      participants: ['UwK3D1XxoAa1ILmP9FnLnx9bBgq2','9gcvbpwutHWIP8UEqfgavF136Zr2'],
+      pendingParticipants: ['BBC957HC3aa3T75r7RjGq8u15L03'],
+    );*/
+
     // TODO: this user setting must be somewhere else - probably before launching first screen
     final userCubit = context.read<UserCubit>();
     userCubit.setUser(FirebaseAuth.instance.currentUser.uid);
@@ -47,6 +68,10 @@ class MainScreen extends StatelessWidget {
       context,
       MaterialPageRoute(
         builder: (context) => ProfileScreen(),
+        /*builder: (context) => BlocProvider<EventCubit>(
+          create: (context) => EventCubit.fromEventModel(eventModel),
+          child: EventDetail(),
+        ),*/
       ),
     );
   }

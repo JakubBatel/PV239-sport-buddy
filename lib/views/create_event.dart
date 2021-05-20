@@ -13,7 +13,7 @@ class CreateEvent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Event Detail'),
+        title: Text('New Event'),
       ),
       bottomNavigationBar: _buildBottomButton(context),
       body: BlocBuilder<EventCubit, EventModel>(
@@ -50,8 +50,8 @@ class CreateEvent extends StatelessWidget {
   void createNewEvent(BuildContext context) {
     final userCubit = context.read<UserCubit>();
     final eventCubit = context.read<EventCubit>();
-    final databaseService = DatabaseService(userCubit.state.userID);
-    databaseService.addEvent(eventCubit.state);
+    eventCubit.addOwner(userCubit.state.userID);
+    DatabaseService().addEvent(eventCubit.state);
   }
 
   Widget _buildEventDetail(BuildContext context, EventModel model) {
@@ -79,7 +79,10 @@ class CreateEvent extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          ActivityDropdown(),
+          Padding(
+            padding: EdgeInsets.only(right: 10.0),
+            child: ActivityDropdown(),
+          ),
           Container(
             width: (width - 105) * 0.80,
             child: TextField(
@@ -194,7 +197,7 @@ class CreateEvent extends StatelessWidget {
                     ? Colors.grey
                     : Color(0xffef8585),
                 value: eventCubit.state.maxParticipants.toDouble(),
-                min: 0,
+                min: 2,
                 max: 30,
                 label: eventCubit.state.maxParticipants.toString(),
                 onChanged: (double value) {

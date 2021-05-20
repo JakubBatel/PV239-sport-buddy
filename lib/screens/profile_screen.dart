@@ -102,8 +102,8 @@ class ProfileScreen extends StatelessWidget {
           child: Text("Past Events:",
               style: Theme.of(context).textTheme.headline4)),
       StreamBuilder<QuerySnapshot>(
-          stream: DatabaseService(userCubit.state.userID)
-              .getPastParticipatedEvents(),
+          stream: DatabaseService()
+              .getPastParticipatedEvents(userCubit.state.userID),
           builder:
               (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
             if (snapshot.hasError) {
