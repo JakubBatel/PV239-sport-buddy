@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sport_buddy/bloc/event_cubit.dart';
@@ -217,7 +218,6 @@ class EventDetail extends StatelessWidget {
   }
 
   Widget _buildEventParticipants(BuildContext context, EventModel model) {
-
     return Column(children: [
       Align(
         alignment: Alignment.centerLeft,
@@ -282,15 +282,54 @@ class EventDetail extends StatelessWidget {
     String name = data.data()['name'];
 
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(6.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(name, style: Theme.of(context).textTheme.headline6),
-          Row(children: [...chooseButtons(context, data.id, pending)]),
+          FutureBuilder<String>(
+              future: getParticipantPicture(data.id),
+              builder: (context, AsyncSnapshot<String> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting ||
+                    !snapshot.hasData) return CircularProgressIndicator();
+                return Row(
+                  children: [
+                    snapshot.data == ''
+                        ? CircleAvatar(
+                            radius: 25.0,
+                            child: Icon(Icons.perm_identity_outlined, size: 25),
+                          )
+                        : CircleAvatar(
+                            radius: 25.0,
+                            backgroundImage: NetworkImage(snapshot.data),
+                          ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10.0),
+                      child: Text(name, style: Theme.of(context).textTheme.headline6),
+                    ),
+                  ],
+                );
+              }),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              ...chooseButtons(context, data.id, pending),
+            ],
+          ),
         ],
       ),
     );
+  }
+
+  Future<String> getParticipantPicture(String participantId) async {
+    FirebaseStorage storage = FirebaseStorage.instance;
+    var downloadUrl = '';
+    final storageRef = storage.ref().child("user/profile/$participantId");
+    try {
+      downloadUrl = await storageRef.getDownloadURL();
+    } catch (e) {
+      print("User do not have any picture");
+    }
+    return downloadUrl;
   }
 
   List<Widget> chooseButtons(
@@ -298,7 +337,7 @@ class EventDetail extends StatelessWidget {
     final userCubit = context.read<UserCubit>();
     final eventCubit = context.read<EventCubit>();
     String sign = '';
-    if (participantId == userCubit.state.userID ) {
+    if (participantId == userCubit.state.userID) {
       sign = 'You';
     }
     if (participantId == eventCubit.state.owner) {
@@ -333,10 +372,13 @@ class EventDetail extends StatelessWidget {
 
     if (sign != '') {
       return [
-        GradientButton(
-          child: Text(
-            sign,
-            style: TextStyle(color: Colors.white),
+        Container(
+          height: 25,
+          child: GradientButton(
+            child: Text(
+              sign,
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ),
       ];
@@ -346,16 +388,19 @@ class EventDetail extends StatelessWidget {
   }
 
   Widget _buildConfirmationButton(Function action, {bool disallow = true}) {
-    return RawMaterialButton(
-      onPressed: action,
-      elevation: 2.0,
-      fillColor: disallow ? Colors.red : Colors.green,
-      child: Icon(
-        disallow ? Icons.delete_forever_rounded : Icons.done_outline,
-        color: Colors.white,
+    return Container(
+      width: 50,
+      child: RawMaterialButton(
+        onPressed: action,
+        elevation: 2.0,
+        fillColor: disallow ? Colors.red : Colors.green,
+        child: Icon(
+          disallow ? Icons.delete_forever_rounded : Icons.done_outline,
+          color: Colors.white,
+        ),
+        padding: EdgeInsets.all(5.0),
+        shape: CircleBorder(),
       ),
-      padding: EdgeInsets.all(15.0),
-      shape: CircleBorder(),
     );
   }
 }
