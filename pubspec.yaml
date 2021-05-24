@@ -43,6 +43,7 @@ dependencies:
   image: ^3.0.2
   intl: ^0.17.0
   enum_to_string: ^2.0.1
+  equatable: ^1.0.2
 
 dev_dependencies:
   flutter_test:

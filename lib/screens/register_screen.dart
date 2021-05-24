@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:sport_buddy/bloc/auth_bloc.dart';
 import 'package:sport_buddy/bloc/login_bloc.dart';
 import 'package:sport_buddy/components/gradient_button.dart';
@@ -9,10 +8,10 @@ import 'package:sport_buddy/model/event/auth_event.dart';
 import 'package:sport_buddy/model/event/login_event.dart';
 import 'package:sport_buddy/model/state/auth_state.dart';
 import 'package:sport_buddy/model/state/login_state.dart';
-import 'package:sport_buddy/screens/register_screen.dart';
+import 'package:sport_buddy/screens/login_screen.dart';
 import 'package:sport_buddy/services/AuthenticationService.dart';
 
-class LoginScreen extends StatelessWidget {
+class RegisterScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,7 +22,7 @@ class LoginScreen extends StatelessWidget {
                 child: BlocBuilder<AuthBloc, AuthState>(
                   builder: (context, state) {
                     if (state is NotAuthenticated) {
-                      return _buildLoginForm(context);
+                      return _buildRegisterForm(context);
                     }
                     if (state is AuthError) {
                       return _buildErrorState(context);
@@ -38,7 +37,7 @@ class LoginScreen extends StatelessWidget {
                 ))));
   }
 
-  Widget _buildLoginForm(BuildContext context) {
+  Widget _buildRegisterForm(BuildContext context) {
     final authService = AuthService();
     final authBloc = BlocProvider.of<AuthBloc>(context);
 
@@ -46,69 +45,7 @@ class LoginScreen extends StatelessWidget {
       alignment: Alignment.center,
       child: BlocProvider<LoginBloc>(
         create: (context) => LoginBloc(authBloc, authService),
-        child: _buildLoginContent(context),
-      ),
-    );
-  }
-
-  Widget _buildLoginContent(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Image(image: AssetImage('assets/logo.png')),
-        SizedBox(height: 30),
-        SignInButton(
-          Buttons.Google,
-          text: "Sign up with Google",
-          onPressed: () {
-            final loginBloc = BlocProvider.of<LoginBloc>(context);
-            // loginBloc.add(LoginWithGoogleButtonPressed());
-          },
-        ),
-        SignInButton(
-          Buttons.Facebook,
-          text: "Sign up with Facebook",
-          onPressed: () {
-            final loginBloc = BlocProvider.of<LoginBloc>(context);
-            loginBloc.add(LoginWithFacebookButtonPressed());
-          },
-        ),
-        SizedBox(height: 10),
-        Text("OR"),
-        SizedBox(height: 10),
-        EmailPasswordForm(),
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: 50, vertical: 16),
-          child: Row(
-            children: [],
-          ),
-        ),
-        SizedBox(height: 30),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            MaterialButton(
-                child: Text(
-                  "Create account",
-                  style: TextStyle(color: Colors.red),
-                ),
-                onPressed: () => {_openRegister(context)}),
-            Text(
-              "Forgot password",
-              style: TextStyle(color: Colors.red),
-            )
-          ],
-        )
-      ],
-    );
-  }
-
-  void _openRegister(BuildContext context) {
-     Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => RegisterScreen(),
+        child: EmailPasswordRegisterForm(),
       ),
     );
   }
@@ -118,19 +55,19 @@ class LoginScreen extends StatelessWidget {
 
     return Center(
         child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        // Text(state.message),
-        MaterialButton(
-          textColor: Theme.of(context).primaryColor,
-          child: Text('Retry'),
-          onPressed: () {
-            authBloc.add(AppLoaded());
-          },
-        )
-      ],
-    ));
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            // Text(state.message),
+            MaterialButton(
+              textColor: Theme.of(context).primaryColor,
+              child: Text('Retry'),
+              onPressed: () {
+                authBloc.add(AppLoaded());
+              },
+            )
+          ],
+        ));
   }
 
   Widget _buildLoading() {
@@ -142,12 +79,12 @@ class LoginScreen extends StatelessWidget {
   }
 }
 
-class EmailPasswordForm extends StatefulWidget {
+class EmailPasswordRegisterForm extends StatefulWidget {
   @override
-  EmailPasswordFormState createState() => EmailPasswordFormState();
+  EmailPasswordRegisterFormState createState() => EmailPasswordRegisterFormState();
 }
 
-class EmailPasswordFormState extends State<EmailPasswordForm> {
+class EmailPasswordRegisterFormState extends State<EmailPasswordRegisterForm> {
   final _passwordController = TextEditingController();
   final _emailController = TextEditingController();
 
@@ -187,9 +124,9 @@ class EmailPasswordFormState extends State<EmailPasswordForm> {
         GradientButton(
           onPressed: () {
             state is LoginLoading ? {} : _loginClickAction(context);
-          },
+          } ,
           child: Text(
-            "Login",
+            "Register",
             style: TextStyle(color: Colors.white),
           ),
         )
@@ -290,7 +227,8 @@ class EmailPasswordFormState extends State<EmailPasswordForm> {
     // TODO: fix multiple clicks
     final _loginBloc = BlocProvider.of<LoginBloc>(context);
 
-    _loginBloc.add(LoginInWithEmailButtonPressed(
+    _loginBloc.add(RegisterWithEmailButtonPressed(
         email: _emailController.text, password: _passwordController.text));
+    Navigator.pop(context);
   }
 }
