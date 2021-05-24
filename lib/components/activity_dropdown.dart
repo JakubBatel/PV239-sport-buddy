@@ -50,18 +50,20 @@ class _ActivityDropdownState extends State<ActivityDropdown> {
           borderRadius: BorderRadius.all(Radius.circular(60.0)),
         ),
       ),
-      child: DropdownButton(
-        onChanged: (newVal) => _updateState(newVal),
-        value: _selected,
-        items: _activityJson.map((item) {
-          return DropdownMenuItem(
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 8.0, right: 0),
-              child: Image.asset(item['image'], width: 70),
-            ),
-            value: item['id'].toString(),
-          );
-        }).toList(),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton(
+          onChanged: (newVal) => _updateState(newVal),
+          value: _selected,
+          items: _activityJson.map((item) {
+            return DropdownMenuItem(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 8.0, right: 0),
+                child: Image.asset(item['image'], width: 70),
+              ),
+              value: item['id'].toString(),
+            );
+          }).toList(),
+        ),
       ),
     );
   }

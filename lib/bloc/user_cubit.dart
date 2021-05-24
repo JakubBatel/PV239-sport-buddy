@@ -22,7 +22,7 @@ class UserCubit extends Cubit<UserModel> {
 
   void updateUserName(String name) {
     final newUserModel = UserModel(name, state.profilePicture, state.userID);
-    DatabaseService(state.userID).updateUsername(name);
+    DatabaseService().updateUsername(state.userID, name);
     emit(newUserModel);
   }
 
@@ -33,7 +33,7 @@ class UserCubit extends Cubit<UserModel> {
           emit(UserModel(user.get('name'), state.profilePicture, uid))
         } else {
           //create user
-          DatabaseService(uid).createUser(FirebaseAuth.instance.currentUser.displayName)
+          DatabaseService().createUser(FirebaseAuth.instance.currentUser.displayName)
         }
     });
 

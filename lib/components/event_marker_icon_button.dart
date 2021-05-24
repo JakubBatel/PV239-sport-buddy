@@ -19,7 +19,7 @@ class EventMarkerIconButton extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (context) => EventDetail(
-              event: event,
+              //event: event,
             ),
           ),
         );
