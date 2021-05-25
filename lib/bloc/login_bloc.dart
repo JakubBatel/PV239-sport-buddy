@@ -2,7 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sport_buddy/model/event/auth_event.dart';
 import 'package:sport_buddy/model/event/login_event.dart';
 import 'package:sport_buddy/model/state/login_state.dart';
-import 'package:sport_buddy/services/AuthenticationService.dart';
+import 'package:sport_buddy/services/AuthService.dart';
 
 import 'auth_bloc.dart';
 

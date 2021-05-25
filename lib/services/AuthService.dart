@@ -1,13 +1,15 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sport_buddy/model/user_model.dart';
 
 class AuthService {
-
   Future<UserCredential> signInWithGoogle() async {
     // Trigger the authentication flow
     final googleUser = await GoogleSignIn().signIn();
+
+    if (googleUser == null) {
+      return null;
+    }
 
     // Obtain the auth details from the request
     final GoogleSignInAuthentication googleAuth =
@@ -26,7 +28,7 @@ class AuthService {
   Future<UserCredential> signInWithEmailAndPassword(
       String email, String password) async {
     try {
-      return  await FirebaseAuth.instance.signInWithEmailAndPassword(
+      return await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: email,
           password: password
       );
@@ -53,6 +55,7 @@ class AuthService {
       return null;
     } catch (e) {
       print(e);
+      return null;
     }
   }
 

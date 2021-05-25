@@ -4,13 +4,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:sport_buddy/bloc/auth_bloc.dart';
 import 'package:sport_buddy/bloc/login_bloc.dart';
-import 'package:sport_buddy/components/gradient_button.dart';
+import 'package:sport_buddy/components/email_password_form.dart';
+import 'package:sport_buddy/components/loading.dart';
 import 'package:sport_buddy/model/event/auth_event.dart';
 import 'package:sport_buddy/model/event/login_event.dart';
 import 'package:sport_buddy/model/state/auth_state.dart';
 import 'package:sport_buddy/model/state/login_state.dart';
 import 'package:sport_buddy/screens/register_screen.dart';
-import 'package:sport_buddy/services/AuthenticationService.dart';
+import 'package:sport_buddy/services/AuthService.dart';
 
 class LoginScreen extends StatelessWidget {
   @override
@@ -25,12 +26,13 @@ class LoginScreen extends StatelessWidget {
                     if (state is NotAuthenticated) {
                       return _buildLoginForm(context);
                     }
+
                     if (state is AuthError) {
                       return _buildErrorState(context);
                     }
 
                     if (state is AuthLoading) {
-                      return _buildLoading();
+                      return Loading();
                     }
 
                     return Center();
@@ -43,12 +45,16 @@ class LoginScreen extends StatelessWidget {
     final authBloc = BlocProvider.of<AuthBloc>(context);
 
     return Container(
-      alignment: Alignment.center,
-      child: BlocProvider<LoginBloc>(
-        create: (context) => LoginBloc(authBloc, authService),
-        child: _buildLoginContent(context),
-      ),
-    );
+        alignment: Alignment.center,
+        child: BlocProvider<LoginBloc>(
+            create: (context) => LoginBloc(authBloc, authService),
+            child:
+                BlocBuilder<LoginBloc, LoginState>(builder: (context, state) {
+              if (state is LoginLoading) {
+                return Loading();
+              }
+              return _buildLoginContent(context);
+            })));
   }
 
   Widget _buildLoginContent(BuildContext context) {
@@ -56,14 +62,17 @@ class LoginScreen extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Image(image: AssetImage('assets/logo.png')),
-        SizedBox(height: 30),
+        Image(
+          image: AssetImage('assets/logo.png'),
+          height: 100.0,
+        ),
+        SizedBox(height: 16),
         SignInButton(
           Buttons.Google,
           text: "Sign up with Google",
           onPressed: () {
             final loginBloc = BlocProvider.of<LoginBloc>(context);
-            // loginBloc.add(LoginWithGoogleButtonPressed());
+            loginBloc.add(LoginWithGoogleButtonPressed());
           },
         ),
         SignInButton(
@@ -74,38 +83,30 @@ class LoginScreen extends StatelessWidget {
             loginBloc.add(LoginWithFacebookButtonPressed());
           },
         ),
-        SizedBox(height: 10),
+        SizedBox(height: 8),
         Text("OR"),
-        SizedBox(height: 10),
-        EmailPasswordForm(),
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: 50, vertical: 16),
-          child: Row(
-            children: [],
-          ),
-        ),
-        SizedBox(height: 30),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            MaterialButton(
-                child: Text(
-                  "Create account",
-                  style: TextStyle(color: Colors.red),
-                ),
-                onPressed: () => {_openRegister(context)}),
-            Text(
-              "Forgot password",
+        SizedBox(height: 8),
+        EmailPasswordForm(
+          buttonText: "Login",
+            clickAction: (email, password) {
+          final loginBloc = BlocProvider.of<LoginBloc>(context);
+
+          loginBloc.add(
+              LoginInWithEmailButtonPressed(email: email, password: password));
+        }),
+        SizedBox(height: 8.0),
+        MaterialButton(
+            child: Text(
+              "Create account",
               style: TextStyle(color: Colors.red),
-            )
-          ],
-        )
+            ),
+            onPressed: () => {_openRegister(context)}),
       ],
     );
   }
 
   void _openRegister(BuildContext context) {
-     Navigator.push(
+    Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => RegisterScreen(),
@@ -131,166 +132,5 @@ class LoginScreen extends StatelessWidget {
         )
       ],
     ));
-  }
-
-  Widget _buildLoading() {
-    return Center(
-      child: CircularProgressIndicator(
-        strokeWidth: 2,
-      ),
-    );
-  }
-}
-
-class EmailPasswordForm extends StatefulWidget {
-  @override
-  EmailPasswordFormState createState() => EmailPasswordFormState();
-}
-
-class EmailPasswordFormState extends State<EmailPasswordForm> {
-  final _passwordController = TextEditingController();
-  final _emailController = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocListener<LoginBloc, LoginState>(
-      listener: (context, state) {
-        if (state is LoginFailure) {
-          _showError(state.error);
-        }
-      },
-      child: BlocBuilder<LoginBloc, LoginState>(
-        builder: (context, state) {
-          if (state is LoginLoading) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-          return Form(child: _buildLoginForm(context, state));
-        },
-      ),
-    );
-  }
-
-  Widget _buildLoginForm(BuildContext context, LoginState state) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        _buildEmailInput(context),
-        SizedBox(
-          height: 12,
-        ),
-        _buildPasswordInput(context),
-        const SizedBox(
-          height: 16,
-        ),
-        GradientButton(
-          onPressed: () {
-            state is LoginLoading ? {} : _loginClickAction(context);
-          },
-          child: Text(
-            "Login",
-            style: TextStyle(color: Colors.white),
-          ),
-        )
-      ],
-    );
-  }
-
-  void _showError(String error) {
-    Scaffold.of(context).showSnackBar(SnackBar(
-      content: Text(error),
-      backgroundColor: Theme.of(context).errorColor,
-    ));
-  }
-
-  Widget _buildEmailInput(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: 50, vertical: 16),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.black, width: 2.0),
-            borderRadius: BorderRadius.all(Radius.circular(10.0)),
-          ),
-          child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-              child: Row(
-                children: [
-                  Image(image: AssetImage('assets/ic_account.png')),
-                  Expanded(
-                    child: TextFormField(
-                        decoration: InputDecoration(
-                          labelText: 'Email address',
-                          filled: true,
-                          isDense: true,
-                        ),
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        autocorrect: false,
-                        validator: _validateEmail),
-                  ),
-                ],
-              )),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPasswordInput(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: 50, vertical: 16),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.black, width: 2.0),
-            borderRadius: BorderRadius.all(Radius.circular(10.0)),
-          ),
-          child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-              child: Row(
-                children: [
-                  Image(image: AssetImage('assets/ic_account.png')),
-                  Expanded(
-                    child: TextFormField(
-                        decoration: InputDecoration(
-                            labelText: 'Password', filled: true, isDense: true),
-                        controller: _passwordController,
-                        keyboardType: TextInputType.visiblePassword,
-                        autocorrect: false,
-                        obscureText: true,
-                        validator: _validatePasword),
-                  ),
-                ],
-              )),
-        ),
-      ],
-    );
-  }
-
-  String _validateEmail(String email) {
-    //TODO: email regex
-
-    if (email == null) {
-      return 'Email is required.';
-    }
-    return null;
-  }
-
-  String _validatePasword(String password) {
-    if (password == null) {
-      return 'Password is required.';
-    }
-    return null;
-  }
-
-  void _loginClickAction(BuildContext context) {
-    // TODO: fix multiple clicks
-    final _loginBloc = BlocProvider.of<LoginBloc>(context);
-
-    _loginBloc.add(LoginInWithEmailButtonPressed(
-        email: _emailController.text, password: _passwordController.text));
   }
 }
