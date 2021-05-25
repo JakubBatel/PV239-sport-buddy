@@ -8,7 +8,7 @@ import 'package:sport_buddy/bloc/auth_bloc.dart';
 import 'package:sport_buddy/model/event/auth_event.dart';
 import 'package:sport_buddy/model/event_model.dart';
 import 'package:sport_buddy/model/user_model.dart';
-import 'package:sport_buddy/services/AuthenticationService.dart';
+import 'package:sport_buddy/services/AuthService.dart';
 import 'package:sport_buddy/services/DatabaseService.dart';
 import 'package:sport_buddy/utils/activity_utils.dart';
 import '../components/event_row.dart';
