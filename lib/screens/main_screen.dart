@@ -102,7 +102,7 @@ class MainScreen extends StatelessWidget {
       onPressed: () {
         // TODO: this user setting must be somewhere else - probably before launching first screen
         final userCubit = context.read<UserCubit>();
-        userCubit.updateUserName(FirebaseAuth.instance.currentUser.displayName);
+        //userCubit.updateUserName(FirebaseAuth.instance.currentUser.displayName);
         userCubit.setUser(FirebaseAuth.instance.currentUser.uid);
         Navigator.push(
           context,

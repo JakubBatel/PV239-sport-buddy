@@ -133,6 +133,7 @@ class ProfileScreen extends StatelessWidget {
 
     final userId = _logged ? userCubit.state.userID : userModel.userID;
 
+
     return Column(children: [
       Align(
         alignment: Alignment.centerLeft,
@@ -167,7 +168,7 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildEventRow(BuildContext context, DocumentSnapshot doc) {
-    InkWell(
+    return InkWell(
       onTap: () {
         Navigator.push(
           context,
