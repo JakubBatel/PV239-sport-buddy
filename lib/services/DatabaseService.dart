@@ -30,12 +30,19 @@ class DatabaseService {
   }
 
 
-
   Stream<QuerySnapshot> getPastParticipatedEvents(String uid) {
     print(uid);
     return eventsCollection
         .where('participants', arrayContains: '/users/$uid')
         //.where('time', isLessThan: DateTime.now()) // TODO: only past events - this do not work
+        .orderBy('time', descending: true)
+        .snapshots();
+  }
+
+  Stream<QuerySnapshot> getUpcomingEvents(String uid) {
+    return eventsCollection
+        // .where('participants', arrayContains: '/users/$uid')
+        // .where('time', isGreaterThan: DateTime.now())
         .orderBy('time', descending: true)
         .snapshots();
   }

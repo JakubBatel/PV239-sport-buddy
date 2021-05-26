@@ -57,9 +57,7 @@ class CreateEvent extends StatelessWidget {
     } else {
       showErrorDialog(context, "Name can't be empty!");
     }
-
   }
-
 
   bool _isFormFilledEnough(BuildContext context) {
     final eventCubit = context.read<EventCubit>();
