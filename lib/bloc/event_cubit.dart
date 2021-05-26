@@ -150,7 +150,7 @@ class EventCubit extends Cubit<EventModel> {
   }
 
   addOwner(String ownerId) {
-    final addOwnerAsParticipants = [...state.participants, '/users/$ownerId'];
+    final addOwnerAsParticipants = [...state.participants, ownerId];
     final newEventModel = EventModel(
       id: state.id,
       name: state.name,
@@ -165,8 +165,6 @@ class EventCubit extends Cubit<EventModel> {
     );
     emit(newEventModel);
   }
-
-  //TODO: activate propagation these methods to db
 
   addParticipant(String participantId, String eventId) {
     final newParticipants = [...state.participants, participantId];
@@ -184,7 +182,7 @@ class EventCubit extends Cubit<EventModel> {
       pendingParticipants: newPendingParticipants,
     );
     emit(newEventModel);
-    //DatabaseService(participantId).addParticipant(participantId, eventId);
+    DatabaseService().addParticipant(participantId, eventId);
   }
 
   addParticipantToPending(String participantId, String eventId) {
@@ -202,7 +200,7 @@ class EventCubit extends Cubit<EventModel> {
       pendingParticipants: newPendingParticipants,
     );
     emit(newEventModel);
-    //DatabaseService(participantId).addParticipantToPending(participantId, eventId);
+    DatabaseService().addParticipantToPending(participantId, eventId);
   }
 
   deleteParticipant(String participantId, String eventId) {
@@ -220,7 +218,7 @@ class EventCubit extends Cubit<EventModel> {
       pendingParticipants: state.pendingParticipants,
     );
     emit(newEventModel);
-    //DatabaseService(participantId).deleteParticipant(participantId, eventId);
+    DatabaseService().deleteParticipant(participantId, eventId);
   }
 
 
@@ -239,7 +237,24 @@ class EventCubit extends Cubit<EventModel> {
       pendingParticipants: newPendingParticipants,
     );
     emit(newEventModel);
-    //DatabaseService(participantId).deletePendingParticipant(participantId, eventId);
+    DatabaseService().deletePendingParticipant(participantId, eventId);
   }
+
+  setId(String id) {
+    final newEventModel = EventModel(
+      id: id,
+      name: state.name,
+      description: state.description,
+      activity: state.activity,
+      time: state.time,
+      owner: state.owner,
+      maxParticipants: state.maxParticipants,
+      unlimitedParticipants: state.unlimitedParticipants,
+      participants: state.participants,
+      pendingParticipants: state.pendingParticipants,
+    );
+    emit(newEventModel);
+  }
+
 
 }

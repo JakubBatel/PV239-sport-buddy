@@ -11,19 +11,35 @@ class DatabaseService {
 
   final CollectionReference usersCollection = FirebaseFirestore.instance.collection('users');
 
-  Future<void> addEvent(EventModel event) {
-    return eventsCollection.add({
+  Future<String> addEvent(EventModel event) async {
+    final docRef = await eventsCollection.add({
       'name': event.name,
       'description': event.description,
       'activity': getActivityName(event.activity),
       //TODO 'location': event.location,
       'time': event.time,
-      'owner': event.owner, // TODO: posilat referenci???
+      'owner': event.owner,
       'maxParticipants': event.unlimitedParticipants ? 0 : event.maxParticipants,
-      'participants': [],
+      'participants': [usersCollection.doc(event.owner)],
       'pendingParticipants': [],
     });
+    return docRef.id;
   }
+
+  Future<void> updateEvent(EventModel event) {
+    return eventsCollection
+      .doc(event.id)
+      .update({
+        'name': event.name,
+        'description': event.description,
+        'activity': getActivityName(event.activity),
+        //TODO 'location': event.location,
+        'time': event.time,
+        'maxParticipants': event.unlimitedParticipants ? 0 : event.maxParticipants,
+      });
+  }
+
+
 
   void deleteEvent(String eventId) {
     eventsCollection.doc(eventId).delete();
@@ -31,10 +47,12 @@ class DatabaseService {
 
 
   Stream<QuerySnapshot> getPastParticipatedEvents(String uid) {
+    final now = Timestamp.fromDate(DateTime.now());
+    DocumentReference userRef = usersCollection.doc(uid);
     print(uid);
     return eventsCollection
-        .where('participants', arrayContains: '/users/$uid')
-        //.where('time', isLessThan: DateTime.now()) // TODO: only past events - this do not work
+        .where('participants', arrayContains: userRef)
+        .where('time', isLessThan: now)
         .orderBy('time', descending: true)
         .snapshots();
   }
@@ -52,10 +70,9 @@ class DatabaseService {
   }
 
   Future<EventModel> fetchEvent(String eventId) async {
+    // TODO: this does not work
     final id = eventsCollection.doc(eventId).id;
     final doc = await eventsCollection.doc(eventId).get();
-
-
     return EventModel(
       id: id,
       name: doc['name'],
@@ -65,8 +82,8 @@ class DatabaseService {
       owner: doc['owner'],
       maxParticipants: doc['maxParticipants'],
       unlimitedParticipants: doc['maxParticipants'] == 0,
-      participants: [],
-      pendingParticipants: [],
+      participants: doc['participants'],
+      pendingParticipants: doc['pendingParticipants'],
     );
   }
 

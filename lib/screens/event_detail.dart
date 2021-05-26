@@ -7,9 +7,12 @@ import 'package:sport_buddy/bloc/user_cubit.dart';
 import 'package:sport_buddy/components/activity_icon.dart';
 import 'package:sport_buddy/components/gradient_button.dart';
 import 'package:sport_buddy/model/event_model.dart';
+import 'package:sport_buddy/model/user_model.dart';
+import 'package:sport_buddy/screens/profile_screen.dart';
 import 'package:sport_buddy/services/DatabaseService.dart';
 import 'package:intl/intl.dart';
 import 'package:sport_buddy/utils/alert_dialog.dart';
+import 'package:sport_buddy/views/create_event.dart';
 
 class EventDetail extends StatelessWidget {
   @override
@@ -18,6 +21,7 @@ class EventDetail extends StatelessWidget {
       builder: (context, model) => Scaffold(
         appBar: AppBar(
           title: Text('Event Detail'),
+          actions: [_editEvent(context)],
         ),
         bottomNavigationBar: _buildBottomButton(context, model),
         body: Center(
@@ -30,6 +34,31 @@ class EventDetail extends StatelessWidget {
               _buildEventParticipants(context, model),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _editEvent(BuildContext context) {
+    return IconButton(
+      icon: Icon(
+        Icons.mode_edit,
+        color: Colors.white,
+      ),
+      onPressed: () {
+        _openEditEvent(context);
+      }, // TODO add action
+    );
+  }
+
+  void _openEditEvent(BuildContext context) async {
+    final eventCubit = context.read<EventCubit>();
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => BlocProvider<EventCubit>(
+          create: (context) => EventCubit.fromEventModel(eventCubit.state),
+          child: CreateEvent(true),
         ),
       ),
     );
@@ -54,6 +83,11 @@ class EventDetail extends StatelessWidget {
         .contains(userCubit.state.userID);
   }
 
+  bool _isPastEvent(BuildContext context) {
+    final eventCubit = context.read<EventCubit>();
+    return eventCubit.state.time.isBefore(DateTime.now());
+  }
+
   Widget _buildBottomButton(BuildContext context, model) {
     return BottomAppBar(
       color: Colors.transparent,
@@ -68,6 +102,17 @@ class EventDetail extends StatelessWidget {
   Widget getBottomButton(BuildContext context, EventModel model) {
     final userCubit = context.read<UserCubit>();
     final databaseService = DatabaseService();
+
+    if (_isPastEvent(context)) {
+      return MaterialButton(
+        color: Colors.black12,
+        onPressed: () {},
+        child: Text(
+          'Event already ended',
+          style: TextStyle(color: Colors.white),
+        ),
+      );
+    }
 
     if (_isOwner(context)) {
       return GradientButton(
@@ -228,7 +273,7 @@ class EventDetail extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(right: 15.0),
               child: Text(
-                  '${model.participants.length}/${model.maxParticipants}',
+                  '${model.participants.length}/${model.unlimitedParticipants ?  '-' : model.maxParticipants}',
                   style: Theme.of(context).textTheme.headline4),
             ),
           ],
@@ -291,22 +336,35 @@ class EventDetail extends StatelessWidget {
               builder: (context, AsyncSnapshot<String> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting ||
                     !snapshot.hasData) return CircularProgressIndicator();
-                return Row(
-                  children: [
-                    snapshot.data == ''
-                        ? CircleAvatar(
-                            radius: 25.0,
-                            child: Icon(Icons.perm_identity_outlined, size: 25),
-                          )
-                        : CircleAvatar(
-                            radius: 25.0,
-                            backgroundImage: NetworkImage(snapshot.data),
-                          ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 10.0),
-                      child: Text(name, style: Theme.of(context).textTheme.headline6),
-                    ),
-                  ],
+                return InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            ProfileScreen(false, UserModel(name, snapshot.data, data.id)),
+                      ),
+                    );
+                  },
+                  child: Row(
+                    children: [
+                      snapshot.data == ''
+                          ? CircleAvatar(
+                              radius: 25.0,
+                              child:
+                                  Icon(Icons.perm_identity_outlined, size: 25),
+                            )
+                          : CircleAvatar(
+                              radius: 25.0,
+                              backgroundImage: NetworkImage(snapshot.data),
+                            ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 10.0),
+                        child: Text(name,
+                            style: Theme.of(context).textTheme.headline6),
+                      ),
+                    ],
+                  ),
                 );
               }),
           Row(
@@ -344,7 +402,7 @@ class EventDetail extends StatelessWidget {
       sign = 'Organizer';
     }
 
-    if (pending && _isOwner(context)) {
+    if (pending && _isOwner(context) && !_isPastEvent(context)) {
       return [
         _buildConfirmationButton(() {
           showAlertDialog(context, () {
@@ -360,7 +418,7 @@ class EventDetail extends StatelessWidget {
       ];
     }
 
-    if (sign == '' && _isOwner(context)) {
+    if (sign == '' && _isOwner(context) && !_isPastEvent(context)) {
       return [
         _buildConfirmationButton(() {
           showAlertDialog(context, () {
