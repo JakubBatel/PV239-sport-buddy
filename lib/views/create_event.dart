@@ -5,16 +5,22 @@ import 'package:sport_buddy/bloc/user_cubit.dart';
 import 'package:sport_buddy/components/activity_dropdown.dart';
 import 'package:sport_buddy/components/gradient_button.dart';
 import 'package:sport_buddy/model/event_model.dart';
+import 'package:sport_buddy/screens/event_detail.dart';
 import 'package:sport_buddy/services/DatabaseService.dart';
 import 'package:intl/intl.dart';
+import 'package:sport_buddy/utils/activity_utils.dart';
 import 'package:sport_buddy/utils/alert_dialog.dart';
 
 class CreateEvent extends StatelessWidget {
+  final bool editMode;
+
+  CreateEvent(this.editMode);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('New Event'),
+        title: editMode ? Text('Edit Event') : Text('New Event'),
       ),
       bottomNavigationBar: _buildBottomButton(context),
       body: BlocBuilder<EventCubit, EventModel>(
@@ -37,9 +43,9 @@ class CreateEvent extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 100),
         child: GradientButton(
-          onPressed: () => createNewEvent(context),
+          onPressed: () => saveEvent(context),
           child: Text(
-            'Create event',
+            editMode ? 'Save changes' : 'Create event',
             style: TextStyle(color: Colors.white),
           ),
         ),
@@ -48,18 +54,47 @@ class CreateEvent extends StatelessWidget {
     );
   }
 
-  void createNewEvent(BuildContext context) {
+  void saveEvent(BuildContext context) async {
     final userCubit = context.read<UserCubit>();
     final eventCubit = context.read<EventCubit>();
+    final databaseService = DatabaseService();
+
     if (_isFormFilledEnough(context)) {
-      eventCubit.addOwner(userCubit.state.userID);
-      DatabaseService().addEvent(eventCubit.state);
+      if (editMode) {
+        databaseService.updateEvent(eventCubit.state);
+        Navigator.pop(context);
+        Navigator.pop(context);
+        await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => BlocProvider<EventCubit>(
+              create: (context) => EventCubit.fromEventModel(eventCubit.state),
+              child: EventDetail(),
+            ),
+          ),
+        );
+      } else {
+        eventCubit.addOwner(userCubit.state.userID);
+        databaseService.addEvent(eventCubit.state).then((eventId) {
+          eventCubit.setId(eventId);
+          Navigator.pop(context);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => BlocProvider<EventCubit>(
+                create: (context) => EventCubit.fromEventModel(eventCubit.state),
+                child: EventDetail(),
+              ),
+            ),
+          );
+        });
+
+
+      }
     } else {
       showErrorDialog(context, "Name can't be empty!");
     }
-
   }
-
 
   bool _isFormFilledEnough(BuildContext context) {
     final eventCubit = context.read<EventCubit>();
@@ -84,6 +119,9 @@ class CreateEvent extends StatelessWidget {
   Widget _buildEventName(BuildContext context, EventModel model) {
     final eventCubit = context.read<EventCubit>();
     double width = MediaQuery.of(context).size.width;
+    final controller = TextEditingController(text: model.name);
+    controller.selection = TextSelection.fromPosition(
+        TextPosition(offset: controller.text.length));
 
     return Container(
       height: 120,
@@ -93,7 +131,7 @@ class CreateEvent extends StatelessWidget {
         children: [
           Padding(
             padding: EdgeInsets.only(right: 10.0),
-            child: ActivityDropdown(),
+            child: ActivityDropdown(getActivityName(model.activity)),
           ),
           Container(
             width: (width - 105) * 0.80,
@@ -101,6 +139,7 @@ class CreateEvent extends StatelessWidget {
               decoration: InputDecoration(
                 hintText: 'Event Name',
               ),
+              controller: controller,
               style: Theme.of(context).textTheme.headline5,
               onChanged: (text) => eventCubit.updateName(text),
             ),
@@ -187,7 +226,6 @@ class CreateEvent extends StatelessWidget {
   }
 
   Widget _buildParticipants(BuildContext context, EventModel model) {
-    double _width = MediaQuery.of(context).size.width;
     final eventCubit = context.read<EventCubit>();
     return Container(
       height: 100,
@@ -199,24 +237,7 @@ class CreateEvent extends StatelessWidget {
               padding: EdgeInsets.only(left: 30, right: 5),
               child: Icon(Icons.people, size: 40),
             ),
-            Container(
-              width: _width * 0.6,
-              child: Slider(
-                activeColor: eventCubit.state.unlimitedParticipants
-                    ? Colors.grey
-                    : Theme.of(context).primaryColor,
-                inactiveColor: eventCubit.state.unlimitedParticipants
-                    ? Colors.grey
-                    : Color(0xffef8585),
-                value: eventCubit.state.maxParticipants.toDouble(),
-                min: 2,
-                max: 30,
-                label: eventCubit.state.maxParticipants.toString(),
-                onChanged: (double value) {
-                  eventCubit.updateMaxParticipants(value);
-                },
-              ),
-            ),
+            _buildParticipantsSlider(context),
             Text(
                 eventCubit.state.unlimitedParticipants
                     ? ''
@@ -227,8 +248,8 @@ class CreateEvent extends StatelessWidget {
         Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
           Padding(
             padding: const EdgeInsets.only(left: 100.0, right: 90),
-            child: Text('Unlimited',
-                style: Theme.of(context).textTheme.headline6),
+            child:
+                Text('Unlimited', style: Theme.of(context).textTheme.headline6),
           ),
           Switch(
             value: eventCubit.state.unlimitedParticipants,
@@ -241,8 +262,35 @@ class CreateEvent extends StatelessWidget {
     );
   }
 
+  Widget _buildParticipantsSlider(BuildContext context) {
+    double _width = MediaQuery.of(context).size.width;
+    final eventCubit = context.read<EventCubit>();
+    return Container(
+      width: _width * 0.6,
+      child: Slider(
+        activeColor: eventCubit.state.unlimitedParticipants
+            ? Colors.grey
+            : Theme.of(context).primaryColor,
+        inactiveColor: eventCubit.state.unlimitedParticipants
+            ? Colors.grey
+            : Color(0xffef8585),
+        value: eventCubit.state.maxParticipants.toDouble(),
+        min: 2,
+        max: 30,
+        label: eventCubit.state.maxParticipants.toString(),
+        onChanged: (double value) {
+          eventCubit.updateMaxParticipants(value);
+        },
+      ),
+    );
+  }
+
   Widget _buildEventDescription(BuildContext context, EventModel model) {
     final eventCubit = context.read<EventCubit>();
+    final controller = TextEditingController(text: model.description);
+    controller.selection = TextSelection.fromPosition(
+        TextPosition(offset: controller.text.length));
+
     double width = MediaQuery.of(context).size.width;
     return Column(
       children: [
@@ -268,6 +316,7 @@ class CreateEvent extends StatelessWidget {
               decoration: InputDecoration(
                 hintText: 'Description',
               ),
+              controller: controller,
               onChanged: (text) => eventCubit.updateDescription(text),
             ),
           ),

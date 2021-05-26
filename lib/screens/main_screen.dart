@@ -11,6 +11,7 @@ import 'package:sport_buddy/components/event_marker_icon_button.dart';
 import 'package:sport_buddy/components/gradient_app_bar.dart';
 import 'package:sport_buddy/enum/activity_enum.dart';
 import 'package:sport_buddy/model/event_model.dart';
+import 'package:sport_buddy/model/user_model.dart';
 import 'package:sport_buddy/services/DatabaseService.dart';
 import 'package:sport_buddy/views/create_event.dart';
 import 'package:sport_buddy/model/location_model.dart';
@@ -51,7 +52,7 @@ class MainScreen extends StatelessWidget {
       name: 'From android',
       description: 'popisek',
       activity: Activity.run,
-      time: DateTime.now(),
+      time: DateTime.now().add(const Duration(days: 7)),
       owner: 'UwK3D1XxoAa1ILmP9FnLnx9bBgq2',
       maxParticipants: 8,
       unlimitedParticipants: false,
@@ -67,7 +68,7 @@ class MainScreen extends StatelessWidget {
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ProfileScreen(),
+        builder: (context) => ProfileScreen(true, userCubit.state),
         /*builder: (context) => BlocProvider<EventCubit>(
           create: (context) => EventCubit.fromEventModel(eventModel),
           child: EventDetail(),
@@ -108,7 +109,7 @@ class MainScreen extends StatelessWidget {
           MaterialPageRoute(
             builder: (ctx) => BlocProvider<EventCubit>(
               create: (context) => EventCubit(),
-              child: CreateEvent(),
+              child: CreateEvent(false),
             ),
           ),
         );
