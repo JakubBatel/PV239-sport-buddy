@@ -16,7 +16,7 @@ class UserCubit extends Cubit<UserModel> {
   }
 
   void updatePicturePath(String newPicturePath) {
-    final newUserModel = UserModel("state.name", newPicturePath, state.userID);
+    final newUserModel = UserModel(state.name, newPicturePath, state.userID);
     DatabaseService().updateUser(newUserModel);
     emit(newUserModel);
   }
