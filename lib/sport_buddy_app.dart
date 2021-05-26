@@ -9,6 +9,8 @@ import 'package:sport_buddy/model/state/auth_state.dart';
 import 'package:sport_buddy/model/user_model.dart';
 import 'package:sport_buddy/screens/main_screen.dart';
 import 'package:sport_buddy/screens/login_screen.dart';
+import 'package:sport_buddy/services/AuthService.dart';
+import 'package:sport_buddy/utils/alert_dialog.dart';
 
 import 'bloc/user_cubit.dart';
 
@@ -46,29 +48,25 @@ class SportBuddyApp extends StatelessWidget {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthError) {
-          // TODO: show error
+          showSnackbar(context, "Auth error");
         }
       },
       child: BlocBuilder<AuthBloc, AuthState>(
         builder: (context, state) {
           if (state is AuthLoading) {
-           return Loading();
+            return Loading();
           }
 
           if (state is Authenticated) {
-            return BlocBuilder<UserCubit, UserModel>(
-              builder: (context, state) => MainScreen(),
-            );
+            final user = AuthService().getCurrentUser();
+            final userBloc = BlocProvider.of<UserCubit>(context);
+            userBloc.saveUserToDB(user);
+
+            return MainScreen();
           }
 
-          if (state is NotAuthenticated) {
-            return BlocBuilder<UserCubit, UserModel>(
-              builder: (context, state) => LoginScreen(),
-            );
-          }
-
-          return Center();
-        },
+          return LoginScreen();
+        }
       ),
     );
   }

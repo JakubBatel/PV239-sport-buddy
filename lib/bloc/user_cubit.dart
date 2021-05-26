@@ -17,23 +17,28 @@ class UserCubit extends Cubit<UserModel> {
 
   void updatePicturePath(String newPicturePath) {
     final newUserModel = UserModel(state.name, newPicturePath, state.userID);
+    DatabaseService().updateUser(newUserModel);
     emit(newUserModel);
   }
 
   void updateUserName(String name) {
     final newUserModel = UserModel(name, state.profilePicture, state.userID);
-    DatabaseService().updateUsername(state.userID, name);
+    DatabaseService().updateUser(newUserModel);
     emit(newUserModel);
   }
 
-  void setUser(String uid) {
-    final document = FirebaseFirestore.instance.collection('users').doc(uid);
-    document.get().then((user) => {
-        if (user.exists) {
-          emit(UserModel(user.get('name'), state.profilePicture, uid))
+  void saveUserToDB(UserModel user) {
+    final document = FirebaseFirestore.instance.collection('users').doc(user.userID);
+    document.get().then((dbUser) => {
+        if (dbUser.exists) {
+          emit(user)
         } else {
           //create user
-          DatabaseService().createUser(FirebaseAuth.instance.currentUser.displayName)
+          getPictureUrl().then( (picture) {
+            UserModel userModel = UserModel(user.name, picture, user.userID);
+            DatabaseService().createUser(userModel);
+            emit(userModel);
+          })
         }
     });
   }
@@ -42,15 +47,15 @@ class UserCubit extends Cubit<UserModel> {
     return state.userID;
   }
 
-  Future<void> setPicture() async {
+  Future<String> getPictureUrl() async {
     FirebaseStorage storage = FirebaseStorage.instance;
     final storageRef = storage.ref().child("user/profile/${getUserID()}");
+
     try {
-      var downloadUrl = await storageRef.getDownloadURL();
-      final newUserModel = UserModel(state.name, downloadUrl, state.userID);
-      emit(newUserModel);
+      return await storageRef.getDownloadURL();
     } catch (e) {
       print("User do not have any picture");
+      return null;
     }
   }
 }

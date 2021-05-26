@@ -60,3 +60,10 @@ showErrorDialog(BuildContext context, String description) {
     },
   );
 }
+
+showSnackbar(BuildContext context, String message) {
+  Scaffold.of(context).showSnackBar(SnackBar(
+    content: Text(message),
+    backgroundColor: Theme.of(context).errorColor,
+  ));
+}

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sport_buddy/model/event_model.dart';
+import 'package:sport_buddy/model/user_model.dart';
 import 'package:sport_buddy/utils/activity_utils.dart';
 
 class DatabaseService {
@@ -39,12 +40,9 @@ class DatabaseService {
       });
   }
 
-
-
   void deleteEvent(String eventId) {
     eventsCollection.doc(eventId).delete();
   }
-
 
   Stream<QuerySnapshot> getPastParticipatedEvents(String uid) {
     final now = Timestamp.fromDate(DateTime.now());
@@ -87,7 +85,6 @@ class DatabaseService {
     );
   }
 
-
   void addParticipantToPending(String participantId, String eventId) {
     DocumentReference user = usersCollection.doc(participantId);
     eventsCollection.doc(eventId).update({
@@ -105,7 +102,6 @@ class DatabaseService {
     });
   }
 
-
   void deleteParticipant(String participantId, String eventId) {
     DocumentReference user = usersCollection.doc(participantId);
     eventsCollection.doc(eventId).update({
@@ -119,21 +115,19 @@ class DatabaseService {
       'pendingParticipants': FieldValue.arrayRemove([user])
     });
   }
-  
 
-
-
-  Future<void> updateUsername(String uid, String newName) {
-    return usersCollection.doc(uid).update({
-        'name' : newName
+  Future<void> updateUser(UserModel user) {
+    return usersCollection.doc(user.userID).update({
+      'name' : user.name,
+      'pictureUrl': user.profilePicture
     });
   }
 
-
-  Future<void> createUser(name) {
+  Future<void> createUser(UserModel user) {
     return usersCollection.add({
-        'name' : name
+      'id': user.userID,
+      'name' : user.name,
+      'pictureUrl': user.profilePicture
     });
   }
-
 }
