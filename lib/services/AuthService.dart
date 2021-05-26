@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sport_buddy/model/user_model.dart';
+import 'package:sport_buddy/services/DatabaseService.dart';
 
 class AuthService {
   Future<UserCredential> signInWithGoogle() async {
@@ -59,13 +60,18 @@ class AuthService {
     }
   }
 
-  UserModel getCurrentUser() {
+  Future<UserModel> getCurrentUser() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       return null;
     }
 
-    return UserModel(user.displayName, user.photoURL, user.uid);
+    var userModel = await DatabaseService().getUser(user.uid);
+    if (userModel.profilePicture == null) {
+      return UserModel(userModel.name, user.photoURL, userModel.userID);
+    }
+
+    return userModel;
   }
 
   Future<void> signOut() {

@@ -41,7 +41,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     yield LoginLoading();
     final result = await _authenticationService.signInWithEmailAndPassword(
         event.email, event.password);
-    final user = _authenticationService.getCurrentUser();
+    final user = await _authenticationService.getCurrentUser();
     if (user != null) {
       _authenticationBloc.add(UserLoggedIn(user: user));
       yield LoginSuccess();
@@ -55,7 +55,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       LoginWithGoogleButtonPressed event) async* {
     yield LoginLoading();
     final result = await _authenticationService.signInWithGoogle();
-    final user = _authenticationService.getCurrentUser();
+    final user = await _authenticationService.getCurrentUser();
     if (user != null) {
       _authenticationBloc.add(UserLoggedIn(user: user));
       yield LoginSuccess();
@@ -69,7 +69,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       RegisterWithEmailButtonPressed event) async* {
     yield LoginLoading();
     final result = await _authenticationService.registerWithEmailAndPassword(event.email, event.password);
-    final user = _authenticationService.getCurrentUser();
+    final user = await _authenticationService.getCurrentUser();
     if (user != null) {
       _authenticationBloc.add(UserLoggedIn(user: user));
       yield LoginSuccess();

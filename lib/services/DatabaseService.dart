@@ -130,4 +130,9 @@ class DatabaseService {
       'pictureUrl': user.profilePicture
     });
   }
+
+  Future<UserModel> getUser(String id) async {
+    var user = await usersCollection.doc(id).get();
+    return UserModel(user.data()["name"], user.data()["pictureUrl"], id);
+  }
 }

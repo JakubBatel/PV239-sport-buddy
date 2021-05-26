@@ -51,23 +51,20 @@ class SportBuddyApp extends StatelessWidget {
           showSnackbar(context, "Auth error");
         }
       },
-      child: BlocBuilder<AuthBloc, AuthState>(
-        builder: (context, state) {
-          if (state is AuthLoading) {
-            return Loading();
-          }
-
-          if (state is Authenticated) {
-            final user = AuthService().getCurrentUser();
-            final userBloc = BlocProvider.of<UserCubit>(context);
-            userBloc.saveUserToDB(user);
-
-            return MainScreen();
-          }
-
-          return LoginScreen();
+      child: BlocBuilder<AuthBloc, AuthState>(builder: (context, state) {
+        if (state is AuthLoading) {
+          return Loading();
         }
-      ),
+
+        if (state is Authenticated) {
+          final userBloc = BlocProvider.of<UserCubit>(context);
+          userBloc.saveUserToDB(state.user);
+
+          return MainScreen();
+        }
+
+        return LoginScreen();
+      }),
     );
   }
 }

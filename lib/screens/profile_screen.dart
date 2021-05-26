@@ -20,9 +20,8 @@ import 'event_detail.dart';
 
 class ProfileScreen extends StatelessWidget {
   final bool _logged;
-  final UserModel userModel;
 
-  ProfileScreen(this._logged, this.userModel);
+  ProfileScreen(this._logged);
 
   @override
   Widget build(BuildContext context) {
@@ -55,22 +54,26 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildProfileInfo(BuildContext context) {
-    return Column(
-      children: [
-        _buildPicture(userModel.profilePicture),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Center(
-              child: Padding(
-                padding: EdgeInsets.only(left: 40),
-                child: Text(userModel.name,
-                    style: Theme.of(context).textTheme.headline3),
-              ),
-            ),
-          ],
-        )
-      ],
+    return BlocBuilder<UserCubit, UserModel> (
+        builder: (context, user) {
+          return Column(
+            children: [
+              _buildPicture(user.profilePicture),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Center(
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 40),
+                      child: Text(user.name,
+                          style: Theme.of(context).textTheme.headline3),
+                    ),
+                  ),
+                ],
+              )
+            ],
+          );
+        }
     );
   }
 
@@ -122,7 +125,7 @@ class ProfileScreen extends StatelessWidget {
   Widget _buildPicture(String profilePicture) {
     return Container(
       height: 250,
-      child: profilePicture == ''
+      child: profilePicture == '' || profilePicture == null
           ? CircleAvatar(
               radius: 150.0,
               child: Icon(Icons.perm_identity_outlined, size: 100),
@@ -137,7 +140,7 @@ class ProfileScreen extends StatelessWidget {
   Widget _buildPastEvents(BuildContext context) {
     final userCubit = context.read<UserCubit>();
 
-    final userId = _logged ? userCubit.state.userID : userModel.userID;
+    final userId = userCubit.state.userID;
 
     return Column(children: [
       Align(
