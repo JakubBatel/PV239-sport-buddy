@@ -6,10 +6,12 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:sport_buddy/bloc/event_cubit.dart';
 import 'package:sport_buddy/components/activity_icon.dart';
+import 'package:sport_buddy/bloc/auth_bloc.dart';
+import 'package:sport_buddy/model/event/auth_event.dart';
 import 'package:sport_buddy/model/event_model.dart';
 import 'package:sport_buddy/model/user_model.dart';
+import 'package:sport_buddy/services/AuthService.dart';
 import 'package:sport_buddy/services/DatabaseService.dart';
-import 'package:sport_buddy/screens/login_screen.dart';
 import 'package:sport_buddy/utils/activity_utils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sport_buddy/bloc/user_cubit.dart';
@@ -29,8 +31,8 @@ class ProfileScreen extends StatelessWidget {
         title: _logged ? Text('My profile') : Text('User profile'),
         actions: [
           if (_logged)
-            IconButton(
-                icon: Icon(Icons.logout), onPressed: () => _openLogin(context))
+          IconButton(
+              icon: Icon(Icons.logout), onPressed: () => _signOut(context))
         ],
       ),
       body: Center(
@@ -221,17 +223,24 @@ class ProfileScreen extends StatelessWidget {
         ),
       ),
     );
+    
+  void _signOut(BuildContext context) {
+    final authBloc = BlocProvider.of<AuthBloc>(context);
+    final authService = AuthService();
+    authService.signOut();
+    authBloc.add(UserLoggedOut());
+    Navigator.pop(context);
   }
-}
 
-Future<void> _changePhoto(BuildContext context) async {
-  final userCubit = context.read<UserCubit>();
-  final picker = ImagePicker();
-  final pickedFile = await picker.getImage(source: ImageSource.gallery);
-  final storageRef = FirebaseStorage.instance
-      .ref()
-      .child("user/profile/${userCubit.getUserID()}");
+  Future<void> _changePhoto(BuildContext context) async {
+    final userCubit = context.read<UserCubit>();
+    final picker = ImagePicker();
+    final pickedFile = await picker.getImage(source: ImageSource.gallery);
+    final storageRef = FirebaseStorage.instance
+        .ref()
+        .child("user/profile/${userCubit.getUserID()}");
 
-  var uploadTask = storageRef.putFile(File(pickedFile.path));
-  uploadTask.whenComplete(() => userCubit.setPicture());
+    var uploadTask = storageRef.putFile(File(pickedFile.path));
+    uploadTask.whenComplete(() => userCubit.setPicture());
+  }
 }

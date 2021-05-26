@@ -36,10 +36,7 @@ class UserCubit extends Cubit<UserModel> {
           DatabaseService().createUser(FirebaseAuth.instance.currentUser.displayName)
         }
     });
-
-
   }
-
 
   String getUserID() {
     return state.userID;
@@ -55,9 +52,5 @@ class UserCubit extends Cubit<UserModel> {
     } catch (e) {
       print("User do not have any picture");
     }
-
   }
-
-
-
 }

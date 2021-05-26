@@ -1,120 +1,136 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:sport_buddy/bloc/user_cubit.dart';
-import 'package:sport_buddy/components/gradient_button.dart';
-import 'package:sport_buddy/screens/main_screen.dart';
-import 'package:sport_buddy/views/user_input_form.dart';
+import 'package:sport_buddy/bloc/auth_bloc.dart';
+import 'package:sport_buddy/bloc/login_bloc.dart';
+import 'package:sport_buddy/components/email_password_form.dart';
+import 'package:sport_buddy/components/loading.dart';
+import 'package:sport_buddy/model/event/auth_event.dart';
+import 'package:sport_buddy/model/event/login_event.dart';
+import 'package:sport_buddy/model/state/auth_state.dart';
+import 'package:sport_buddy/model/state/login_state.dart';
+import 'package:sport_buddy/screens/register_screen.dart';
+import 'package:sport_buddy/services/AuthService.dart';
 
 class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final userCubit = context.read<UserCubit>();
-
     return Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Image(image: AssetImage('assets/logo.png')),
-          SizedBox(height: 30),
-          SignInButton(
-            Buttons.Google,
-            text: "Sign up with Google",
-            onPressed: () {
-              final credential = signInWithGoogle();
-              credential.then((cred) async {
-                if (cred.user != null) {
-                  //userCubit.updateUserName(cred.user.displayName);
-                  final uid = FirebaseAuth.instance.currentUser.uid;
-                  userCubit.setUser(uid);
-                  userCubit.setPicture();
-                  _openMainScreen(context);
-                }
-              });
-            },
-          ),
-          SignInButton(
-            Buttons.Facebook,
-            text: "Sign up with Facebook",
-            onPressed: () {},
-          ),
-          SizedBox(height: 10),
-          Text("OR"),
-          SizedBox(height: 10),
-          MyCustomForm(
-            hintText: "Username",
-          ),
-          MyCustomForm(
-            hintText: "Password",
-          ),
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: 50, vertical: 16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: GradientButton(
-                    onPressed: () {
-                      _openMainScreen(context);
-                    },
-                    child: Text(
-                      "Login",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ),
-              ],
+        body: SafeArea(
+            minimum: const EdgeInsets.all(16),
+            child: SafeArea(
+                minimum: const EdgeInsets.all(16),
+                child: BlocBuilder<AuthBloc, AuthState>(
+                  builder: (context, state) {
+                    if (state is NotAuthenticated) {
+                      return _buildLoginForm(context);
+                    }
+
+                    if (state is AuthError) {
+                      return _buildErrorState(context);
+                    }
+
+                    if (state is AuthLoading) {
+                      return Loading();
+                    }
+
+                    return Center();
+                  },
+                ))));
+  }
+
+  Widget _buildLoginForm(BuildContext context) {
+    final authService = AuthService();
+    final authBloc = BlocProvider.of<AuthBloc>(context);
+
+    return Container(
+        alignment: Alignment.center,
+        child: BlocProvider<LoginBloc>(
+            create: (context) => LoginBloc(authBloc, authService),
+            child:
+                BlocBuilder<LoginBloc, LoginState>(builder: (context, state) {
+              if (state is LoginLoading) {
+                return Loading();
+              }
+              return _buildLoginContent(context);
+            })));
+  }
+
+  Widget _buildLoginContent(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Image(
+          image: AssetImage('assets/logo.png'),
+          height: 100.0,
+        ),
+        SizedBox(height: 16),
+        SignInButton(
+          Buttons.Google,
+          text: "Sign up with Google",
+          onPressed: () {
+            final loginBloc = BlocProvider.of<LoginBloc>(context);
+            loginBloc.add(LoginWithGoogleButtonPressed());
+          },
+        ),
+        SignInButton(
+          Buttons.Facebook,
+          text: "Sign up with Facebook",
+          onPressed: () {
+            final loginBloc = BlocProvider.of<LoginBloc>(context);
+            loginBloc.add(LoginWithFacebookButtonPressed());
+          },
+        ),
+        SizedBox(height: 8),
+        Text("OR"),
+        SizedBox(height: 8),
+        EmailPasswordForm(
+          buttonText: "Login",
+            clickAction: (email, password) {
+          final loginBloc = BlocProvider.of<LoginBloc>(context);
+
+          loginBloc.add(
+              LoginInWithEmailButtonPressed(email: email, password: password));
+        }),
+        SizedBox(height: 8.0),
+        MaterialButton(
+            child: Text(
+              "Create account",
+              style: TextStyle(color: Colors.red),
             ),
-          ),
-          SizedBox(height: 30),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Text(
-                "Create account",
-                style: TextStyle(color: Colors.red),
-              ),
-              Text(
-                "Forgot password",
-                style: TextStyle(color: Colors.red),
-              )
-            ],
-          )
-        ],
+            onPressed: () => {_openRegister(context)}),
+      ],
+    );
+  }
+
+  void _openRegister(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => RegisterScreen(),
       ),
     );
   }
-}
 
-void _openMainScreen(BuildContext context) {
-  Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (ctx) => BlocProvider.value(
-              value: BlocProvider.of<UserCubit>(context),
-              child: MainScreen())));
-}
+  Widget _buildErrorState(BuildContext context) {
+    final authBloc = BlocProvider.of<AuthBloc>(context);
 
-Future<UserCredential> signInWithGoogle() async {
-  // Trigger the authentication flow
-  final googleUser = await GoogleSignIn().signIn();
-
-  // Obtain the auth details from the request
-  final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-
-  // Create a new credential
-  final GoogleAuthCredential credential = GoogleAuthProvider.credential(
-    accessToken: googleAuth.accessToken,
-    idToken: googleAuth.idToken,
-  );
-
-
-
-  // Once signed in, return the UserCredential
-  return await FirebaseAuth.instance.signInWithCredential(credential);
-
-
+    return Center(
+        child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        // Text(state.message),
+        MaterialButton(
+          textColor: Theme.of(context).primaryColor,
+          child: Text('Retry'),
+          onPressed: () {
+            authBloc.add(AppLoaded());
+          },
+        )
+      ],
+    ));
+  }
 }
