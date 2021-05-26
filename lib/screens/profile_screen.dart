@@ -213,16 +213,6 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  void _openLogin(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (ctx) => BlocProvider.value(
-          value: BlocProvider.of<UserCubit>(context),
-          child: LoginScreen(),
-        ),
-      ),
-    );
     
   void _signOut(BuildContext context) {
     final authBloc = BlocProvider.of<AuthBloc>(context);
