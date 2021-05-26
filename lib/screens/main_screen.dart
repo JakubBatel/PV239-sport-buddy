@@ -11,6 +11,7 @@ import 'package:sport_buddy/components/event_marker_icon_button.dart';
 import 'package:sport_buddy/components/gradient_app_bar.dart';
 import 'package:sport_buddy/enum/activity_enum.dart';
 import 'package:sport_buddy/model/event_model.dart';
+import 'package:sport_buddy/screens/upcoming_events.dart';
 import 'package:sport_buddy/model/user_model.dart';
 import 'package:sport_buddy/services/DatabaseService.dart';
 import 'package:sport_buddy/views/create_event.dart';
@@ -149,14 +150,16 @@ class MainScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDrawer() {
+  Widget _buildDrawer(BuildContext context) {
     return Drawer(
       child: ListView(
         children: [
           SizedBox(height: 20),
           ListTile(
             title: Text('My upcoming events'),
-            onTap: () {}, // TODO add action
+            onTap: () {
+              _openUpcomingEvents(context);
+            }, // TODO add action
           ),
           ListTile(
             title: Text('About'),
@@ -164,6 +167,21 @@ class MainScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  void _openUpcomingEvents(BuildContext context) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (ctx) =>
+                MultiBlocProvider(providers: [
+                BlocProvider.value(value: BlocProvider.of<UserCubit>(context)),
+                  BlocProvider(create: (context) => EventCubit()),
+                ],
+              child: UpcomingEvents(),
+            )
+        )
     );
   }
 
@@ -244,7 +262,7 @@ class MainScreen extends StatelessWidget {
     return Scaffold(
       appBar: _buildAppBar(context),
       body: _buildMap(),
-      drawer: _buildDrawer(),
+      drawer: _buildDrawer(context),
       floatingActionButton: _buildFloatingActionButtons(context),
     );
   }

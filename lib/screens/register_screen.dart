@@ -21,18 +21,10 @@ class RegisterScreen extends StatelessWidget {
                 minimum: const EdgeInsets.all(16),
                 child: Center(child: BlocBuilder<AuthBloc, AuthState>(
                   builder: (context, state) {
-                    if (state is NotAuthenticated) {
-                      return _buildRegisterForm(context);
-                    }
-
-                    if (state is AuthError) {
-                      return _buildErrorState(context);
-                    }
-
                     if (state is AuthLoading) {
                       return Loading();
                     }
-                    return Center();
+                    return _buildRegisterForm(context);
                   },
                 )))));
   }
@@ -51,6 +43,10 @@ class RegisterScreen extends StatelessWidget {
                 if (state is LoginSuccess) {
                    Navigator.pop(context);
                 }
+
+                if (state is LoginFailure) {
+                  _showError(context, "error");
+                }
               },
             child: BlocBuilder<LoginBloc, LoginState>(
                 builder: (context, state) {
@@ -58,9 +54,6 @@ class RegisterScreen extends StatelessWidget {
                     return Loading();
                   }
 
-                  if (state is LoginFailure) {
-                    return _buildErrorState(context);
-                  }
                   return _buildRegisterContent(context);
                 }
             )
@@ -99,25 +92,10 @@ class RegisterScreen extends StatelessWidget {
         ]);
   }
 
-  Widget _buildErrorState(BuildContext context) {
-    final authBloc = BlocProvider.of<AuthBloc>(context);
-
-    return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            // Text(state.message),
-            MaterialButton(
-              textColor: Theme
-                  .of(context)
-                  .primaryColor,
-              child: Text('Retry'),
-              onPressed: () {
-                authBloc.add(AppLoaded());
-              },
-            )
-          ],
-        ));
+  void _showError(BuildContext context, String error) {
+    Scaffold.of(context).showSnackBar(SnackBar(
+      content: Text(error),
+      backgroundColor: Theme.of(context).errorColor,
+    ));
   }
 }

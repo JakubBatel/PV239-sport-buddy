@@ -46,7 +46,6 @@ class DatabaseService {
   }
 
 
-
   Stream<QuerySnapshot> getPastParticipatedEvents(String uid) {
     final now = Timestamp.fromDate(DateTime.now());
     DocumentReference userRef = usersCollection.doc(uid);
@@ -54,6 +53,14 @@ class DatabaseService {
     return eventsCollection
         .where('participants', arrayContains: userRef)
         .where('time', isLessThan: now)
+        .orderBy('time', descending: true)
+        .snapshots();
+  }
+
+  Stream<QuerySnapshot> getUpcomingEvents(String uid) {
+    return eventsCollection
+        // .where('participants', arrayContains: '/users/$uid')
+        // .where('time', isGreaterThan: DateTime.now())
         .orderBy('time', descending: true)
         .snapshots();
   }
