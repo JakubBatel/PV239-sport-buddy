@@ -123,17 +123,20 @@ class EventDetail extends StatelessWidget {
 
   Widget _buildDeleteButton(BuildContext context, EventModel event) {
     return GradientButton(
-      onPressed: () {
-        showAlertDialog(context, () {
-          EventService.deleteEvent(event.id);
-        }, "Are sure you want to completely delete this event?");
-        // TODO: if yes, return to map screen and show some alert that it was deleted
-      },
+      onPressed: (){_deleteEvent(context, event.id);},
       child: Text(
         'Cancel event',
         style: TextStyle(color: Colors.white),
       ),
     );
+  }
+
+  void _deleteEvent(BuildContext context, eventId) {
+    showAlertDialog(context, () {
+      EventService.deleteEvent(eventId);
+      Navigator.pop(context);
+    }, "Are sure you want to completely delete this event?");
+
   }
 
   Widget _buildPendingButton() {
@@ -371,7 +374,7 @@ class EventDetail extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(right: 15.0),
             child: Text(
-              '${participants.length}/${model.maxParticipants}',
+              '${participants.length}/${model.unlimitedParticipants ?  '-' : model.maxParticipants}',
               style: Theme.of(context).textTheme.headline4,
             ),
           ),
