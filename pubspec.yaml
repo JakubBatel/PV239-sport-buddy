@@ -44,6 +44,7 @@ dependencies:
   intl: ^0.17.0
   enum_to_string: ^2.0.1
   equatable: ^1.0.2
+  flutter_facebook_auth: "^1.0.0"
 
 dev_dependencies:
   flutter_test:
@@ -64,6 +65,7 @@ flutter:
       - assets/images/
       - assets/logo.png
       - assets/ic_account.png
+      - assets/ic_password.png
       - assets/icons_png/
       - assets/icons/
   # To add assets to your application, add an assets section, like this:

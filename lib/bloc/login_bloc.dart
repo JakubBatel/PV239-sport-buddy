@@ -2,7 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sport_buddy/model/event/auth_event.dart';
 import 'package:sport_buddy/model/event/login_event.dart';
 import 'package:sport_buddy/model/state/login_state.dart';
-import 'package:sport_buddy/services/AuthService.dart';
+import 'package:sport_buddy/services/auth_service.dart';
 
 import 'auth_bloc.dart';
 
@@ -44,7 +44,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       yield LoginSuccess();
       yield LoginInitial();
     } else {
-      yield LoginFailure(error: 'Firebase login error');
+      yield LoginFailure(error: 'Firebase error');
     }
   }
 
@@ -58,7 +58,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       yield LoginSuccess();
       yield LoginInitial();
     } else {
-      yield LoginFailure(error: 'Firebase login error');
+      yield LoginFailure(error: 'Firebase error');
     }
   }
 
@@ -73,13 +73,21 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       yield LoginSuccess();
       yield LoginInitial();
     } else {
-      yield LoginFailure(error: 'Firebase login error');
+      yield LoginFailure(error: 'Firebase error');
     }
   }
 
   Stream<LoginState> _mapLoginWithFacebookToState(
       LoginWithFacebookButtonPressed event) async* {
     yield LoginLoading();
-    // TODO: IMPLEMENT!!!
+    final result = await AuthService.signInWithFacebook();
+    final user = await AuthService.getCurrentUser();
+    if (user != null) {
+      _authenticationBloc.add(UserLoggedIn(user: user));
+      yield LoginSuccess();
+      yield LoginInitial();
+    } else {
+      yield LoginFailure(error: 'Firebase error');
+    }
   }
 }

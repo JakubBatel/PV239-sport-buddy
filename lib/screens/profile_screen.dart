@@ -11,7 +11,7 @@ import 'package:sport_buddy/components/event_row.dart';
 import 'package:sport_buddy/model/event/auth_event.dart';
 import 'package:sport_buddy/model/state/auth_state.dart';
 import 'package:sport_buddy/model/user_model.dart';
-import 'package:sport_buddy/services/AuthService.dart';
+import 'package:sport_buddy/services/auth_service.dart';
 
 class ProfileScreen extends StatelessWidget {
   final bool _logged;

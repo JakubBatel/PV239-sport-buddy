@@ -3,7 +3,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:sport_buddy/enum/activity_enum.dart';
 import 'package:sport_buddy/model/location_model.dart';
 import 'package:sport_buddy/model/map_data_model.dart';
-import 'package:sport_buddy/services/EventService.dart';
+import 'package:sport_buddy/services/event_service.dart';
 
 class MapDataCubit extends Cubit<MapDataModel> {
   MapDataCubit()

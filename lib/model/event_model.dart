@@ -1,7 +1,7 @@
 import 'package:sport_buddy/enum/activity_enum.dart';
 import 'package:sport_buddy/model/location_model.dart';
 import 'package:sport_buddy/model/user_model.dart';
-import 'package:sport_buddy/services/EventService.dart';
+import 'package:sport_buddy/services/event_service.dart';
 
 class EventModel {
   final String id;

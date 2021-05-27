@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sport_buddy/model/user_model.dart';
-import 'package:sport_buddy/services/UserService.dart';
+import 'package:sport_buddy/services/user_service.dart';
 
 class UserCubit extends Cubit<UserModel> {
   UserCubit() : super(UserModel(id: '', name: '', profilePicture: ''));
@@ -45,23 +45,27 @@ class UserCubit extends Cubit<UserModel> {
   void saveUserToDB(UserModel user) {
     final document =
         FirebaseFirestore.instance.collection('users').doc(user.id);
-    document.get().then((dbUser) => {
-          if (dbUser.exists)
-            {emit(user)}
-          else
-            {
-              //create user
-              getPictureUrl().then((picture) {
-                UserModel userModel = UserModel(
-                  id: user.id,
-                  name: user.name,
-                  profilePicture: picture,
-                );
-                UserService.addUser(userModel);
-                emit(userModel);
-              })
-            }
-        });
+    document.get().then(
+          (dbUser) => {
+            if (dbUser.exists)
+              {emit(user)}
+            else
+              {
+                //create user
+                getPictureUrl().then(
+                  (picture) {
+                    UserModel userModel = UserModel(
+                      id: user.id,
+                      name: user.name,
+                      profilePicture: picture,
+                    );
+                    UserService.addUser(userModel);
+                    emit(userModel);
+                  },
+                )
+              }
+          },
+        );
   }
 
   Future<String> getPictureUrl() async {

@@ -10,39 +10,26 @@ import 'package:sport_buddy/model/event/login_event.dart';
 import 'package:sport_buddy/model/state/auth_state.dart';
 import 'package:sport_buddy/model/state/login_state.dart';
 import 'package:sport_buddy/screens/register_screen.dart';
-import 'package:sport_buddy/services/AuthService.dart';
+import 'package:sport_buddy/services/auth_service.dart';
 import 'package:sport_buddy/utils/alert_dialog.dart';
 
 class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: SafeArea(
-            minimum: const EdgeInsets.all(16),
-            child: SafeArea(
-                minimum: const EdgeInsets.all(16),
-                child: BlocListener<AuthBloc, AuthState>(
-                  listener: (context, state) {
-                    if (state is AuthError) {
-                      return showSnackbar(context, "Login error");
-                    }
-                  },
-                  child: BlocBuilder<AuthBloc, AuthState>(
-                    builder: (context, state) {
-                      if (state is NotAuthenticated) {
-                        return _buildLoginForm(context);
-                      }
-
-                      if (state is AuthLoading) {
-                        return Loading();
-                      }
-
-                      return Center();
-                    },
-                  ),
-                )
-            )
-        )
+      body: SafeArea(
+        minimum: const EdgeInsets.all(16),
+        child: SafeArea(
+          minimum: const EdgeInsets.all(16),
+          child: BlocListener<AuthBloc, AuthState>(
+              listener: (context, state) {
+                if (state is AuthError) {
+                  return showSnackbar(context, "Login error");
+                }
+              },
+              child: _buildLoginForm(context)),
+        ),
+      ),
     );
   }
 

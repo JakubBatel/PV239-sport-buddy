@@ -9,25 +9,21 @@ class LoginInWithEmailButtonPressed extends LoginEvent {
   final String email;
   final String password;
 
-  LoginInWithEmailButtonPressed({ this.email, this.password });
+  LoginInWithEmailButtonPressed({this.email, this.password});
 
   @override
   List<Object> get props => [email, password];
 }
 
-class LoginWithGoogleButtonPressed extends LoginEvent {
+class LoginWithGoogleButtonPressed extends LoginEvent {}
 
-}
-
-class LoginWithFacebookButtonPressed extends LoginEvent {
-
-}
+class LoginWithFacebookButtonPressed extends LoginEvent {}
 
 class RegisterWithEmailButtonPressed extends LoginEvent {
   final String email;
   final String password;
 
-  RegisterWithEmailButtonPressed({ this.email, this.password });
+  RegisterWithEmailButtonPressed({this.email, this.password});
 
   @override
   List<Object> get props => [email, password];

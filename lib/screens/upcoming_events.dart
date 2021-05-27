@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sport_buddy/bloc/event_cubit.dart';
 import 'package:sport_buddy/bloc/user_cubit.dart';
 import 'package:sport_buddy/components/event_row.dart';
+import 'package:sport_buddy/components/loading.dart';
 import 'package:sport_buddy/model/event_model.dart';
 import 'package:sport_buddy/screens/event_detail.dart';
 
@@ -27,7 +28,7 @@ class UpcomingEvents extends StatelessWidget {
           return Text(eventsSnapshot.error.toString());
         }
         if (!eventsSnapshot.hasData) {
-          return CircularProgressIndicator();
+          return Loading();
         }
 
         return ListView(

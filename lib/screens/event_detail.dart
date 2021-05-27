@@ -9,7 +9,7 @@ import 'package:sport_buddy/components/gradient_button.dart';
 import 'package:sport_buddy/components/profile_circle_avatar.dart';
 import 'package:sport_buddy/model/event_model.dart';
 import 'package:sport_buddy/model/user_model.dart';
-import 'package:sport_buddy/services/EventService.dart';
+import 'package:sport_buddy/services/event_service.dart';
 import 'package:sport_buddy/utils/alert_dialog.dart';
 import 'package:sport_buddy/views/create_event.dart';
 
