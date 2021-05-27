@@ -32,16 +32,17 @@ class UpcomingEvents extends StatelessWidget {
         }
 
         return ListView(
+          padding: EdgeInsets.all(15.0),
           children: eventsSnapshot.data
               .where((event) => DateTime.now().isBefore(event.time))
               .map<Widget>(
                 (event) => GestureDetector(
-              onTap: () {
-                _openEventDetail(context, event);
-              },
-              child: EventRow(event),
-            ),
-          )
+                  onTap: () {
+                    _openEventDetail(context, event);
+                  },
+                  child: EventRow(event),
+                ),
+              )
               .toList(),
         );
       },
