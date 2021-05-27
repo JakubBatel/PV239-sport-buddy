@@ -18,17 +18,17 @@ import 'package:sport_buddy/services/auth_service.dart';
 import 'event_detail.dart';
 
 class ProfileScreen extends StatelessWidget {
-  final bool _logged;
+  final UserModel model;
 
-  ProfileScreen(this._logged);
+  ProfileScreen({this.model});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: _logged ? Text('My profile') : Text('User profile'),
+          title: (model == null) ? Text('My profile') : Text('User profile'),
           actions: [
-            if (_logged)
+            if (model == null)
               IconButton(
                   icon: Icon(Icons.logout), onPressed: () => _signOut(context))
           ],
@@ -43,7 +43,7 @@ class ProfileScreen extends StatelessWidget {
             child: ListView(
               padding: EdgeInsets.all(20.0),
               children: [
-                _logged ? _buildUserInfo(context) : _buildProfileInfo(context),
+                (model == null) ? _buildUserInfo(context) : _buildProfileInfo(context),
                 SizedBox(height: 20),
                 _buildPastEvents(context),
               ],
@@ -53,25 +53,23 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildProfileInfo(BuildContext context) {
-    return BlocBuilder<UserCubit, UserModel>(builder: (context, user) {
-      return Column(
-        children: [
-          _buildPicture(user.profilePicture),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Center(
-                child: Padding(
-                  padding: EdgeInsets.only(left: 40),
-                  child: Text(user.name,
-                      style: Theme.of(context).textTheme.headline3),
-                ),
+    return Column(
+      children: [
+        _buildPicture(model.profilePicture),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Center(
+              child: Padding(
+                padding: EdgeInsets.only(left: 40),
+                child: Text(model.name,
+                    style: Theme.of(context).textTheme.headline3),
               ),
-            ],
-          )
-        ],
-      );
-    });
+            ),
+          ],
+        )
+      ],
+    );
   }
 
   Widget _buildUserInfo(BuildContext context) {
@@ -159,7 +157,7 @@ class ProfileScreen extends StatelessWidget {
             children: eventsSnapshot.data
                 .where((event) => DateTime.now().isAfter(event.time))
                 .map<Widget>(
-                  (event) =>  GestureDetector(
+                  (event) => GestureDetector(
                     onTap: () {
                       _openEventDetail(context, event);
                     },
@@ -185,7 +183,6 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-
   void _signOut(BuildContext context) {
     final authBloc = BlocProvider.of<AuthBloc>(context);
     AuthService.signOut();
@@ -205,4 +202,3 @@ class ProfileScreen extends StatelessWidget {
     uploadTask.whenComplete(() => userCubit.updatePicturePath(url));
   }
 }
-

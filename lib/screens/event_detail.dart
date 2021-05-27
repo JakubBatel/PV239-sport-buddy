@@ -400,7 +400,7 @@ class EventDetail extends StatelessWidget {
               }
               return GestureDetector(
                 onTap: () {
-                  _showProfile(context);
+                  _showProfile(context, participant);
                 },
                 child: Row(
                   children: [
@@ -443,14 +443,11 @@ class EventDetail extends StatelessWidget {
     );
   }
 
-  void _showProfile(BuildContext context) async {
-    final userCubit = BlocProvider.of<UserCubit>(context);
-
+  void _showProfile(BuildContext context, UserModel participant) async {
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => BlocProvider<UserCubit>.value(
-            value: userCubit, child: ProfileScreen(true)),
+        builder: (context) => ProfileScreen(model: participant),
       ),
     );
   }

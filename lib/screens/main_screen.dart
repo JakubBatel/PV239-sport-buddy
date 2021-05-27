@@ -55,7 +55,7 @@ class MainScreen extends StatelessWidget {
       context,
       MaterialPageRoute(
         builder: (context) => BlocProvider<UserCubit>.value(
-            value: userCubit, child: ProfileScreen(true)),
+            value: userCubit, child: ProfileScreen()),
       ),
     );
   }
