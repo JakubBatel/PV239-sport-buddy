@@ -20,18 +20,30 @@ class UpcomingEvents extends StatelessWidget {
   Widget _buildContent(BuildContext context) {
     final user = BlocProvider.of<UserCubit>(context).state;
 
-    return ListView(
-      children: user.events
-          .where((event) => DateTime.now().isBefore(event.time))
-          .map(
-            (event) => GestureDetector(
+    return FutureBuilder(
+      future: user.events,
+      builder: (context, eventsSnapshot) {
+        if (eventsSnapshot.hasError) {
+          return Text(eventsSnapshot.error.toString());
+        }
+        if (!eventsSnapshot.hasData) {
+          return CircularProgressIndicator();
+        }
+
+        return ListView(
+          children: eventsSnapshot.data
+              .where((event) => DateTime.now().isBefore(event.time))
+              .map<Widget>(
+                (event) => GestureDetector(
               onTap: () {
                 _openEventDetail(context, event);
               },
               child: EventRow(event),
             ),
           )
-          .toList(),
+              .toList(),
+        );
+      },
     );
   }
 

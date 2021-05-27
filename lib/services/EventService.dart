@@ -45,13 +45,12 @@ class EventService {
       owner: await _fetchUser(eventSnapshot.get('owner')),
       maxParticipants: eventSnapshot.get('maxParticipants'),
       unlimitedParticipants: eventSnapshot.get('maxParticipants') == 0,
-      participants: await _fetchUsers(eventSnapshot.get('participants')),
-      pendingParticipants:
-          await _fetchUsers(eventSnapshot.get('pendingParticipants')),
     );
   }
 
   static Future<void> addEvent(EventModel event) async {
+    final ownerRef = usersCollection.doc(event.owner.id);
+
     return eventsCollection.add(
       {
         'name': event.name,
@@ -60,15 +59,11 @@ class EventService {
         'latitude': event.location.latitude,
         'longitude': event.location.longitude,
         'time': event.time,
-        'owner': usersCollection.doc(event.owner.id),
+        'owner': ownerRef,
         'maxParticipants':
             event.unlimitedParticipants ? 0 : event.maxParticipants,
-        'participants': event.participants
-            .map((participant) => usersCollection.doc(participant.id))
-            .toList(),
-        'pendingParticipants': event.pendingParticipants
-            .map((participant) => usersCollection.doc(participant.id))
-            .toList(),
+        'participants': [ownerRef],
+        'pendingParticipants': [],
       },
     );
   }
@@ -106,6 +101,27 @@ class EventService {
 
   static Future<void> deleteEvent(String eventId) async {
     return eventsCollection.doc(eventId).delete();
+  }
+
+  static Future<List<UserModel>> fetchParticipants(String eventId) async {
+    final eventSnapshot = await eventsCollection.doc(eventId).get();
+    return _fetchUsers(eventSnapshot.get('participants'));
+  }
+
+  static Future<List<UserModel>> fetchPendingParticipants(String eventId) async {
+    final eventSnapshot = await eventsCollection.doc(eventId).get();
+    return _fetchUsers(eventSnapshot.get('pendingParticipants'));
+  }
+
+  static Future<List<EventModel>> fetchUsersEvents(String userId) async {
+    final userRef = usersCollection.doc(userId);
+    final querySnapshot = await eventsCollection.where('participants', arrayContains: userRef).get();
+
+    List<EventModel> events = [];
+    for (final documentSnapshot in querySnapshot.docs) {
+      events.add(await _mapToEventModel(documentSnapshot));
+    }
+    return events;
   }
 
   static Future<void> addUserToPendingParticipant(

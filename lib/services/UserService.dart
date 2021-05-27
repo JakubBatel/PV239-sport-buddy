@@ -30,7 +30,6 @@ class UserService {
       id: doc.id,
       name: doc.get('name'),
       profilePicture: doc.get('profilePicture'),
-      events: [], // TODO
     );
   }
 

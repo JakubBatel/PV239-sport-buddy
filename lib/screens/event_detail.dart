@@ -1,6 +1,7 @@
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:sport_buddy/bloc/event_cubit.dart';
 import 'package:sport_buddy/bloc/user_cubit.dart';
 import 'package:sport_buddy/components/activity_icon.dart';
@@ -9,7 +10,6 @@ import 'package:sport_buddy/components/profile_circle_avatar.dart';
 import 'package:sport_buddy/model/event_model.dart';
 import 'package:sport_buddy/model/user_model.dart';
 import 'package:sport_buddy/services/EventService.dart';
-import 'package:intl/intl.dart';
 import 'package:sport_buddy/utils/alert_dialog.dart';
 import 'package:sport_buddy/views/create_event.dart';
 
@@ -68,24 +68,44 @@ class EventDetail extends StatelessWidget {
       color: Colors.transparent,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 100),
-        child: _buildBottomButton(context, model),
+        child: FutureBuilder(
+          future: model.participants,
+          builder: (context, participantsSnapshot) => FutureBuilder(
+              future: model.pendingParticipants,
+              builder: (context, pendingParticipantsSnapshot) {
+                if (!participantsSnapshot.hasData ||
+                    !pendingParticipantsSnapshot.hasData) {
+                  return CircularProgressIndicator();
+                }
+                return _buildBottomButton(
+                    context,
+                    model,
+                    participantsSnapshot.data,
+                    pendingParticipantsSnapshot.data);
+              }),
+        ),
       ),
       elevation: 0,
     );
   }
 
-  Widget _buildBottomButton(BuildContext context, EventModel event) {
+  Widget _buildBottomButton(
+    BuildContext context,
+    EventModel event,
+    List<UserModel> participants,
+    List<UserModel> pendingParticipants,
+  ) {
     final currentUser = context.read<UserCubit>().state; // TODO
 
     if (event.owner == currentUser) {
       return _buildDeleteButton(context, event);
     }
 
-    if (event.pendingParticipants.contains(currentUser)) {
+    if (pendingParticipants.contains(currentUser)) {
       return _buildPendingButton();
     }
 
-    if (event.participants.contains(currentUser)) {
+    if (participants.contains(currentUser)) {
       return _buildLeaveButton(event, currentUser);
     }
 
@@ -268,41 +288,62 @@ class EventDetail extends StatelessWidget {
   Widget _buildEventParticipants(BuildContext context, EventModel model) {
     final currentUser = context.read<UserCubit>().state;
 
-    return Column(
-      children: [
-        _buildParticipantHeadline(context, model),
-        SizedBox(height: 20),
-        Column(
-          children: model.participants
-              .map(
-                (participant) => _buildParticipantRow(
-                  context,
-                  model,
-                  participant,
-                  currentUser,
-                ),
-              )
-              .toList(),
-        ),
-        if (currentUser == model.owner)
-          Column(
-            children: model.pendingParticipants
-                .map<Widget>(
-                  (participant) => _buildParticipantRow(
-                    context,
-                    model,
-                    participant,
-                    currentUser,
-                    pending: true,
-                  ),
-                )
-                .toList(),
-          ),
-      ],
+    return FutureBuilder(
+      future: model.participants,
+      builder: (context, participantsSnapshot) {
+        if (!participantsSnapshot.hasData) {
+          return CircularProgressIndicator();
+        }
+        return Column(
+          children: [
+            _buildParticipantHeadline(
+              context,
+              model,
+              participantsSnapshot.data,
+            ),
+            SizedBox(height: 20),
+            Column(
+              children: participantsSnapshot.data
+                  .map(
+                    (participant) => _buildParticipantRow(
+                      context,
+                      model,
+                      participant,
+                      currentUser,
+                    ),
+                  )
+                  .toList(),
+            ),
+            if (currentUser == model.owner)
+              FutureBuilder(
+                future: model.pendingParticipants,
+                builder: (context, pendingParticipantsSnapshot) {
+                  if (!pendingParticipantsSnapshot.hasData) {
+                    return CircularProgressIndicator();
+                  }
+                  return Column(
+                    children: pendingParticipantsSnapshot.data
+                        .map<Widget>(
+                          (participant) => _buildParticipantRow(
+                            context,
+                            model,
+                            participant,
+                            currentUser,
+                            pending: true,
+                          ),
+                        )
+                        .toList(),
+                  );
+                },
+              ),
+          ],
+        );
+      },
     );
   }
 
-  Widget _buildParticipantHeadline(BuildContext context, EventModel model) {
+  Widget _buildParticipantHeadline(
+      BuildContext context, EventModel model, List<UserModel> participants) {
     return Align(
       alignment: Alignment.centerLeft,
       child: Row(
@@ -315,7 +356,7 @@ class EventDetail extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(right: 15.0),
             child: Text(
-              '${model.participants.length}/${model.maxParticipants}',
+              '${participants.length}/${model.maxParticipants}',
               style: Theme.of(context).textTheme.headline4,
             ),
           ),
@@ -394,7 +435,7 @@ class EventDetail extends StatelessWidget {
     if (currentUser == event.owner && participant != currentUser) {
       return _buildConfirmationButton(() {
         showAlertDialog(context, () {
-          eventCubit.removeParticipant(participant);
+          EventService.removeUserFromParticipants(participant.id, event.id);
         }, "Are sure you want to delete this user from the event?");
       });
     }
@@ -431,18 +472,18 @@ class EventDetail extends StatelessWidget {
       return Row();
     }
 
-    final eventCubit = context.read<EventCubit>();
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         _buildConfirmationButton(() {
           showAlertDialog(context, () {
-            eventCubit.addParticipant(participant);
+            EventService.addUserToParticipants(participant.id, event.id);
           }, "Are sure you want to add this user to the event?");
         }, disallow: false),
         _buildConfirmationButton(() {
           showAlertDialog(context, () {
-            eventCubit.removePendingParticipant(participant);
+            EventService.removeUserFromPendingParticipants(
+                participant.id, event.id);
           }, "Are sure you want to delete this user request?");
         })
       ],
