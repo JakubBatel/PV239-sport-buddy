@@ -48,10 +48,10 @@ class EventService {
     );
   }
 
-  static Future<void> addEvent(EventModel event) async {
+  static Future<EventModel> addEvent(EventModel event) async {
     final ownerRef = usersCollection.doc(event.owner.id);
 
-    return eventsCollection.add(
+    final docRef = await eventsCollection.add(
       {
         'name': event.name,
         'description': event.description,
@@ -65,6 +65,17 @@ class EventService {
         'participants': [ownerRef],
         'pendingParticipants': [],
       },
+    );
+    return EventModel(
+      id: docRef.id,
+      name: event.name,
+      description: event.description,
+      activity: event.activity,
+      location: event.location,
+      time: event.time,
+      owner: event.owner,
+      maxParticipants: event.maxParticipants,
+      unlimitedParticipants: event.unlimitedParticipants,
     );
   }
 

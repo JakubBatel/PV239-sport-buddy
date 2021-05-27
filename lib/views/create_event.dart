@@ -74,8 +74,8 @@ class CreateEvent extends StatelessWidget {
         );
       } else {
         eventCubit.updateOwner(userCubit.state);
-        EventService.addEvent(eventCubit.state).then((eventId) {
-          //eventCubit.setId(eventId);
+        EventService.addEvent(eventCubit.state).then((event) {
+          eventCubit.setEvent(event);
           Navigator.pop(context);
           Navigator.push(
             context,
@@ -87,8 +87,6 @@ class CreateEvent extends StatelessWidget {
             ),
           );
         });
-
-
       }
     } else {
       showErrorDialog(context, "Name can't be empty!");

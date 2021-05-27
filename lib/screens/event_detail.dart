@@ -73,6 +73,12 @@ class EventDetail extends StatelessWidget {
           builder: (context, participantsSnapshot) => FutureBuilder(
               future: model.pendingParticipants,
               builder: (context, pendingParticipantsSnapshot) {
+                if (participantsSnapshot.hasError) {
+                  return Text(participantsSnapshot.error.toString());
+                }
+                if (pendingParticipantsSnapshot.hasError) {
+                  return Text(pendingParticipantsSnapshot.error.toString());
+                }
                 if (!participantsSnapshot.hasData ||
                     !pendingParticipantsSnapshot.hasData) {
                   return CircularProgressIndicator();
