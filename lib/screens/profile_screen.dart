@@ -8,7 +8,7 @@ import 'package:sport_buddy/bloc/event_cubit.dart';
 import 'package:sport_buddy/components/activity_icon.dart';
 import 'package:sport_buddy/bloc/auth_bloc.dart';
 import 'package:sport_buddy/model/event/auth_event.dart';
-import 'package:sport_buddy/model/event_model.dart';
+import 'package:sport_buddy/model/state/auth_state.dart';
 import 'package:sport_buddy/model/user_model.dart';
 import 'package:sport_buddy/services/AuthService.dart';
 import 'package:sport_buddy/services/DatabaseService.dart';
@@ -20,51 +20,60 @@ import 'event_detail.dart';
 
 class ProfileScreen extends StatelessWidget {
   final bool _logged;
-  final UserModel userModel;
 
-  ProfileScreen(this._logged, this.userModel);
+  ProfileScreen(this._logged);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: _logged ? Text('My profile') : Text('User profile'),
-        actions: [
-          if (_logged)
-          IconButton(
-              icon: Icon(Icons.logout), onPressed: () => _signOut(context))
-        ],
-      ),
-      body: Center(
-        child: ListView(
-          padding: EdgeInsets.all(20.0),
-          children: [
-            _logged ? _buildUserInfo(context) : _buildProfileInfo(context),
-            SizedBox(height: 20),
-            _buildPastEvents(context),
+        appBar: AppBar(
+          title: _logged ? Text('My profile') : Text('User profile'),
+          actions: [
+            if (_logged)
+              IconButton(
+                  icon: Icon(Icons.logout), onPressed: () => _signOut(context))
           ],
         ),
-      ),
-    );
+        body: BlocListener<AuthBloc, AuthState>(
+          listener: (context, state) {
+            if (state is NotAuthenticated) {
+              Navigator.pop(context);
+            }
+          },
+          child: Center(
+            child: ListView(
+              padding: EdgeInsets.all(20.0),
+              children: [
+                _logged ? _buildUserInfo(context) : _buildProfileInfo(context),
+                SizedBox(height: 20),
+                _buildPastEvents(context),
+              ],
+            ),
+          ),
+        ));
   }
 
   Widget _buildProfileInfo(BuildContext context) {
-    return Column(
-      children: [
-        _buildPicture(userModel.profilePicture),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Center(
-              child: Padding(
-                padding: EdgeInsets.only(left: 40),
-                child: Text(userModel.name,
-                    style: Theme.of(context).textTheme.headline3),
-              ),
-            ),
-          ],
-        )
-      ],
+    return BlocBuilder<UserCubit, UserModel> (
+        builder: (context, user) {
+          return Column(
+            children: [
+              _buildPicture(user.profilePicture),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Center(
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 40),
+                      child: Text(user.name,
+                          style: Theme.of(context).textTheme.headline3),
+                    ),
+                  ),
+                ],
+              )
+            ],
+          );
+        }
     );
   }
 
@@ -116,7 +125,7 @@ class ProfileScreen extends StatelessWidget {
   Widget _buildPicture(String profilePicture) {
     return Container(
       height: 250,
-      child: profilePicture == ''
+      child: profilePicture == '' || profilePicture == null
           ? CircleAvatar(
               radius: 150.0,
               child: Icon(Icons.perm_identity_outlined, size: 100),
@@ -131,8 +140,7 @@ class ProfileScreen extends StatelessWidget {
   Widget _buildPastEvents(BuildContext context) {
     final userCubit = context.read<UserCubit>();
 
-    final userId = _logged ? userCubit.state.userID : userModel.userID;
-
+    final userId = userCubit.state.userID;
 
     return Column(children: [
       Align(
@@ -175,7 +183,7 @@ class ProfileScreen extends StatelessWidget {
           MaterialPageRoute(
             builder: (context) => BlocProvider<EventCubit>(
               create: (context) =>
-                  EventCubit.fromEventModel(getModelFromMap(doc.data())),
+                  EventCubit.fromEventModel(getEventFromSnapshot(doc.data())),
               child: EventDetail(),
             ),
           ),
@@ -196,31 +204,11 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  EventModel getModelFromMap(Map<String, dynamic> eventSnapshot) {
-    return EventModel(
-      name: eventSnapshot['name'],
-      description: eventSnapshot['description'],
-      activity: getActivityFromString(eventSnapshot['activity']),
-      time: (eventSnapshot['time']).toDate(),
-      owner: (eventSnapshot['owner']).toString(),
-      maxParticipants: eventSnapshot['maxParticipants'],
-      unlimitedParticipants: eventSnapshot['maxParticipants'] < 1,
-      participants: (List.from(eventSnapshot['participants']))
-          .map((ref) => ref.id.toString())
-          .toList(),
-      pendingParticipants: (List.from(eventSnapshot['pendingParticipants']))
-          .map((ref) => ref.id.toString())
-          .toList(),
-    );
-  }
-
-    
   void _signOut(BuildContext context) {
     final authBloc = BlocProvider.of<AuthBloc>(context);
     final authService = AuthService();
     authService.signOut();
     authBloc.add(UserLoggedOut());
-    Navigator.pop(context);
   }
 
   Future<void> _changePhoto(BuildContext context) async {
@@ -232,6 +220,7 @@ class ProfileScreen extends StatelessWidget {
         .child("user/profile/${userCubit.getUserID()}");
 
     var uploadTask = storageRef.putFile(File(pickedFile.path));
-    uploadTask.whenComplete(() => userCubit.setPicture());
+    var url = await storageRef.getDownloadURL();
+    uploadTask.whenComplete(() => userCubit.updatePicturePath(url));
   }
 }

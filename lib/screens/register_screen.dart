@@ -10,6 +10,7 @@ import 'package:sport_buddy/model/event/login_event.dart';
 import 'package:sport_buddy/model/state/auth_state.dart';
 import 'package:sport_buddy/model/state/login_state.dart';
 import 'package:sport_buddy/services/AuthService.dart';
+import 'package:sport_buddy/utils/alert_dialog.dart';
 
 class RegisterScreen extends StatelessWidget {
   @override
@@ -45,7 +46,7 @@ class RegisterScreen extends StatelessWidget {
                 }
 
                 if (state is LoginFailure) {
-                  _showError(context, "error");
+                  showSnackbar(context, "error");
                 }
               },
             child: BlocBuilder<LoginBloc, LoginState>(
@@ -90,12 +91,5 @@ class RegisterScreen extends StatelessWidget {
               ),
               onPressed: () => {Navigator.pop(context)}),
         ]);
-  }
-
-  void _showError(BuildContext context, String error) {
-    Scaffold.of(context).showSnackBar(SnackBar(
-      content: Text(error),
-      backgroundColor: Theme.of(context).errorColor,
-    ));
   }
 }

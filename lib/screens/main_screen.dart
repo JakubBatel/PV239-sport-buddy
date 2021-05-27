@@ -45,6 +45,7 @@ class MainScreen extends StatelessWidget {
   }
 
   void _showProfile(BuildContext context) async {
+    final userCubit = BlocProvider.of<UserCubit>(context);
 
     // TODO: only for dev purpose MOCK for EventModel
     /*
@@ -61,19 +62,13 @@ class MainScreen extends StatelessWidget {
       pendingParticipants: ['BBC957HC3aa3T75r7RjGq8u15L03'],
     );*/
 
-    // TODO: this user setting must be somewhere else - probably before launching first screen
-    final userCubit = context.read<UserCubit>();
-    userCubit.setUser(FirebaseAuth.instance.currentUser.uid);
-    //userCubit.updateUserName(FirebaseAuth.instance.currentUser.displayName);
-    await userCubit.setPicture();
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ProfileScreen(true, userCubit.state),
-        /*builder: (context) => BlocProvider<EventCubit>(
-          create: (context) => EventCubit.fromEventModel(eventModel),
-          child: EventDetail(),
-        ),*/
+        builder: (context) => BlocProvider<UserCubit>.value(
+            value: userCubit,
+            child: ProfileScreen(true, userCubit.state)
+        ),
       ),
     );
   }
@@ -101,10 +96,6 @@ class MainScreen extends StatelessWidget {
         size: 40,
       ),
       onPressed: () {
-        // TODO: this user setting must be somewhere else - probably before launching first screen
-        final userCubit = context.read<UserCubit>();
-        //userCubit.updateUserName(FirebaseAuth.instance.currentUser.displayName);
-        userCubit.setUser(FirebaseAuth.instance.currentUser.uid);
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -174,15 +165,14 @@ class MainScreen extends StatelessWidget {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (ctx) =>
-                MultiBlocProvider(providers: [
-                BlocProvider.value(value: BlocProvider.of<UserCubit>(context)),
-                  BlocProvider(create: (context) => EventCubit()),
-                ],
-              child: UpcomingEvents(),
-            )
-        )
-    );
+            builder: (ctx) => MultiBlocProvider(
+                  providers: [
+                    BlocProvider.value(
+                        value: BlocProvider.of<UserCubit>(context)),
+                    BlocProvider(create: (context) => EventCubit()),
+                  ],
+                  child: UpcomingEvents(),
+                )));
   }
 
   Widget _buildFloatingActionButtons(BuildContext context) {

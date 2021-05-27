@@ -6,12 +6,12 @@ import 'package:sport_buddy/bloc/auth_bloc.dart';
 import 'package:sport_buddy/bloc/login_bloc.dart';
 import 'package:sport_buddy/components/email_password_form.dart';
 import 'package:sport_buddy/components/loading.dart';
-import 'package:sport_buddy/model/event/auth_event.dart';
 import 'package:sport_buddy/model/event/login_event.dart';
 import 'package:sport_buddy/model/state/auth_state.dart';
 import 'package:sport_buddy/model/state/login_state.dart';
 import 'package:sport_buddy/screens/register_screen.dart';
 import 'package:sport_buddy/services/AuthService.dart';
+import 'package:sport_buddy/utils/alert_dialog.dart';
 
 class LoginScreen extends StatelessWidget {
   @override
@@ -21,23 +21,29 @@ class LoginScreen extends StatelessWidget {
             minimum: const EdgeInsets.all(16),
             child: SafeArea(
                 minimum: const EdgeInsets.all(16),
-                child: BlocBuilder<AuthBloc, AuthState>(
-                  builder: (context, state) {
-                    if (state is NotAuthenticated) {
-                      return _buildLoginForm(context);
-                    }
-
+                child: BlocListener<AuthBloc, AuthState>(
+                  listener: (context, state) {
                     if (state is AuthError) {
-                      return _buildErrorState(context);
+                      return showSnackbar(context, "Login error");
                     }
-
-                    if (state is AuthLoading) {
-                      return Loading();
-                    }
-
-                    return Center();
                   },
-                ))));
+                  child: BlocBuilder<AuthBloc, AuthState>(
+                    builder: (context, state) {
+                      if (state is NotAuthenticated) {
+                        return _buildLoginForm(context);
+                      }
+
+                      if (state is AuthLoading) {
+                        return Loading();
+                      }
+
+                      return Center();
+                    },
+                  ),
+                )
+            )
+        )
+    );
   }
 
   Widget _buildLoginForm(BuildContext context) {
@@ -87,13 +93,13 @@ class LoginScreen extends StatelessWidget {
         Text("OR"),
         SizedBox(height: 8),
         EmailPasswordForm(
-          buttonText: "Login",
+            buttonText: "Login",
             clickAction: (email, password) {
-          final loginBloc = BlocProvider.of<LoginBloc>(context);
+              final loginBloc = BlocProvider.of<LoginBloc>(context);
 
-          loginBloc.add(
-              LoginInWithEmailButtonPressed(email: email, password: password));
-        }),
+              loginBloc.add(LoginInWithEmailButtonPressed(
+                  email: email, password: password));
+            }),
         SizedBox(height: 8.0),
         MaterialButton(
             child: Text(
@@ -112,25 +118,5 @@ class LoginScreen extends StatelessWidget {
         builder: (context) => RegisterScreen(),
       ),
     );
-  }
-
-  Widget _buildErrorState(BuildContext context) {
-    final authBloc = BlocProvider.of<AuthBloc>(context);
-
-    return Center(
-        child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        // Text(state.message),
-        MaterialButton(
-          textColor: Theme.of(context).primaryColor,
-          child: Text('Retry'),
-          onPressed: () {
-            authBloc.add(AppLoaded());
-          },
-        )
-      ],
-    ));
   }
 }
