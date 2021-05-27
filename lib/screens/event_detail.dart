@@ -6,6 +6,7 @@ import 'package:sport_buddy/bloc/event_cubit.dart';
 import 'package:sport_buddy/bloc/user_cubit.dart';
 import 'package:sport_buddy/components/activity_icon.dart';
 import 'package:sport_buddy/components/gradient_button.dart';
+import 'package:sport_buddy/components/gradient_label.dart';
 import 'package:sport_buddy/components/profile_circle_avatar.dart';
 import 'package:sport_buddy/model/event_model.dart';
 import 'package:sport_buddy/model/user_model.dart';
@@ -47,7 +48,7 @@ class EventDetail extends StatelessWidget {
       ),
       onPressed: () {
         _openEditEvent(context);
-      }, // TODO add action
+      },
     );
   }
 
@@ -460,8 +461,6 @@ class EventDetail extends StatelessWidget {
     UserModel participant,
     UserModel currentUser,
   ) {
-    final eventCubit = context.read<EventCubit>();
-
     if (currentUser == event.owner && participant != currentUser) {
       return _buildConfirmationButton(() {
         showAlertDialog(context, () {
@@ -471,9 +470,11 @@ class EventDetail extends StatelessWidget {
     }
     return Container(
       height: 25,
-      child: Text(
-        _getLabelText(event, participant, currentUser),
-        style: TextStyle(color: Colors.white),
+      child: GradientLabel(
+        child: Text(
+          _getLabelText(event, participant, currentUser),
+          style: TextStyle(color: Colors.white),
+        ),
       ),
     );
   }
