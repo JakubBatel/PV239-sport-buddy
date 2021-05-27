@@ -51,7 +51,7 @@ class MapDataCubit extends Cubit<MapDataModel> {
         center: state.center,
         events: events
             .where((event) => !state.filter[event.activity])
-            .where((event) => DateTime.now().isBefore(event.time))
+            .where((event) => !event.isPast)
             .toList(),
         filter: state.filter,
       ),

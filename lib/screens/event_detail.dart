@@ -22,9 +22,10 @@ class EventDetail extends StatelessWidget {
       builder: (context, model) => Scaffold(
         appBar: AppBar(
           title: Text('Event Detail'),
-          actions: [_editEvent(context)],
+          actions: (model.isPast) ? [] : [_editEvent(context)],
         ),
-        bottomNavigationBar: _buildBottomNavigationBar(context, model),
+        bottomNavigationBar:
+            (model.isPast) ? null : _buildBottomNavigationBar(context, model),
         body: Center(
           child: ListView(
             padding: EdgeInsets.all(20.0),
@@ -164,8 +165,8 @@ class EventDetail extends StatelessWidget {
     UserModel currentUser,
   ) {
     return GradientButton(
-      onPressed: () => EventService.addUserToPendingParticipant(
-          currentUser.id, event.id),
+      onPressed: () =>
+          EventService.addUserToPendingParticipant(currentUser.id, event.id),
       child: Text(
         'Join event',
         style: TextStyle(color: Colors.white),
@@ -424,12 +425,14 @@ class EventDetail extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               (pending)
-                  ? _buildAcceptDeclineButtons(
-                      context,
-                      event,
-                      participant,
-                      currentUser,
-                    )
+                  ? (event.isPast)
+                      ? Container()
+                      : _buildAcceptDeclineButtons(
+                          context,
+                          event,
+                          participant,
+                          currentUser,
+                        )
                   : _buildLabelOrRemoveButton(
                       context,
                       event,
@@ -458,7 +461,9 @@ class EventDetail extends StatelessWidget {
     UserModel participant,
     UserModel currentUser,
   ) {
-    if (currentUser == event.owner && participant != currentUser) {
+    if (!event.isPast &&
+        currentUser == event.owner &&
+        participant != currentUser) {
       return _buildConfirmationButton(() {
         showAlertDialog(context, () {
           EventService.removeUserFromParticipants(participant.id, event.id);

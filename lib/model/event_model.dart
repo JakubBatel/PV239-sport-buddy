@@ -21,6 +21,8 @@ class EventModel {
   Future<List<UserModel>> get pendingParticipants =>
       EventService.fetchPendingParticipants(id);
 
+  bool get isPast => DateTime.now().isAfter(time);
+
   @override
   bool operator ==(Object other) =>
       other is EventModel &&
