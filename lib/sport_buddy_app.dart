@@ -13,6 +13,7 @@ import 'package:sport_buddy/services/AuthService.dart';
 import 'package:sport_buddy/utils/alert_dialog.dart';
 
 import 'bloc/user_cubit.dart';
+import 'model/event/auth_event.dart';
 
 class SportBuddyApp extends StatelessWidget {
   @override
@@ -25,6 +26,9 @@ class SportBuddyApp extends StatelessWidget {
         BlocProvider(
           create: (context) => MapDataCubit(),
         ),
+        BlocProvider(
+            create: (context) => AuthBloc()..add(AppLoaded()),
+        )
       ],
       child: MaterialApp(
         title: 'PV239 Sport Buddy',

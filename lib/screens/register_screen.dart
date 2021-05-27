@@ -31,14 +31,13 @@ class RegisterScreen extends StatelessWidget {
   }
 
   Widget _buildRegisterForm(BuildContext context) {
-    final authService = AuthService();
     final authBloc = BlocProvider.of<AuthBloc>(context);
 
     return Container(
         alignment: Alignment.center,
         child: BlocProvider<LoginBloc>(
             create: (context) =>
-                LoginBloc(authBloc, authService),
+                LoginBloc(authBloc),
             child: BlocListener<LoginBloc, LoginState>(
               listener: (context, state) {
                 if (state is LoginSuccess) {

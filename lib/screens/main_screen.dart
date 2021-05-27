@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -9,17 +8,11 @@ import 'package:sport_buddy/bloc/map_data_cubit.dart';
 import 'package:sport_buddy/bloc/user_cubit.dart';
 import 'package:sport_buddy/components/event_marker_icon_button.dart';
 import 'package:sport_buddy/components/gradient_app_bar.dart';
-import 'package:sport_buddy/enum/activity_enum.dart';
-import 'package:sport_buddy/model/event_model.dart';
 import 'package:sport_buddy/screens/upcoming_events.dart';
-import 'package:sport_buddy/model/user_model.dart';
-import 'package:sport_buddy/services/DatabaseService.dart';
 import 'package:sport_buddy/views/create_event.dart';
 import 'package:sport_buddy/model/location_model.dart';
 import 'package:sport_buddy/model/map_data_model.dart';
 import 'package:sport_buddy/screens/profile_screen.dart';
-
-import 'event_detail.dart';
 
 class MainScreen extends StatelessWidget {
   final mapController = MapController();
@@ -67,7 +60,7 @@ class MainScreen extends StatelessWidget {
       MaterialPageRoute(
         builder: (context) => BlocProvider<UserCubit>.value(
             value: userCubit,
-            child: ProfileScreen(true, userCubit.state)
+            child: ProfileScreen(true)
         ),
       ),
     );
@@ -150,7 +143,7 @@ class MainScreen extends StatelessWidget {
             title: Text('My upcoming events'),
             onTap: () {
               _openUpcomingEvents(context);
-            }, // TODO add action
+            },
           ),
           ListTile(
             title: Text('About'),

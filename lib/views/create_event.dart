@@ -6,7 +6,7 @@ import 'package:sport_buddy/components/activity_dropdown.dart';
 import 'package:sport_buddy/components/gradient_button.dart';
 import 'package:sport_buddy/model/event_model.dart';
 import 'package:sport_buddy/screens/event_detail.dart';
-import 'package:sport_buddy/services/DatabaseService.dart';
+import 'package:sport_buddy/services/EventService.dart';
 import 'package:intl/intl.dart';
 import 'package:sport_buddy/utils/activity_utils.dart';
 import 'package:sport_buddy/utils/alert_dialog.dart';
@@ -57,11 +57,10 @@ class CreateEvent extends StatelessWidget {
   void saveEvent(BuildContext context) async {
     final userCubit = context.read<UserCubit>();
     final eventCubit = context.read<EventCubit>();
-    final databaseService = DatabaseService();
 
     if (_isFormFilledEnough(context)) {
       if (editMode) {
-        databaseService.updateEvent(eventCubit.state);
+        EventService.updateEvent(eventCubit.state);
         Navigator.pop(context);
         Navigator.pop(context);
         await Navigator.push(
@@ -74,9 +73,9 @@ class CreateEvent extends StatelessWidget {
           ),
         );
       } else {
-        eventCubit.addOwner(userCubit.state.userID);
-        databaseService.addEvent(eventCubit.state).then((eventId) {
-          eventCubit.setId(eventId);
+        eventCubit.updateOwner(userCubit.state);
+        EventService.addEvent(eventCubit.state).then((eventId) {
+          //eventCubit.setId(eventId);
           Navigator.pop(context);
           Navigator.push(
             context,
@@ -161,9 +160,8 @@ class CreateEvent extends StatelessWidget {
           ),
         ),
         Column(children: [
-          // TODO: add real location
-          Text('74.7539459735', style: Theme.of(context).textTheme.headline6),
-          Text('49.7539459735', style: Theme.of(context).textTheme.headline6),
+          Text(model.location.latitude.toString(), style: Theme.of(context).textTheme.headline6),
+          Text(model.location.longitude.toString(), style: Theme.of(context).textTheme.headline6),
         ])
       ],
     );

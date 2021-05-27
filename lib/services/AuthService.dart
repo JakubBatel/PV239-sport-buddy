@@ -1,10 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sport_buddy/model/user_model.dart';
-import 'package:sport_buddy/services/DatabaseService.dart';
+import 'package:sport_buddy/services/UserService.dart';
 
 class AuthService {
-  Future<UserCredential> signInWithGoogle() async {
+  static Future<UserCredential> signInWithGoogle() async {
     // Trigger the authentication flow
     final googleUser = await GoogleSignIn().signIn();
 
@@ -26,13 +26,11 @@ class AuthService {
     return await FirebaseAuth.instance.signInWithCredential(credential);
   }
 
-  Future<UserCredential> signInWithEmailAndPassword(
+  static Future<UserCredential> signInWithEmailAndPassword(
       String email, String password) async {
     try {
-      return await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: email,
-          password: password
-      );
+      return await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         print('No user found for that email.');
@@ -43,7 +41,8 @@ class AuthService {
     }
   }
 
-  Future<UserCredential> registerWithEmailAndPassword(String email, String password) async {
+  static Future<UserCredential> registerWithEmailAndPassword(
+      String email, String password) async {
     try {
       return await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: password);
@@ -60,21 +59,26 @@ class AuthService {
     }
   }
 
-  Future<UserModel> getCurrentUser() async {
+  static Future<UserModel> getCurrentUser() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       return null;
     }
 
-    var userModel = await DatabaseService().getUser(user.uid);
-    if (userModel.profilePicture == null) {
-      return UserModel(userModel.name, user.photoURL, userModel.userID);
+    final userModel = await UserService.fetchUser(user.uid);
+    if (userModel == null) {
+      return await UserService.addUser(
+        UserModel(
+          id: null,
+          name: FirebaseAuth.instance.currentUser.displayName,
+          profilePicture: user.photoURL,
+        ),
+      );
     }
-
     return userModel;
   }
 
-  Future<void> signOut() {
-    FirebaseAuth.instance.signOut();
+  static Future<void> signOut() {
+    return FirebaseAuth.instance.signOut();
   }
 }
