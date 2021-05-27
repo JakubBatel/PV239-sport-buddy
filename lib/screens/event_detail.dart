@@ -9,6 +9,7 @@ import 'package:sport_buddy/components/gradient_button.dart';
 import 'package:sport_buddy/components/profile_circle_avatar.dart';
 import 'package:sport_buddy/model/event_model.dart';
 import 'package:sport_buddy/model/user_model.dart';
+import 'package:sport_buddy/screens/profile_screen.dart';
 import 'package:sport_buddy/services/event_service.dart';
 import 'package:sport_buddy/utils/alert_dialog.dart';
 import 'package:sport_buddy/views/create_event.dart';
@@ -390,20 +391,25 @@ class EventDetail extends StatelessWidget {
                   !snapshot.hasData) {
                 return CircularProgressIndicator();
               }
-              return Row(
-                children: [
-                  ProfileCircleAvatar(
-                    pictureUrl: snapshot.data,
-                    radius: 25,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 10.0),
-                    child: Text(
-                      participant.name,
-                      style: Theme.of(context).textTheme.headline6,
+              return GestureDetector(
+                onTap: () {
+                  _showProfile(context);
+                },
+                child: Row(
+                  children: [
+                    ProfileCircleAvatar(
+                      pictureUrl: snapshot.data,
+                      radius: 25,
                     ),
-                  ),
-                ],
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10.0),
+                      child: Text(
+                        participant.name,
+                        style: Theme.of(context).textTheme.headline6,
+                      ),
+                    ),
+                  ],
+                ),
               );
             },
           ),
@@ -426,6 +432,18 @@ class EventDetail extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  void _showProfile(BuildContext context) async {
+    final userCubit = BlocProvider.of<UserCubit>(context);
+
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => BlocProvider<UserCubit>.value(
+            value: userCubit, child: ProfileScreen(true)),
       ),
     );
   }
