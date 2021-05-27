@@ -8,6 +8,7 @@ import 'package:sport_buddy/bloc/map_data_cubit.dart';
 import 'package:sport_buddy/bloc/user_cubit.dart';
 import 'package:sport_buddy/components/event_marker_icon_button.dart';
 import 'package:sport_buddy/components/gradient_app_bar.dart';
+import 'package:sport_buddy/screens/about_app.dart';
 import 'package:sport_buddy/screens/upcoming_events.dart';
 import 'package:sport_buddy/views/create_event.dart';
 import 'package:sport_buddy/model/location_model.dart';
@@ -59,9 +60,7 @@ class MainScreen extends StatelessWidget {
       context,
       MaterialPageRoute(
         builder: (context) => BlocProvider<UserCubit>.value(
-            value: userCubit,
-            child: ProfileScreen(true)
-        ),
+            value: userCubit, child: ProfileScreen(true)),
       ),
     );
   }
@@ -147,7 +146,9 @@ class MainScreen extends StatelessWidget {
           ),
           ListTile(
             title: Text('About'),
-            onTap: () {}, // TODO add action
+            onTap: () {
+              _openAboutApp(context);
+            },
           ),
         ],
       ),
@@ -156,16 +157,24 @@ class MainScreen extends StatelessWidget {
 
   void _openUpcomingEvents(BuildContext context) {
     Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (ctx) => MultiBlocProvider(
-                  providers: [
-                    BlocProvider.value(
-                        value: BlocProvider.of<UserCubit>(context)),
-                    BlocProvider(create: (context) => EventCubit()),
-                  ],
-                  child: UpcomingEvents(),
-                )));
+      context,
+      MaterialPageRoute(
+        builder: (ctx) => MultiBlocProvider(
+          providers: [
+            BlocProvider.value(value: BlocProvider.of<UserCubit>(context)),
+            BlocProvider(create: (context) => EventCubit()),
+          ],
+          child: UpcomingEvents(),
+        ),
+      ),
+    );
+  }
+
+  void _openAboutApp(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (ctx) => AboutApp()),
+    );
   }
 
   Widget _buildFloatingActionButtons(BuildContext context) {

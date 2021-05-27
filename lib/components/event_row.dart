@@ -20,7 +20,14 @@ class EventRow extends StatelessWidget {
               size: 50,
             ),
           ),
-          Text(event.name)
+          Text(event.name),
+          Column(
+            children: [
+              Text("Participants: " + event.participants.length.toString() + "/" + event.maxParticipants.toString()),
+              SizedBox(height: 8),
+              Text("Date:" + event.time.toString())
+            ],
+          )
         ],
       ),
     );

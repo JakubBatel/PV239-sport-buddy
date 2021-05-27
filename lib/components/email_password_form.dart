@@ -11,7 +11,9 @@ class EmailPasswordForm extends StatefulWidget {
   Function clickAction;
   String buttonText;
 
-  EmailPasswordForm({Key key, @required this.buttonText, @required this.clickAction}) : super(key: key);
+  EmailPasswordForm(
+      {Key key, @required this.buttonText, @required this.clickAction})
+      : super(key: key);
 
   @override
   EmailPasswordFormState createState() => EmailPasswordFormState();
@@ -20,6 +22,7 @@ class EmailPasswordForm extends StatefulWidget {
 class EmailPasswordFormState extends State<EmailPasswordForm> {
   final _passwordController = TextEditingController();
   final _emailController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +37,10 @@ class EmailPasswordFormState extends State<EmailPasswordForm> {
           if (state is LoginLoading) {
             return Loading();
           }
-          return Form(child: _buildLoginForm(context, state));
+          return Form(
+            child: _buildLoginForm(context, state),
+            key: _formKey,
+          );
         },
       ),
     );
@@ -52,27 +58,36 @@ class EmailPasswordFormState extends State<EmailPasswordForm> {
         const SizedBox(
           height: 16,
         ),
-        GradientButton(
-          onPressed: () {
-            state is LoginLoading
-                ? {}
-                : widget.clickAction(
-                _emailController.text, _passwordController.text);
-          },
-          child: Text(
-            widget.buttonText,
-            style: TextStyle(color: Colors.white),
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: 50, vertical: 0),
+          child: GradientButton(
+            onPressed: () {
+              if (_formKey.currentState.validate()) {
+                state is LoginLoading
+                    ? {}
+                    : widget.clickAction(
+                        _emailController.text,
+                        _passwordController.text,
+                      );
+              }
+            },
+            child: Text(
+              widget.buttonText,
+              style: TextStyle(color: Colors.white),
+            ),
           ),
-        )
+        ),
       ],
     );
   }
 
   void _showError(String error) {
-    Scaffold.of(context).showSnackBar(SnackBar(
-      content: Text(error),
-      backgroundColor: Theme.of(context).errorColor,
-    ));
+    Scaffold.of(context).showSnackBar(
+      SnackBar(
+        content: Text(error),
+        backgroundColor: Theme.of(context).errorColor,
+      ),
+    );
   }
 
   Widget _buildEmailInput(BuildContext context) {
@@ -86,26 +101,29 @@ class EmailPasswordFormState extends State<EmailPasswordForm> {
             borderRadius: BorderRadius.all(Radius.circular(8.0)),
           ),
           child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 4, vertical: 0),
-              child: Row(
-                children: [
-                  Image(image: AssetImage('assets/ic_account.png')),
-                  Expanded(
-                    child: TextFormField(
-                        cursorHeight: 16.0,
-                        decoration: InputDecoration(
-                          fillColor: Colors.white,
-                          labelText: 'Email address',
-                          filled: true,
-                          isDense: true,
-                        ),
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        autocorrect: false,
-                        validator: _validateEmail),
+            padding: EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+            child: Row(
+              children: [
+                Image(
+                  image: AssetImage('assets/ic_account.png'),
+                  width: 32,
+                ),
+                SizedBox(width: 8),
+                Expanded(
+                  child: TextFormField(
+                    decoration: InputDecoration(
+                      fillColor: Colors.white,
+                      labelText: 'Email address',
+                    ),
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    autocorrect: false,
+                    validator: _validateEmail,
                   ),
-                ],
-              )),
+                ),
+              ],
+            ),
+          ),
         ),
       ],
     );
@@ -122,43 +140,44 @@ class EmailPasswordFormState extends State<EmailPasswordForm> {
             borderRadius: BorderRadius.all(Radius.circular(8.0)),
           ),
           child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 4, vertical: 0),
-              child: Row(
-                children: [
-                  Image(image: AssetImage('assets/ic_account.png')),
-                  Expanded(
-                    child: TextFormField(
-                        cursorHeight: 16.0,
-                        decoration: InputDecoration(
-                            fillColor: Colors.white,
-                            labelText: 'Password',
-                            filled: true,
-                            isDense: true
-                        ),
-                        controller: _passwordController,
-                        keyboardType: TextInputType.visiblePassword,
-                        autocorrect: false,
-                        obscureText: true,
-                        validator: _validatePasword),
+            padding: EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+            child: Row(
+              children: [
+                Image(
+                  image: AssetImage('assets/ic_password.png'),
+                  width: 32,
+                ),
+                SizedBox(width: 8),
+                Expanded(
+                  child: TextFormField(
+                    decoration: InputDecoration(
+                      fillColor: Colors.white,
+                      labelText: 'Password',
+                    ),
+                    controller: _passwordController,
+                    keyboardType: TextInputType.visiblePassword,
+                    autocorrect: false,
+                    obscureText: true,
+                    validator: _validatePasword,
                   ),
-                ],
-              )),
+                ),
+              ],
+            ),
+          ),
         ),
       ],
     );
   }
 
   String _validateEmail(String email) {
-    //TODO: email regex
-
-    if (email == null) {
+    if (email == "") {
       return 'Email is required.';
     }
     return null;
   }
 
   String _validatePasword(String password) {
-    if (password == null) {
+    if (password == "") {
       return 'Password is required.';
     }
     return null;

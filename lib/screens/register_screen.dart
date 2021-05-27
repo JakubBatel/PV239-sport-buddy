@@ -16,79 +16,92 @@ class RegisterScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: SafeArea(
-            minimum: const EdgeInsets.all(16),
-            child: SafeArea(
-                minimum: const EdgeInsets.all(16),
-                child: Center(child: BlocBuilder<AuthBloc, AuthState>(
-                  builder: (context, state) {
-                    if (state is AuthLoading) {
-                      return Loading();
-                    }
-                    return _buildRegisterForm(context);
-                  },
-                )))));
+      body: SafeArea(
+        minimum: const EdgeInsets.all(16),
+        child: SafeArea(
+          minimum: const EdgeInsets.all(16),
+          child: Center(
+            child: BlocBuilder<AuthBloc, AuthState>(
+              builder: (context, state) {
+                if (state is AuthLoading) {
+                  return Loading();
+                }
+                return _buildRegisterForm(context);
+              },
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildRegisterForm(BuildContext context) {
     final authBloc = BlocProvider.of<AuthBloc>(context);
 
     return Container(
-        alignment: Alignment.center,
-        child: BlocProvider<LoginBloc>(
-            create: (context) =>
-                LoginBloc(authBloc),
-            child: BlocListener<LoginBloc, LoginState>(
-              listener: (context, state) {
-                if (state is LoginSuccess) {
-                   Navigator.pop(context);
-                }
+      alignment: Alignment.center,
+      child: BlocProvider<LoginBloc>(
+        create: (context) => LoginBloc(authBloc),
+        child: BlocListener<LoginBloc, LoginState>(
+          listener: (context, state) {
+            if (state is LoginSuccess) {
+              Navigator.pop(context);
+            }
 
-                if (state is LoginFailure) {
-                  showSnackbar(context, "error");
-                }
-              },
-            child: BlocBuilder<LoginBloc, LoginState>(
-                builder: (context, state) {
-                  if (state is LoginLoading) {
-                    return Loading();
-                  }
+            if (state is LoginFailure) {
+              showSnackbar(context, state.error);
+            }
+          },
+          child: BlocBuilder<LoginBloc, LoginState>(
+            builder: (context, state) {
+              if (state is LoginLoading) {
+                return Loading();
+              }
 
-                  return _buildRegisterContent(context);
-                }
-            )
-        ))
+              return _buildRegisterContent(context);
+            },
+          ),
+        ),
+      ),
     );
   }
 
   Widget _buildRegisterContent(BuildContext context) {
     return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text("Register",
-              style: TextStyle(
-                  color: Colors.red,
-                  fontSize: 24.0,
-                  fontWeight: FontWeight.bold)),
-          SizedBox(height: 32.0),
-          EmailPasswordForm(
-              buttonText: "Register",
-              clickAction: (email, password) {
-                final loginBloc = BlocProvider.of<LoginBloc>(context);
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          "Register",
+          style: TextStyle(
+            color: Colors.red,
+            fontSize: 24.0,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        SizedBox(height: 32.0),
+        EmailPasswordForm(
+          buttonText: "Register",
+          clickAction: (email, password) {
+            final loginBloc = BlocProvider.of<LoginBloc>(context);
 
-                loginBloc.add(
-                    RegisterWithEmailButtonPressed(
-                        email: email, password: password)
-                );
-              }),
-          SizedBox(height: 8.0),
-          MaterialButton(
-              child: Text(
-                "Already have a account",
-                style: TextStyle(color: Colors.red),
+            loginBloc.add(
+              RegisterWithEmailButtonPressed(
+                email: email,
+                password: password,
               ),
-              onPressed: () => {Navigator.pop(context)}),
-        ]);
+            );
+          },
+        ),
+        SizedBox(height: 8.0),
+        MaterialButton(
+          child: Text(
+            "Already have a account",
+            style: TextStyle(color: Colors.red),
+          ),
+          onPressed: () => {Navigator.pop(context)},
+        ),
+      ],
+    );
   }
 }

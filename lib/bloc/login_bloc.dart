@@ -44,7 +44,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       yield LoginSuccess();
       yield LoginInitial();
     } else {
-      yield LoginFailure(error: 'Firebase login error');
+      yield LoginFailure(error: 'Firebase error');
     }
   }
 
@@ -58,7 +58,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       yield LoginSuccess();
       yield LoginInitial();
     } else {
-      yield LoginFailure(error: 'Firebase login error');
+      yield LoginFailure(error: 'Firebase error');
     }
   }
 
@@ -73,13 +73,21 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       yield LoginSuccess();
       yield LoginInitial();
     } else {
-      yield LoginFailure(error: 'Firebase login error');
+      yield LoginFailure(error: 'Firebase error');
     }
   }
 
   Stream<LoginState> _mapLoginWithFacebookToState(
       LoginWithFacebookButtonPressed event) async* {
     yield LoginLoading();
-    // TODO: IMPLEMENT!!!
+    final result = await AuthService.signInWithFacebook();
+    final user = await AuthService.getCurrentUser();
+    if (user != null) {
+      _authenticationBloc.add(UserLoggedIn(user: user));
+      yield LoginSuccess();
+      yield LoginInitial();
+    } else {
+      yield LoginFailure(error: 'Firebase error');
+    }
   }
 }

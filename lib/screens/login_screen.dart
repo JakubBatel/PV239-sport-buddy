@@ -17,32 +17,19 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: SafeArea(
-            minimum: const EdgeInsets.all(16),
-            child: SafeArea(
-                minimum: const EdgeInsets.all(16),
-                child: BlocListener<AuthBloc, AuthState>(
-                  listener: (context, state) {
-                    if (state is AuthError) {
-                      return showSnackbar(context, "Login error");
-                    }
-                  },
-                  child: BlocBuilder<AuthBloc, AuthState>(
-                    builder: (context, state) {
-                      if (state is NotAuthenticated) {
-                        return _buildLoginForm(context);
-                      }
-
-                      if (state is AuthLoading) {
-                        return Loading();
-                      }
-
-                      return Center();
-                    },
-                  ),
-                )
-            )
-        )
+      body: SafeArea(
+        minimum: const EdgeInsets.all(16),
+        child: SafeArea(
+          minimum: const EdgeInsets.all(16),
+          child: BlocListener<AuthBloc, AuthState>(
+              listener: (context, state) {
+                if (state is AuthError) {
+                  return showSnackbar(context, "Login error");
+                }
+              },
+              child: _buildLoginForm(context)),
+        ),
+      ),
     );
   }
 

@@ -27,7 +27,7 @@ class SportBuddyApp extends StatelessWidget {
           create: (context) => MapDataCubit(),
         ),
         BlocProvider(
-            create: (context) => AuthBloc()..add(AppLoaded()),
+          create: (context) => AuthBloc()..add(AppLoaded()),
         )
       ],
       child: MaterialApp(
@@ -55,20 +55,22 @@ class SportBuddyApp extends StatelessWidget {
           showSnackbar(context, "Auth error");
         }
       },
-      child: BlocBuilder<AuthBloc, AuthState>(builder: (context, state) {
-        if (state is AuthLoading) {
-          return Loading();
-        }
+      child: BlocBuilder<AuthBloc, AuthState>(
+        builder: (context, state) {
+          if (state is AuthLoading) {
+            return Loading();
+          }
 
-        if (state is Authenticated) {
-          final userBloc = BlocProvider.of<UserCubit>(context);
-          userBloc.saveUserToDB(state.user);
+          if (state is Authenticated) {
+            final userBloc = BlocProvider.of<UserCubit>(context);
+            userBloc.saveUserToDB(state.user);
 
-          return MainScreen();
-        }
+            return MainScreen();
+          }
 
-        return LoginScreen();
-      }),
+          return LoginScreen();
+        },
+      ),
     );
   }
 }
