@@ -17,6 +17,7 @@ String getActivityIconPath(Activity activity) {
 
 EventModel getEventFromDocument(DocumentSnapshot doc) {
   return EventModel(
+    id: doc.id,
     name: doc.data()['name'],
     description: doc.data()['description'],
     activity: getActivityFromString(doc.data()['activity']),
@@ -24,9 +25,10 @@ EventModel getEventFromDocument(DocumentSnapshot doc) {
     owner: (doc.data()['owner']).toString(),
     maxParticipants: doc.data()['maxParticipants'],
     unlimitedParticipants: doc.data()['maxParticipants'] < 1,
-    participants: (List.from(doc.data()['participants']))
-        .map((e) => e.toString())
-        .toList(),
+      participants: (List.from(doc.data()['participants']))
+          .map((ref) => ref.id.toString())
+          .toList(),
+      //participants: [],
     pendingParticipants: []
   );
 }

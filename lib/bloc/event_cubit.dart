@@ -256,5 +256,23 @@ class EventCubit extends Cubit<EventModel> {
     emit(newEventModel);
   }
 
+  setDefaultSliderValueIfUnlimitedParticipants() {
+    if (state.unlimitedParticipants == true) {
+      final newEventModel = EventModel(
+        id: state.id,
+        name: state.name,
+        description: state.description,
+        activity: state.activity,
+        time: state.time,
+        owner: state.owner,
+        maxParticipants: 8,
+        unlimitedParticipants: state.unlimitedParticipants,
+        participants: state.participants,
+        pendingParticipants: state.pendingParticipants,
+      );
+      emit(newEventModel);
+    }
+  }
+
 
 }

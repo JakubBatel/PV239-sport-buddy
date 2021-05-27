@@ -175,7 +175,7 @@ class ProfileScreen extends StatelessWidget {
           MaterialPageRoute(
             builder: (context) => BlocProvider<EventCubit>(
               create: (context) =>
-                  EventCubit.fromEventModel(getModelFromMap(doc.data())),
+                  EventCubit.fromEventModel(getEventFromDocument(doc)),
               child: EventDetail(),
             ),
           ),
@@ -193,24 +193,6 @@ class ProfileScreen extends StatelessWidget {
           Text(doc.data()['name'])
         ],
       ),
-    );
-  }
-
-  EventModel getModelFromMap(Map<String, dynamic> eventSnapshot) {
-    return EventModel(
-      name: eventSnapshot['name'],
-      description: eventSnapshot['description'],
-      activity: getActivityFromString(eventSnapshot['activity']),
-      time: (eventSnapshot['time']).toDate(),
-      owner: (eventSnapshot['owner']).toString(),
-      maxParticipants: eventSnapshot['maxParticipants'],
-      unlimitedParticipants: eventSnapshot['maxParticipants'] < 1,
-      participants: (List.from(eventSnapshot['participants']))
-          .map((ref) => ref.id.toString())
-          .toList(),
-      pendingParticipants: (List.from(eventSnapshot['pendingParticipants']))
-          .map((ref) => ref.id.toString())
-          .toList(),
     );
   }
 

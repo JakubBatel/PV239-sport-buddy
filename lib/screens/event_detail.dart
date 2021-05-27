@@ -21,7 +21,7 @@ class EventDetail extends StatelessWidget {
       builder: (context, model) => Scaffold(
         appBar: AppBar(
           title: Text('Event Detail'),
-          actions: [_editEvent(context)],
+          actions: _isPastEvent(context) ? [] : [_editEvent(context)],
         ),
         bottomNavigationBar: _buildBottomButton(context, model),
         body: Center(
@@ -53,6 +53,7 @@ class EventDetail extends StatelessWidget {
 
   void _openEditEvent(BuildContext context) async {
     final eventCubit = context.read<EventCubit>();
+    eventCubit.setDefaultSliderValueIfUnlimitedParticipants();
     await Navigator.push(
       context,
       MaterialPageRoute(
