@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sport_buddy/bloc/event_cubit.dart';
 import 'package:sport_buddy/components/activity_icon.dart';
 import 'package:sport_buddy/model/event_model.dart';
 import 'package:sport_buddy/screens/event_detail.dart';
@@ -15,12 +17,12 @@ class EventMarkerIconButton extends StatelessWidget {
         activity: event.activity,
       ),
       onPressed: () {
+        final eventBloc = BlocProvider.of<EventCubit>(context);
+        eventBloc.setEvent(event);
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => EventDetail(
-              //event: event,
-            ),
+            builder: (context) => EventDetail(),
           ),
         );
       },

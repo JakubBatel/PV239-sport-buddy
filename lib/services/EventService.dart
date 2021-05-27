@@ -88,15 +88,17 @@ class EventService {
     final querySnapshot = await eventsCollection
         .where('latitude', isGreaterThanOrEqualTo: latitudeMin)
         .where('latitude', isLessThanOrEqualTo: latitudeMax)
-        .where('longitude', isGreaterThanOrEqualTo: longitudeMin)
-        .where('longitude', isLessThanOrEqualTo: longitudeMax)
         .get();
 
     List<EventModel> events = [];
     for (final eventSnapshot in querySnapshot.docs) {
       events.add(await _mapToEventModel(eventSnapshot));
     }
-    return events;
+    return events
+        .where((event) =>
+            event.location.longitude >= longitudeMin &&
+            event.location.longitude <= longitudeMax)
+        .toList();
   }
 
   static Future<void> deleteEvent(String eventId) async {
@@ -105,17 +107,22 @@ class EventService {
 
   static Future<List<UserModel>> fetchParticipants(String eventId) async {
     final eventSnapshot = await eventsCollection.doc(eventId).get();
-    return _fetchUsers(eventSnapshot.get('participants'));
+    final participantsRefs = eventSnapshot.get('participants').cast<DocumentReference>();
+    return _fetchUsers(participantsRefs);
   }
 
-  static Future<List<UserModel>> fetchPendingParticipants(String eventId) async {
+  static Future<List<UserModel>> fetchPendingParticipants(
+      String eventId) async {
     final eventSnapshot = await eventsCollection.doc(eventId).get();
-    return _fetchUsers(eventSnapshot.get('pendingParticipants'));
+    final participantsRefs = eventSnapshot.get('pendingParticipants').cast<DocumentReference>();
+    return _fetchUsers(participantsRefs);
   }
 
   static Future<List<EventModel>> fetchUsersEvents(String userId) async {
     final userRef = usersCollection.doc(userId);
-    final querySnapshot = await eventsCollection.where('participants', arrayContains: userRef).get();
+    final querySnapshot = await eventsCollection
+        .where('participants', arrayContains: userRef)
+        .get();
 
     List<EventModel> events = [];
     for (final documentSnapshot in querySnapshot.docs) {
@@ -171,5 +178,4 @@ class EventService {
     removeUserFromPendingParticipants(userId, eventId);
     addUserToParticipants(userId, eventId);
   }
-
 }

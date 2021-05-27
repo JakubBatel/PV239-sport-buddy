@@ -40,21 +40,6 @@ class MainScreen extends StatelessWidget {
   void _showProfile(BuildContext context) async {
     final userCubit = BlocProvider.of<UserCubit>(context);
 
-    // TODO: only for dev purpose MOCK for EventModel
-    /*
-    final EventModel eventModel = EventModel(
-      id: 'ikIrM9ofgaVw0rGdi7aC',
-      name: 'From android',
-      description: 'popisek',
-      activity: Activity.run,
-      time: DateTime.now().add(const Duration(days: 7)),
-      owner: 'UwK3D1XxoAa1ILmP9FnLnx9bBgq2',
-      maxParticipants: 8,
-      unlimitedParticipants: false,
-      participants: ['UwK3D1XxoAa1ILmP9FnLnx9bBgq2','9gcvbpwutHWIP8UEqfgavF136Zr2'],
-      pendingParticipants: ['BBC957HC3aa3T75r7RjGq8u15L03'],
-    );*/
-
     await Navigator.push(
       context,
       MaterialPageRoute(

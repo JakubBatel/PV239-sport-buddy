@@ -291,6 +291,9 @@ class EventDetail extends StatelessWidget {
     return FutureBuilder(
       future: model.participants,
       builder: (context, participantsSnapshot) {
+        if (participantsSnapshot.hasError) {
+          return Text(participantsSnapshot.error.toString());
+        }
         if (!participantsSnapshot.hasData) {
           return CircularProgressIndicator();
         }
@@ -304,7 +307,7 @@ class EventDetail extends StatelessWidget {
             SizedBox(height: 20),
             Column(
               children: participantsSnapshot.data
-                  .map(
+                  .map<Widget>(
                     (participant) => _buildParticipantRow(
                       context,
                       model,
@@ -318,6 +321,9 @@ class EventDetail extends StatelessWidget {
               FutureBuilder(
                 future: model.pendingParticipants,
                 builder: (context, pendingParticipantsSnapshot) {
+                  if (pendingParticipantsSnapshot.hasError) {
+                    return Text(pendingParticipantsSnapshot.error.toString());
+                  }
                   if (!pendingParticipantsSnapshot.hasData) {
                     return CircularProgressIndicator();
                   }

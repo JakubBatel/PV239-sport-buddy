@@ -27,6 +27,10 @@ class EventCubit extends Cubit<EventModel> {
 
   EventCubit.fromEventModel(EventModel model) : super(model);
 
+  void setEvent(EventModel event) {
+    emit(event);
+  }
+
   void updateName(String name) {
     emit(
       EventModel(
