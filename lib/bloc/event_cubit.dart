@@ -1,5 +1,6 @@
 import 'package:flutter/src/material/time.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:sport_buddy/enum/activity_enum.dart';
 import 'package:sport_buddy/model/event_model.dart';
 import 'package:sport_buddy/model/location_model.dart';
@@ -29,6 +30,32 @@ class EventCubit extends Cubit<EventModel> {
 
   void setEvent(EventModel event) {
     emit(event);
+  }
+
+  Future<void> setToCurrentLocation() async {
+    final currentPosition = await Geolocator.getCurrentPosition();
+    updateLocation(
+      LocationModel(
+        latitude: currentPosition.latitude,
+        longitude: currentPosition.longitude,
+      ),
+    );
+  }
+
+  void updateLocation(LocationModel location) {
+    emit(
+      EventModel(
+        id: state.id,
+        name: state.name,
+        description: state.description,
+        activity: state.activity,
+        time: state.time,
+        location: location,
+        owner: state.owner,
+        maxParticipants: state.maxParticipants,
+        unlimitedParticipants: state.unlimitedParticipants,
+      ),
+    );
   }
 
   void updateName(String name) {
@@ -155,8 +182,7 @@ class EventCubit extends Cubit<EventModel> {
 
   Future<void> updateOwner(UserModel owner) async {
     if (state.owner != null) {
-      EventService.removeUserFromParticipants(
-          state.owner.id, state.id);
+      EventService.removeUserFromParticipants(state.owner.id, state.id);
     }
     EventService.addUserToParticipants(owner.id, state.id);
     emit(

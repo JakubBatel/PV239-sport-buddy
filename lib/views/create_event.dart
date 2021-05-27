@@ -18,6 +18,11 @@ class CreateEvent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final eventCubit = context.read<EventCubit>();
+    if (!editMode) {
+      eventCubit.setToCurrentLocation();
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: editMode ? Text('Edit Event') : Text('New Event'),
