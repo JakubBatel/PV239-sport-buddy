@@ -13,18 +13,28 @@ import 'package:sport_buddy/screens/upcoming_events.dart';
 import 'package:sport_buddy/views/create_event.dart';
 import 'package:sport_buddy/model/location_model.dart';
 import 'package:sport_buddy/model/map_data_model.dart';
+import 'package:sport_buddy/screens/filter_settings_screen.dart';
 import 'package:sport_buddy/screens/profile_screen.dart';
+import 'package:sport_buddy/screens/upcoming_events.dart';
+import 'package:sport_buddy/views/create_event.dart';
 
 class MainScreen extends StatelessWidget {
   final mapController = MapController();
 
-  Widget _buildFilterButton() {
+  Widget _buildFilterButton(BuildContext context) {
     return IconButton(
       icon: Icon(
         Icons.filter_alt,
         color: Colors.white,
       ),
-      onPressed: () {}, // TODO add action
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (ctx) => FilterSettingsScreen(),
+          ),
+        );
+      },
     );
   }
 
@@ -86,33 +96,10 @@ class MainScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSearchBar() {
-    return Container(
-      height: 40,
-      child: TextField(
-        decoration: InputDecoration(
-          contentPadding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-          filled: true,
-          fillColor: Colors.white,
-          hintText: 'Search',
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide.none,
-          ),
-          icon: Icon(
-            Icons.search,
-            color: Colors.white,
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildAppBar(BuildContext context) {
     return GradientAppBar(
-      title: _buildSearchBar(),
       actions: [
-        _buildFilterButton(),
+        _buildFilterButton(context),
         _buildProfileButton(context),
       ],
     );
