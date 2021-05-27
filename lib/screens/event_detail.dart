@@ -103,7 +103,7 @@ class EventDetail extends StatelessWidget {
     List<UserModel> participants,
     List<UserModel> pendingParticipants,
   ) {
-    final currentUser = context.read<UserCubit>().state; // TODO
+    final currentUser = context.read<UserCubit>().state;
 
     if (event.owner == currentUser) {
       return _buildDeleteButton(context, event);
@@ -164,7 +164,7 @@ class EventDetail extends StatelessWidget {
     UserModel currentUser,
   ) {
     return GradientButton(
-      onPressed: () => EventService.moveUserFromPendingToParticipants(
+      onPressed: () => EventService.addUserToPendingParticipant(
           currentUser.id, event.id),
       child: Text(
         'Join event',
@@ -468,11 +468,17 @@ class EventDetail extends StatelessWidget {
         }, "Are sure you want to delete this user from the event?");
       });
     }
+
+    final label = _getLabelText(event, participant, currentUser);
+
+    if (label == '') {
+      return Container();
+    }
     return Container(
       height: 25,
       child: GradientLabel(
         child: Text(
-          _getLabelText(event, participant, currentUser),
+          label,
           style: TextStyle(color: Colors.white),
         ),
       ),
