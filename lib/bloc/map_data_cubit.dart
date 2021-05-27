@@ -49,7 +49,10 @@ class MapDataCubit extends Cubit<MapDataModel> {
     emit(
       MapDataModel(
         center: state.center,
-        events: events.where((event) => !state.filter[event.activity]).toList(),
+        events: events
+            .where((event) => !state.filter[event.activity])
+            .where((event) => DateTime.now().isBefore(event.time))
+            .toList(),
         filter: state.filter,
       ),
     );
