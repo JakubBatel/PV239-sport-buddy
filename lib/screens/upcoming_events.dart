@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sport_buddy/bloc/event_cubit.dart';
 import 'package:sport_buddy/bloc/user_cubit.dart';
 import 'package:sport_buddy/components/event_row.dart';
+import 'package:sport_buddy/components/loading.dart';
 import 'package:sport_buddy/model/event_model.dart';
 import 'package:sport_buddy/screens/event_detail.dart';
 
@@ -20,18 +21,30 @@ class UpcomingEvents extends StatelessWidget {
   Widget _buildContent(BuildContext context) {
     final user = BlocProvider.of<UserCubit>(context).state;
 
-    return ListView(
-      children: user.events
-          .where((event) => DateTime.now().isBefore(event.time))
-          .map(
-            (event) => GestureDetector(
+    return FutureBuilder(
+      future: user.events,
+      builder: (context, eventsSnapshot) {
+        if (eventsSnapshot.hasError) {
+          return Text(eventsSnapshot.error.toString());
+        }
+        if (!eventsSnapshot.hasData) {
+          return Loading();
+        }
+
+        return ListView(
+          children: eventsSnapshot.data
+              .where((event) => DateTime.now().isBefore(event.time))
+              .map<Widget>(
+                (event) => GestureDetector(
               onTap: () {
                 _openEventDetail(context, event);
               },
               child: EventRow(event),
             ),
           )
-          .toList(),
+              .toList(),
+        );
+      },
     );
   }
 

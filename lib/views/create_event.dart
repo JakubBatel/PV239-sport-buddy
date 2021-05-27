@@ -6,7 +6,7 @@ import 'package:sport_buddy/components/activity_dropdown.dart';
 import 'package:sport_buddy/components/gradient_button.dart';
 import 'package:sport_buddy/model/event_model.dart';
 import 'package:sport_buddy/screens/event_detail.dart';
-import 'package:sport_buddy/services/EventService.dart';
+import 'package:sport_buddy/services/event_service.dart';
 import 'package:intl/intl.dart';
 import 'package:sport_buddy/utils/activity_utils.dart';
 import 'package:sport_buddy/utils/alert_dialog.dart';

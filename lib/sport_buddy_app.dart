@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sport_buddy/bloc/auth_bloc.dart';
@@ -6,12 +5,11 @@ import 'package:sport_buddy/bloc/map_data_cubit.dart';
 import 'package:sport_buddy/bloc/user_cubit.dart';
 import 'package:sport_buddy/components/loading.dart';
 import 'package:sport_buddy/model/state/auth_state.dart';
-import 'package:sport_buddy/model/user_model.dart';
-import 'package:sport_buddy/screens/main_screen.dart';
 import 'package:sport_buddy/screens/login_screen.dart';
-import 'package:sport_buddy/services/AuthService.dart';
+import 'package:sport_buddy/screens/main_screen.dart';
 import 'package:sport_buddy/utils/alert_dialog.dart';
 
+import 'bloc/event_cubit.dart';
 import 'bloc/user_cubit.dart';
 import 'model/event/auth_event.dart';
 
@@ -27,8 +25,14 @@ class SportBuddyApp extends StatelessWidget {
           create: (context) => MapDataCubit(),
         ),
         BlocProvider(
-          create: (context) => AuthBloc()..add(AppLoaded()),
-        )
+          create: (context) => AuthBloc()
+            ..add(
+              AppLoaded(),
+            ),
+        ),
+        BlocProvider(
+          create: (context) => EventCubit(),
+        ),
       ],
       child: MaterialApp(
         title: 'PV239 Sport Buddy',

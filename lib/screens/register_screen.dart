@@ -9,7 +9,7 @@ import 'package:sport_buddy/model/event/auth_event.dart';
 import 'package:sport_buddy/model/event/login_event.dart';
 import 'package:sport_buddy/model/state/auth_state.dart';
 import 'package:sport_buddy/model/state/login_state.dart';
-import 'package:sport_buddy/services/AuthService.dart';
+import 'package:sport_buddy/services/auth_service.dart';
 import 'package:sport_buddy/utils/alert_dialog.dart';
 
 class RegisterScreen extends StatelessWidget {

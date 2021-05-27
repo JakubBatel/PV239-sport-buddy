@@ -1,16 +1,17 @@
 import 'dart:io';
+
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:sport_buddy/bloc/auth_bloc.dart';
+import 'package:sport_buddy/bloc/user_cubit.dart';
 import 'package:sport_buddy/components/event_row.dart';
 import 'package:sport_buddy/model/event/auth_event.dart';
 import 'package:sport_buddy/model/state/auth_state.dart';
 import 'package:sport_buddy/model/user_model.dart';
-import 'package:sport_buddy/services/AuthService.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sport_buddy/bloc/user_cubit.dart';
+import 'package:sport_buddy/services/auth_service.dart';
 
 class ProfileScreen extends StatelessWidget {
   final bool _logged;
@@ -48,27 +49,25 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildProfileInfo(BuildContext context) {
-    return BlocBuilder<UserCubit, UserModel> (
-        builder: (context, user) {
-          return Column(
+    return BlocBuilder<UserCubit, UserModel>(builder: (context, user) {
+      return Column(
+        children: [
+          _buildPicture(user.profilePicture),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildPicture(user.profilePicture),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Center(
-                    child: Padding(
-                      padding: EdgeInsets.only(left: 40),
-                      child: Text(user.name,
-                          style: Theme.of(context).textTheme.headline3),
-                    ),
-                  ),
-                ],
-              )
+              Center(
+                child: Padding(
+                  padding: EdgeInsets.only(left: 40),
+                  child: Text(user.name,
+                      style: Theme.of(context).textTheme.headline3),
+                ),
+              ),
             ],
-          );
-        }
-    );
+          )
+        ],
+      );
+    });
   }
 
   Widget _buildUserInfo(BuildContext context) {
@@ -142,9 +141,24 @@ class ProfileScreen extends StatelessWidget {
           style: Theme.of(context).textTheme.headline4,
         ),
       ),
-      Column(
-        children:
-            userCubit.state.events.map((event) => EventRow(event)).toList(),
+      FutureBuilder(
+        future: userCubit.state.events,
+        builder: (context, eventsSnapshot) {
+          if (eventsSnapshot.hasError) {
+            return Text(eventsSnapshot.error.toString());
+          }
+          if (!eventsSnapshot.hasData) {
+            return CircularProgressIndicator();
+          }
+          return Column(
+            children: eventsSnapshot.data
+                .where((event) => DateTime.now().isAfter(event.time))
+                .map<Widget>(
+                  (event) => EventRow(event),
+                )
+                .toList(),
+          );
+        },
       ),
     ]);
   }

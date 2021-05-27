@@ -1,6 +1,7 @@
 import 'package:sport_buddy/enum/activity_enum.dart';
 import 'package:sport_buddy/model/location_model.dart';
 import 'package:sport_buddy/model/user_model.dart';
+import 'package:sport_buddy/services/event_service.dart';
 
 class EventModel {
   final String id;
@@ -12,8 +13,9 @@ class EventModel {
   final int maxParticipants;
   final bool unlimitedParticipants;
   final UserModel owner;
-  final List<UserModel> participants;
-  final List<UserModel> pendingParticipants;
+
+  Future<List<UserModel>> get participants => EventService.fetchParticipants(id);
+  Future<List<UserModel>> get pendingParticipants => EventService.fetchPendingParticipants(id);
 
   EventModel({
     this.id,
@@ -25,8 +27,6 @@ class EventModel {
     this.owner,
     this.maxParticipants,
     this.unlimitedParticipants,
-    this.participants,
-    this.pendingParticipants,
   });
 
 }

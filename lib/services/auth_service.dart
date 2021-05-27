@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sport_buddy/model/user_model.dart';
-import 'package:sport_buddy/services/UserService.dart';
+import 'package:sport_buddy/services/user_service.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
 class AuthService {
@@ -27,9 +27,13 @@ class AuthService {
     try {
       final AccessToken result = await FacebookAuth.instance.login();
 
+      if (result == null) {
+        return null;
+      }
+
       final facebookAuthCredential = FacebookAuthProvider.credential(result.token);
       return await FirebaseAuth.instance.signInWithCredential(facebookAuthCredential);
-    } on FirebaseAuthException catch (e) {
+    } catch (e) {
       print(e.toString());
       return null;
     }
@@ -76,10 +80,18 @@ class AuthService {
 
     final userModel = await UserService.fetchUser(user.uid);
     if (userModel == null) {
+      var name = FirebaseAuth.instance.currentUser.displayName;
+      if (name == null) {
+        name = FirebaseAuth.instance.currentUser.email;
+      }
+      if (name == null) {
+        name = "User";
+      }
+
       return await UserService.addUser(
         UserModel(
           id: null,
-          name: FirebaseAuth.instance.currentUser.displayName,
+          name: name,
           profilePicture: user.photoURL,
         ),
       );

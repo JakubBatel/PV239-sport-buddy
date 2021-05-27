@@ -4,7 +4,7 @@ import 'package:sport_buddy/enum/activity_enum.dart';
 import 'package:sport_buddy/model/event_model.dart';
 import 'package:sport_buddy/model/location_model.dart';
 import 'package:sport_buddy/model/user_model.dart';
-import 'package:sport_buddy/services/EventService.dart';
+import 'package:sport_buddy/services/event_service.dart';
 
 class EventCubit extends Cubit<EventModel> {
   EventCubit()
@@ -22,12 +22,14 @@ class EventCubit extends Cubit<EventModel> {
             owner: null,
             maxParticipants: 8,
             unlimitedParticipants: false,
-            participants: [],
-            pendingParticipants: [],
           ),
         );
 
   EventCubit.fromEventModel(EventModel model) : super(model);
+
+  void setEvent(EventModel event) {
+    emit(event);
+  }
 
   void updateName(String name) {
     emit(
@@ -41,8 +43,6 @@ class EventCubit extends Cubit<EventModel> {
         owner: state.owner,
         maxParticipants: state.maxParticipants,
         unlimitedParticipants: state.unlimitedParticipants,
-        participants: state.participants,
-        pendingParticipants: state.pendingParticipants,
       ),
     );
   }
@@ -59,8 +59,6 @@ class EventCubit extends Cubit<EventModel> {
         owner: state.owner,
         maxParticipants: state.maxParticipants,
         unlimitedParticipants: state.unlimitedParticipants,
-        participants: state.participants,
-        pendingParticipants: state.pendingParticipants,
       ),
     );
   }
@@ -83,8 +81,6 @@ class EventCubit extends Cubit<EventModel> {
         owner: state.owner,
         maxParticipants: state.maxParticipants,
         unlimitedParticipants: state.unlimitedParticipants,
-        participants: state.participants,
-        pendingParticipants: state.pendingParticipants,
       ),
     );
   }
@@ -107,8 +103,6 @@ class EventCubit extends Cubit<EventModel> {
         owner: state.owner,
         maxParticipants: state.maxParticipants,
         unlimitedParticipants: state.unlimitedParticipants,
-        participants: state.participants,
-        pendingParticipants: state.pendingParticipants,
       ),
     );
   }
@@ -125,8 +119,6 @@ class EventCubit extends Cubit<EventModel> {
         owner: state.owner,
         maxParticipants: maxParticipants.round(),
         unlimitedParticipants: state.unlimitedParticipants,
-        participants: state.participants,
-        pendingParticipants: state.pendingParticipants,
       ),
     );
   }
@@ -143,14 +135,12 @@ class EventCubit extends Cubit<EventModel> {
         owner: state.owner,
         maxParticipants: state.maxParticipants,
         unlimitedParticipants: unlimitedParticipants,
-        participants: state.participants,
-        pendingParticipants: state.pendingParticipants,
       ),
     );
   }
 
-  Future<void> updateActivity(Activity activity) {
-    final newEventModel = EventModel(
+  Future<void> updateActivity(Activity activity) async {
+    emit(EventModel(
       id: state.id,
       name: state.name,
       description: state.description,
@@ -160,17 +150,15 @@ class EventCubit extends Cubit<EventModel> {
       owner: state.owner,
       maxParticipants: state.maxParticipants,
       unlimitedParticipants: state.unlimitedParticipants,
-      participants: state.participants,
-      pendingParticipants: state.pendingParticipants,
-    );
-    emit(newEventModel);
+    ));
   }
 
-  void updateOwner(UserModel owner) {
+  Future<void> updateOwner(UserModel owner) async {
     if (state.owner != null) {
-      removeParticipant(state.owner);
+      EventService.removeUserFromParticipants(
+          state.owner.id, state.id);
     }
-    addParticipant(owner);
+    EventService.addUserToParticipants(owner.id, state.id);
     emit(
       EventModel(
         id: state.id,
@@ -182,92 +170,6 @@ class EventCubit extends Cubit<EventModel> {
         owner: owner,
         maxParticipants: state.maxParticipants,
         unlimitedParticipants: state.unlimitedParticipants,
-        participants: state.participants,
-        pendingParticipants: state.pendingParticipants,
-      ),
-    );
-  }
-
-  void addParticipant(UserModel participant) async {
-    await EventService.addUserToParticipants(participant.id, state.id);
-    emit(
-      EventModel(
-        id: state.id,
-        name: state.name,
-        description: state.description,
-        activity: state.activity,
-        time: state.time,
-        location: state.location,
-        owner: state.owner,
-        maxParticipants: state.maxParticipants,
-        unlimitedParticipants: state.unlimitedParticipants,
-        participants: [...state.participants, participant],
-        pendingParticipants: state.pendingParticipants,
-      ),
-    );
-  }
-
-  Future<void> addParticipantToPending(UserModel participant) async {
-    await EventService.addUserToPendingParticipant(participant.id, state.id);
-    emit(
-      EventModel(
-        id: state.id,
-        name: state.name,
-        description: state.description,
-        activity: state.activity,
-        time: state.time,
-        location: state.location,
-        owner: state.owner,
-        maxParticipants: state.maxParticipants,
-        unlimitedParticipants: state.unlimitedParticipants,
-        participants: state.participants,
-        pendingParticipants: [...state.pendingParticipants, participant],
-      ),
-    );
-  }
-
-  void moveToParticipantsFromPending(UserModel participant) {
-    removePendingParticipant(participant);
-    addParticipant(participant);
-  }
-
-  Future<void> removeParticipant(UserModel participant) async {
-    await EventService.removeUserFromParticipants(participant.id, state.id);
-    emit(
-      EventModel(
-        id: state.id,
-        name: state.name,
-        description: state.description,
-        activity: state.activity,
-        time: state.time,
-        location: state.location,
-        owner: state.owner,
-        maxParticipants: state.maxParticipants,
-        unlimitedParticipants: state.unlimitedParticipants,
-        participants:
-            state.participants.where((p) => p != participant).toList(),
-        pendingParticipants: state.pendingParticipants,
-      ),
-    );
-  }
-
-  Future<void> removePendingParticipant(UserModel participant) async {
-    await EventService.removeUserFromPendingParticipants(
-        participant.id, state.id);
-    emit(
-      EventModel(
-        id: state.id,
-        name: state.name,
-        description: state.description,
-        activity: state.activity,
-        time: state.time,
-        location: state.location,
-        owner: state.owner,
-        maxParticipants: state.maxParticipants,
-        unlimitedParticipants: state.unlimitedParticipants,
-        participants: state.participants,
-        pendingParticipants:
-            state.pendingParticipants.where((p) => p != participant).toList(),
       ),
     );
   }
@@ -284,8 +186,6 @@ class EventCubit extends Cubit<EventModel> {
         owner: state.owner,
         maxParticipants: state.maxParticipants,
         unlimitedParticipants: state.unlimitedParticipants,
-        participants: state.participants,
-        pendingParticipants: state.pendingParticipants,
       ),
     );
   }

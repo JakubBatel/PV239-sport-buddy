@@ -177,9 +177,14 @@ class EmailPasswordFormState extends State<EmailPasswordForm> {
   }
 
   String _validatePasword(String password) {
-    if (password == "") {
+    if (password.isEmpty) {
       return 'Password is required.';
     }
+
+    if (password.length < 8) {
+      return 'weak password.';
+    }
+
     return null;
   }
 }
