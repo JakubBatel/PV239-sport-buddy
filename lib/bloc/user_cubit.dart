@@ -51,7 +51,7 @@ class UserCubit extends Cubit<UserModel> {
           (dbUser) =>
       {
         if (dbUser.exists) {
-          setPictureUrl(currentUserId, user.name)
+          emit(UserModel(id: currentUserId, name: user.name, profilePicture: dbUser.data()['profilePicture']))
           }
         else
           {
@@ -72,17 +72,6 @@ class UserCubit extends Cubit<UserModel> {
   }
 
 
-  Future<String> getPictureUrl() async {
-    final storage = FirebaseStorage.instance;
-
-    try {
-      final storageRef = storage.ref().child('user/profile/${state.id}');
-      return storageRef.getDownloadURL();
-    } catch (e) {
-      print('User do not have any picture');
-      return null;
-    }
-  }
 
 
   void setPictureUrl(currentUserId, name) async {
