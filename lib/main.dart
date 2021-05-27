@@ -8,14 +8,5 @@ import 'package:sport_buddy/sport_buddy_app.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  Firebase.initializeApp().whenComplete(() =>
-      runApp(
-          BlocProvider<AuthBloc>(
-            create: (context) {
-              final authService = AuthService();
-              return AuthBloc(authService)..add(AppLoaded());
-            },
-            child: SportBuddyApp(),
-          ),
-      ));
+  Firebase.initializeApp().whenComplete(() => runApp(SportBuddyApp()));
 }

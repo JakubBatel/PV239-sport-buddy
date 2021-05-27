@@ -1,22 +1,16 @@
 import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:sport_buddy/bloc/event_cubit.dart';
-import 'package:sport_buddy/components/activity_icon.dart';
 import 'package:sport_buddy/bloc/auth_bloc.dart';
+import 'package:sport_buddy/components/event_row.dart';
 import 'package:sport_buddy/model/event/auth_event.dart';
 import 'package:sport_buddy/model/state/auth_state.dart';
 import 'package:sport_buddy/model/user_model.dart';
 import 'package:sport_buddy/services/AuthService.dart';
-import 'package:sport_buddy/services/DatabaseService.dart';
-import 'package:sport_buddy/utils/activity_utils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sport_buddy/bloc/user_cubit.dart';
-
-import 'event_detail.dart';
 
 class ProfileScreen extends StatelessWidget {
   final bool _logged;
@@ -140,74 +134,24 @@ class ProfileScreen extends StatelessWidget {
   Widget _buildPastEvents(BuildContext context) {
     final userCubit = context.read<UserCubit>();
 
-    final userId = userCubit.state.userID;
-
     return Column(children: [
       Align(
         alignment: Alignment.centerLeft,
-        child:
-            Text("Past Events:", style: Theme.of(context).textTheme.headline4),
+        child: Text(
+          "Past Events:",
+          style: Theme.of(context).textTheme.headline4,
+        ),
       ),
-      StreamBuilder<QuerySnapshot>(
-          stream: DatabaseService().getPastParticipatedEvents(userId),
-          builder:
-              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-            if (snapshot.hasError) {
-              print(snapshot.error.toString());
-              return Center(child: Text(snapshot.error.toString()));
-            }
-
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return CircularProgressIndicator();
-            }
-            if (snapshot.data == null) return CircularProgressIndicator();
-
-            return Column(
-                children: snapshot.data.docs
-                    .map(
-                      (DocumentSnapshot doc) => Container(
-                        height: 60,
-                        child: _buildEventRow(context, doc),
-                      ),
-                    )
-                    .toList());
-          }),
+      Column(
+        children:
+            userCubit.state.events.map((event) => EventRow(event)).toList(),
+      ),
     ]);
-  }
-
-  Widget _buildEventRow(BuildContext context, DocumentSnapshot doc) {
-    return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => BlocProvider<EventCubit>(
-              create: (context) =>
-                  EventCubit.fromEventModel(getEventFromSnapshot(doc.data())),
-              child: EventDetail(),
-            ),
-          ),
-        );
-      },
-      child: Row(
-        children: [
-          Padding(
-            padding: EdgeInsets.all(10.0),
-            child: ActivityIcon(
-              activity: getActivityFromString(doc.data()['activity']),
-              size: 50,
-            ),
-          ),
-          Text(doc.data()['name'])
-        ],
-      ),
-    );
   }
 
   void _signOut(BuildContext context) {
     final authBloc = BlocProvider.of<AuthBloc>(context);
-    final authService = AuthService();
-    authService.signOut();
+    AuthService.signOut();
     authBloc.add(UserLoggedOut());
   }
 
@@ -217,7 +161,7 @@ class ProfileScreen extends StatelessWidget {
     final pickedFile = await picker.getImage(source: ImageSource.gallery);
     final storageRef = FirebaseStorage.instance
         .ref()
-        .child("user/profile/${userCubit.getUserID()}");
+        .child('user/profile/${userCubit.state.id}');
 
     var uploadTask = storageRef.putFile(File(pickedFile.path));
     var url = await storageRef.getDownloadURL();

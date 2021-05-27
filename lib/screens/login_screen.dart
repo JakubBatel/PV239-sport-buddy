@@ -47,20 +47,18 @@ class LoginScreen extends StatelessWidget {
   }
 
   Widget _buildLoginForm(BuildContext context) {
-    final authService = AuthService();
     final authBloc = BlocProvider.of<AuthBloc>(context);
 
     return Container(
-        alignment: Alignment.center,
-        child: BlocProvider<LoginBloc>(
-            create: (context) => LoginBloc(authBloc, authService),
-            child:
-                BlocBuilder<LoginBloc, LoginState>(builder: (context, state) {
-              if (state is LoginLoading) {
-                return Loading();
-              }
-              return _buildLoginContent(context);
-            })));
+      alignment: Alignment.center,
+      child: BlocProvider<LoginBloc>(
+        create: (context) => LoginBloc(authBloc),
+        child: BlocBuilder<LoginBloc, LoginState>(
+          builder: (context, state) =>
+              (state is LoginLoading) ? Loading() : _buildLoginContent(context),
+        ),
+      ),
+    );
   }
 
   Widget _buildLoginContent(BuildContext context) {

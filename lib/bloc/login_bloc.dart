@@ -8,13 +8,10 @@ import 'auth_bloc.dart';
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final AuthBloc _authenticationBloc;
-  final AuthService _authenticationService;
 
-  LoginBloc(AuthBloc authenticationBloc, AuthService authenticationService)
+  LoginBloc(AuthBloc authenticationBloc)
       : assert(authenticationBloc != null),
-        assert(authenticationService != null),
         _authenticationBloc = authenticationBloc,
-        _authenticationService = authenticationService,
         super(LoginInitial());
 
   @override
@@ -32,16 +29,16 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     }
 
     if (event is RegisterWithEmailButtonPressed) {
-     yield*  _mapRegisterWithEmailToState(event);
+      yield* _mapRegisterWithEmailToState(event);
     }
   }
 
   Stream<LoginState> _mapLoginWithEmailToState(
       LoginInWithEmailButtonPressed event) async* {
     yield LoginLoading();
-    final result = await _authenticationService.signInWithEmailAndPassword(
+    final result = await AuthService.signInWithEmailAndPassword(
         event.email, event.password);
-    final user = await _authenticationService.getCurrentUser();
+    final user = await AuthService.getCurrentUser();
     if (user != null) {
       _authenticationBloc.add(UserLoggedIn(user: user));
       yield LoginSuccess();
@@ -54,8 +51,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   Stream<LoginState> _mapLoginWithGoogleToState(
       LoginWithGoogleButtonPressed event) async* {
     yield LoginLoading();
-    final result = await _authenticationService.signInWithGoogle();
-    final user = await _authenticationService.getCurrentUser();
+    final result = await AuthService.signInWithGoogle();
+    final user = await AuthService.getCurrentUser();
     if (user != null) {
       _authenticationBloc.add(UserLoggedIn(user: user));
       yield LoginSuccess();
@@ -68,8 +65,9 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   Stream<LoginState> _mapRegisterWithEmailToState(
       RegisterWithEmailButtonPressed event) async* {
     yield LoginLoading();
-    final result = await _authenticationService.registerWithEmailAndPassword(event.email, event.password);
-    final user = await _authenticationService.getCurrentUser();
+    final result = await AuthService.registerWithEmailAndPassword(
+        event.email, event.password);
+    final user = await AuthService.getCurrentUser();
     if (user != null) {
       _authenticationBloc.add(UserLoggedIn(user: user));
       yield LoginSuccess();
@@ -78,6 +76,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       yield LoginFailure(error: 'Firebase login error');
     }
   }
+
   Stream<LoginState> _mapLoginWithFacebookToState(
       LoginWithFacebookButtonPressed event) async* {
     yield LoginLoading();

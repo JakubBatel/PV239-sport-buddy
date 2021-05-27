@@ -4,16 +4,10 @@ import 'package:sport_buddy/model/state/auth_state.dart';
 import 'package:sport_buddy/services/AuthService.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  final AuthService _authenticationService;
-
-  AuthBloc(AuthService authenticationService)
-      : assert(authenticationService != null),
-        _authenticationService = authenticationService,
-        super(AuthInit());
+  AuthBloc() : super(AuthInit());
 
   @override
-  Stream<AuthState> mapEventToState(
-      AuthEvent event) async* {
+  Stream<AuthState> mapEventToState(AuthEvent event) async* {
     if (event is AppLoaded) {
       yield* _mapAppLoadedToState(event);
     }
@@ -29,7 +23,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   Stream<AuthState> _mapAppLoadedToState(AppLoaded event) async* {
     yield AuthLoading();
-    final currentUser = await _authenticationService.getCurrentUser();
+    final currentUser = await AuthService.getCurrentUser();
 
     if (currentUser != null) {
       yield Authenticated(user: currentUser);
@@ -38,14 +32,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  Stream<AuthState> _mapUserLoggedInToState(
-      UserLoggedIn event) async* {
+  Stream<AuthState> _mapUserLoggedInToState(UserLoggedIn event) async* {
     yield Authenticated(user: event.user);
   }
 
-  Stream<AuthState> _mapUserLoggedOutToState(
-      UserLoggedOut event) async* {
-    await _authenticationService.signOut();
+  Stream<AuthState> _mapUserLoggedOutToState(UserLoggedOut event) async* {
+    await AuthService.signOut();
     yield NotAuthenticated();
   }
 }

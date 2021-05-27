@@ -1,8 +1,15 @@
+import 'package:sport_buddy/model/event_model.dart';
+
 class UserModel {
-  //TODO: add more properties
+  final String id;
   final String name;
   final String profilePicture;
-  final String userID;
+  final List<EventModel> events;
 
-  UserModel(this.name, this.profilePicture, this.userID);
+  UserModel({
+    this.id,
+    this.name,
+    this.profilePicture,
+    this.events = const [],
+  });
 }

@@ -1,5 +1,6 @@
 import 'package:sport_buddy/enum/activity_enum.dart';
 import 'package:sport_buddy/model/location_model.dart';
+import 'package:sport_buddy/model/user_model.dart';
 
 class EventModel {
   final String id;
@@ -8,12 +9,11 @@ class EventModel {
   final Activity activity;
   final LocationModel location;
   final DateTime time;
-  //final UserModel owner;
   final int maxParticipants;
   final bool unlimitedParticipants;
-  final List<String> participants;
-  final String owner;
-  final List<String> pendingParticipants;
+  final UserModel owner;
+  final List<UserModel> participants;
+  final List<UserModel> pendingParticipants;
 
   EventModel({
     this.id,

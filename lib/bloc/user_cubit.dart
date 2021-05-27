@@ -1,60 +1,77 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sport_buddy/model/user_model.dart';
-import 'package:sport_buddy/services/DatabaseService.dart';
+import 'package:sport_buddy/services/UserService.dart';
 
 class UserCubit extends Cubit<UserModel> {
-  UserCubit() : super(UserModel('Joe Doe', '', ''));
+  UserCubit() : super(UserModel(id: '', name: '', profilePicture: ''));
 
   bool editUser = false;
 
   void changeEdit() {
     editUser = !editUser;
-    emit(UserModel(state.name, state.profilePicture, state.userID));
+    emit(
+      UserModel(
+        id: state.id,
+        name: state.name,
+        profilePicture: state.profilePicture,
+      ),
+    );
   }
 
-  void updatePicturePath(String newPicturePath) {
-    final newUserModel = UserModel(state.name, newPicturePath, state.userID);
-    DatabaseService().updateUser(newUserModel);
-    emit(newUserModel);
+  Future<void> updatePicturePath(String newPicturePath) async {
+    await UserService.updateProfilePicture(state.id, newPicturePath);
+    emit(
+      UserModel(
+        id: state.id,
+        name: state.name,
+        profilePicture: newPicturePath,
+      ),
+    );
   }
 
-  void updateUserName(String name) {
-    final newUserModel = UserModel(name, state.profilePicture, state.userID);
-    DatabaseService().updateUser(newUserModel);
-    emit(newUserModel);
+  Future<void> updateUserName(String name) async {
+    await UserService.updateUsername(state.id, name);
+    emit(
+      UserModel(
+        id: state.id,
+        name: name,
+        profilePicture: state.profilePicture,
+      ),
+    );
   }
 
   void saveUserToDB(UserModel user) {
-    final document = FirebaseFirestore.instance.collection('users').doc(user.userID);
+    final document =
+        FirebaseFirestore.instance.collection('users').doc(user.id);
     document.get().then((dbUser) => {
-        if (dbUser.exists) {
-          emit(user)
-        } else {
-          //create user
-          getPictureUrl().then( (picture) {
-            UserModel userModel = UserModel(user.name, picture, user.userID);
-            DatabaseService().createUser(userModel);
-            emit(userModel);
-          })
-        }
-    });
-  }
-
-  String getUserID() {
-    return state.userID;
+          if (dbUser.exists)
+            {emit(user)}
+          else
+            {
+              //create user
+              getPictureUrl().then((picture) {
+                UserModel userModel = UserModel(
+                  id: user.id,
+                  name: user.name,
+                  profilePicture: picture,
+                );
+                UserService.addUser(userModel);
+                emit(userModel);
+              })
+            }
+        });
   }
 
   Future<String> getPictureUrl() async {
-    FirebaseStorage storage = FirebaseStorage.instance;
-    final storageRef = storage.ref().child("user/profile/${getUserID()}");
+    final storage = FirebaseStorage.instance;
+    final storageRef = storage.ref().child('user/profile/${state.id}');
 
     try {
-      return await storageRef.getDownloadURL();
+      return storageRef.getDownloadURL();
     } catch (e) {
-      print("User do not have any picture");
+      print('User do not have any picture');
       return null;
     }
   }
