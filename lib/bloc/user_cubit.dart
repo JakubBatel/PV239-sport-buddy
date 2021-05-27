@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sport_buddy/model/user_model.dart';
@@ -43,40 +44,63 @@ class UserCubit extends Cubit<UserModel> {
   }
 
   void saveUserToDB(UserModel user) {
+    final currentUserId = FirebaseAuth.instance.currentUser.uid;
     final document =
-        FirebaseFirestore.instance.collection('users').doc(user.id);
+    FirebaseFirestore.instance.collection('users').doc(currentUserId);
     document.get().then(
-          (dbUser) => {
-            if (dbUser.exists)
-              {emit(user)}
-            else
-              {
-                //create user
-                getPictureUrl().then(
-                  (picture) {
-                    UserModel userModel = UserModel(
-                      id: user.id,
-                      name: user.name,
-                      profilePicture: picture,
-                    );
-                    UserService.addUser(userModel);
-                    emit(userModel);
-                  },
-                )
-              }
-          },
-        );
+          (dbUser) =>
+      {
+        if (dbUser.exists) {
+          setPictureUrl(currentUserId, user.name)
+          }
+        else
+          {
+            addUser(currentUserId, user.name)
+          }
+      },
+    );
   }
+
+  void addUser(userId, name) {
+    final userModel = UserModel(
+      id: userId,
+      name: name,
+      profilePicture: '',
+    );
+    UserService.addUser(userModel);
+    emit(userModel);
+  }
+
 
   Future<String> getPictureUrl() async {
     final storage = FirebaseStorage.instance;
-    final storageRef = storage.ref().child('user/profile/${state.id}');
 
     try {
+      final storageRef = storage.ref().child('user/profile/${state.id}');
       return storageRef.getDownloadURL();
     } catch (e) {
       print('User do not have any picture');
       return null;
     }
+  }
+
+
+  void setPictureUrl(currentUserId, name) async {
+
+    final storage = FirebaseStorage.instance;
+    var picturePath = '';
+
+    try {
+      final storageRef = storage.ref().child('user/profile/$currentUserId');
+      picturePath = await storageRef.getDownloadURL();
+    } catch (e) {
+
+    }
+
+    emit(UserModel(
+        id: currentUserId,
+        profilePicture: picturePath,
+        name: name
+    ));
   }
 }

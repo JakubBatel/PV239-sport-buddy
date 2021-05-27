@@ -11,7 +11,6 @@ class ActivityIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(getActivityIconPath(activity));
     return Image.asset(getActivityIconPath(activity), width: size);
   }
 }

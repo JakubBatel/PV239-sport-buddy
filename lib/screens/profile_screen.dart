@@ -6,12 +6,16 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:sport_buddy/bloc/auth_bloc.dart';
+import 'package:sport_buddy/bloc/event_cubit.dart';
 import 'package:sport_buddy/bloc/user_cubit.dart';
 import 'package:sport_buddy/components/event_row.dart';
 import 'package:sport_buddy/model/event/auth_event.dart';
+import 'package:sport_buddy/model/event_model.dart';
 import 'package:sport_buddy/model/state/auth_state.dart';
 import 'package:sport_buddy/model/user_model.dart';
 import 'package:sport_buddy/services/auth_service.dart';
+
+import 'event_detail.dart';
 
 class ProfileScreen extends StatelessWidget {
   final bool _logged;
@@ -72,6 +76,7 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildUserInfo(BuildContext context) {
     final userCubit = context.read<UserCubit>();
+    print(userCubit.state.id);
     double _width = MediaQuery.of(context).size.width;
 
     return BlocBuilder<UserCubit, UserModel>(
@@ -154,7 +159,12 @@ class ProfileScreen extends StatelessWidget {
             children: eventsSnapshot.data
                 .where((event) => DateTime.now().isAfter(event.time))
                 .map<Widget>(
-                  (event) => EventRow(event),
+                  (event) =>  GestureDetector(
+                    onTap: () {
+                      _openEventDetail(context, event);
+                    },
+                    child: EventRow(event),
+                  ),
                 )
                 .toList(),
           );
@@ -162,6 +172,19 @@ class ProfileScreen extends StatelessWidget {
       ),
     ]);
   }
+
+  void _openEventDetail(BuildContext context, EventModel event) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => BlocProvider<EventCubit>(
+          create: (context) => EventCubit.fromEventModel(event),
+          child: EventDetail(),
+        ),
+      ),
+    );
+  }
+
 
   void _signOut(BuildContext context) {
     final authBloc = BlocProvider.of<AuthBloc>(context);
@@ -182,3 +205,4 @@ class ProfileScreen extends StatelessWidget {
     uploadTask.whenComplete(() => userCubit.updatePicturePath(url));
   }
 }
+
