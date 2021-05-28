@@ -8,6 +8,7 @@ import 'package:sport_buddy/components/activity_icon.dart';
 import 'package:sport_buddy/components/gradient_button.dart';
 import 'package:sport_buddy/components/gradient_label.dart';
 import 'package:sport_buddy/components/profile_circle_avatar.dart';
+import 'package:sport_buddy/model/event_detail_model.dart';
 import 'package:sport_buddy/model/event_model.dart';
 import 'package:sport_buddy/model/user_model.dart';
 import 'package:sport_buddy/screens/profile_screen.dart';
@@ -18,20 +19,21 @@ import 'package:sport_buddy/views/create_event.dart';
 class EventDetail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<EventCubit, EventModel>(
+    return BlocBuilder<EventCubit, EventDetailModel>(
       builder: (context, model) => Scaffold(
         appBar: AppBar(
           title: Text('Event Detail'),
-          actions: (model.isPast) ? [] : [_editEvent(context)],
+          actions: (model.event.isPast) ? [] : [_editEvent(context)],
         ),
-        bottomNavigationBar:
-            (model.isPast) ? null : _buildBottomNavigationBar(context, model),
+        bottomNavigationBar: (model.event.isPast)
+            ? null
+            : _buildBottomNavigationBar(context, model),
         body: Center(
           child: ListView(
             padding: EdgeInsets.all(20.0),
             children: [
               _buildEventDetail(context, model),
-              _buildEventDescription(context, model),
+              _buildEventDescription(context, model.event),
               SizedBox(height: 20),
               _buildEventParticipants(context, model),
             ],
@@ -54,44 +56,23 @@ class EventDetail extends StatelessWidget {
   }
 
   void _openEditEvent(BuildContext context) async {
-    final eventCubit = context.read<EventCubit>();
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => BlocProvider<EventCubit>(
-          create: (context) => EventCubit.fromEventModel(eventCubit.state),
-          child: CreateEvent(true),
-        ),
+        builder: (context) => CreateEvent(true),
       ),
     );
   }
 
-  Widget _buildBottomNavigationBar(BuildContext context, EventModel model) {
+  Widget _buildBottomNavigationBar(
+      BuildContext context, EventDetailModel model) {
     return BottomAppBar(
       color: Colors.transparent,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 100),
-        child: FutureBuilder(
-          future: model.participants,
-          builder: (context, participantsSnapshot) => FutureBuilder(
-              future: model.pendingParticipants,
-              builder: (context, pendingParticipantsSnapshot) {
-                if (participantsSnapshot.hasError) {
-                  return Text(participantsSnapshot.error.toString());
-                }
-                if (pendingParticipantsSnapshot.hasError) {
-                  return Text(pendingParticipantsSnapshot.error.toString());
-                }
-                if (!participantsSnapshot.hasData ||
-                    !pendingParticipantsSnapshot.hasData) {
-                  return CircularProgressIndicator();
-                }
-                return _buildBottomButton(
-                    context,
-                    model,
-                    participantsSnapshot.data,
-                    pendingParticipantsSnapshot.data);
-              }),
+        child: _buildBottomButton(
+          context,
+          model,
         ),
       ),
       elevation: 0,
@@ -100,30 +81,30 @@ class EventDetail extends StatelessWidget {
 
   Widget _buildBottomButton(
     BuildContext context,
-    EventModel event,
-    List<UserModel> participants,
-    List<UserModel> pendingParticipants,
+    EventDetailModel model,
   ) {
     final currentUser = context.read<UserCubit>().state;
 
-    if (event.owner == currentUser) {
-      return _buildDeleteButton(context, event);
+    if (model.event.owner == currentUser) {
+      return _buildDeleteButton(context, model.event);
     }
 
-    if (pendingParticipants.contains(currentUser)) {
+    if (model.pendingParticipants.contains(currentUser)) {
       return _buildPendingButton();
     }
 
-    if (participants.contains(currentUser)) {
-      return _buildLeaveButton(event, currentUser);
+    if (model.participants.contains(currentUser)) {
+      return _buildLeaveButton(context, model.event, currentUser);
     }
 
-    return _buildJoinButton(event, currentUser);
+    return _buildJoinButton(context, model.event, currentUser);
   }
 
   Widget _buildDeleteButton(BuildContext context, EventModel event) {
     return GradientButton(
-      onPressed: (){_deleteEvent(context, event.id);},
+      onPressed: () {
+        _deleteEvent(context, event.id);
+      },
       child: Text(
         'Cancel event',
         style: TextStyle(color: Colors.white),
@@ -136,7 +117,6 @@ class EventDetail extends StatelessWidget {
       EventService.deleteEvent(eventId);
       Navigator.pop(context);
     }, "Are sure you want to completely delete this event?");
-
   }
 
   Widget _buildPendingButton() {
@@ -150,12 +130,14 @@ class EventDetail extends StatelessWidget {
   }
 
   Widget _buildLeaveButton(
+      BuildContext context,
     EventModel event,
     UserModel currentUser,
   ) {
+    final eventCubit = context.read<EventCubit>();
     return GradientButton(
       onPressed: () =>
-          EventService.removeUserFromParticipants(currentUser.id, event.id),
+          eventCubit.removeParticipant(currentUser),
       child: Text(
         'Leave event',
         style: TextStyle(color: Colors.white),
@@ -164,12 +146,14 @@ class EventDetail extends StatelessWidget {
   }
 
   Widget _buildJoinButton(
+      BuildContext context,
     EventModel event,
     UserModel currentUser,
   ) {
+    final eventCubit = context.read<EventCubit>();
     return GradientButton(
       onPressed: () =>
-          EventService.addUserToPendingParticipant(currentUser.id, event.id),
+          eventCubit.addPendingParticipant(currentUser),
       child: Text(
         'Join event',
         style: TextStyle(color: Colors.white),
@@ -177,22 +161,22 @@ class EventDetail extends StatelessWidget {
     );
   }
 
-  Widget _buildEventDetail(BuildContext context, EventModel model) {
+  Widget _buildEventDetail(BuildContext context, EventDetailModel model) {
     return Container(
         height: 350,
         child: Column(
           children: [
-            _buildEventName(context, model),
-            _buildEventLocation(context, model),
+            _buildEventName(context, model.event),
+            _buildEventLocation(context, model.event),
             SizedBox(height: 30),
-            _buildEventDate(context, model),
+            _buildEventDate(context, model.event),
             SizedBox(height: 30),
-            _buildEventTime(context, model),
+            _buildEventTime(context, model.event),
           ],
         ));
   }
 
-  Widget _buildEventName(BuildContext context, EventModel model) {
+  Widget _buildEventName(BuildContext context, EventModel event) {
     return Container(
       height: 120,
       alignment: Alignment.center,
@@ -202,12 +186,12 @@ class EventDetail extends StatelessWidget {
           Padding(
             padding: EdgeInsets.only(left: 15, right: 20),
             child: ActivityIcon(
-              activity: model.activity,
+              activity: event.activity,
               size: 70,
             ),
           ),
           Text(
-            model.name,
+            event.name,
             style: Theme.of(context).textTheme.headline5,
           ),
         ],
@@ -215,7 +199,7 @@ class EventDetail extends StatelessWidget {
     );
   }
 
-  Widget _buildEventLocation(BuildContext context, EventModel model) {
+  Widget _buildEventLocation(BuildContext context, EventModel event) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -228,11 +212,11 @@ class EventDetail extends StatelessWidget {
         ),
         Column(children: [
           Text(
-            model.location.latitude.toString(),
+            event.location.latitude.toString(),
             style: Theme.of(context).textTheme.headline6,
           ),
           Text(
-            model.location.longitude.toString(),
+            event.location.longitude.toString(),
             style: Theme.of(context).textTheme.headline6,
           ),
         ])
@@ -240,7 +224,7 @@ class EventDetail extends StatelessWidget {
     );
   }
 
-  Widget _buildEventDate(BuildContext context, EventModel model) {
+  Widget _buildEventDate(BuildContext context, EventModel event) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -249,14 +233,14 @@ class EventDetail extends StatelessWidget {
           child: Icon(Icons.calendar_today, size: 40),
         ),
         Text(
-          DateFormat('dd. MM. yyyy').format(model.time).toString(),
+          DateFormat('dd. MM. yyyy').format(event.time).toString(),
           style: Theme.of(context).textTheme.headline6,
         ),
       ],
     );
   }
 
-  Widget _buildEventTime(BuildContext context, EventModel model) {
+  Widget _buildEventTime(BuildContext context, EventModel event) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -267,13 +251,13 @@ class EventDetail extends StatelessWidget {
             size: 40,
           ),
         ),
-        Text(DateFormat('kk:mm').format(model.time).toString(),
+        Text(DateFormat('kk:mm').format(event.time).toString(),
             style: Theme.of(context).textTheme.headline6),
       ],
     );
   }
 
-  Widget _buildEventDescription(BuildContext context, EventModel model) {
+  Widget _buildEventDescription(BuildContext context, EventModel event) {
     return Column(
       children: [
         Align(
@@ -291,77 +275,54 @@ class EventDetail extends StatelessWidget {
         SizedBox(height: 20),
         Align(
           alignment: Alignment.centerLeft,
-          child: Text(model.description),
+          child: Text(event.description),
         ),
       ],
     );
   }
 
-  Widget _buildEventParticipants(BuildContext context, EventModel model) {
+  Widget _buildEventParticipants(BuildContext context, EventDetailModel model) {
     final currentUser = context.read<UserCubit>().state;
 
-    return FutureBuilder(
-      future: model.participants,
-      builder: (context, participantsSnapshot) {
-        if (participantsSnapshot.hasError) {
-          return Text(participantsSnapshot.error.toString());
-        }
-        if (!participantsSnapshot.hasData) {
-          return CircularProgressIndicator();
-        }
-        return Column(
-          children: [
-            _buildParticipantHeadline(
-              context,
-              model,
-              participantsSnapshot.data,
-            ),
-            SizedBox(height: 20),
-            Column(
-              children: participantsSnapshot.data
-                  .map<Widget>(
-                    (participant) => _buildParticipantRow(
-                      context,
-                      model,
-                      participant,
-                      currentUser,
-                    ),
-                  )
-                  .toList(),
-            ),
-            if (currentUser == model.owner)
-              FutureBuilder(
-                future: model.pendingParticipants,
-                builder: (context, pendingParticipantsSnapshot) {
-                  if (pendingParticipantsSnapshot.hasError) {
-                    return Text(pendingParticipantsSnapshot.error.toString());
-                  }
-                  if (!pendingParticipantsSnapshot.hasData) {
-                    return CircularProgressIndicator();
-                  }
-                  return Column(
-                    children: pendingParticipantsSnapshot.data
-                        .map<Widget>(
-                          (participant) => _buildParticipantRow(
-                            context,
-                            model,
-                            participant,
-                            currentUser,
-                            pending: true,
-                          ),
-                        )
-                        .toList(),
-                  );
-                },
-              ),
-          ],
-        );
-      },
+    return Column(
+      children: [
+        _buildParticipantHeadline(
+          context,
+          model,
+        ),
+        SizedBox(height: 20),
+        Column(
+          children: model.participants
+              .map<Widget>(
+                (participant) => _buildParticipantRow(
+                  context,
+                  model.event,
+                  participant,
+                  currentUser,
+                ),
+              )
+              .toList(),
+        ),
+        if (currentUser == model.event.owner)
+          Column(
+            children: model.pendingParticipants
+                .map<Widget>(
+                  (participant) => _buildParticipantRow(
+                    context,
+                    model.event,
+                    participant,
+                    currentUser,
+                    pending: true,
+                  ),
+                )
+                .toList(),
+          ),
+      ],
     );
   }
 
   Widget _buildParticipantHeadline(
-      BuildContext context, EventModel model, List<UserModel> participants) {
+      BuildContext context, EventDetailModel model) {
     return Align(
       alignment: Alignment.centerLeft,
       child: Row(
@@ -374,7 +335,7 @@ class EventDetail extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(right: 15.0),
             child: Text(
-              '${participants.length}/${model.unlimitedParticipants ?  '-' : model.maxParticipants}',
+              '${model.participants.length}/${model.event.unlimitedParticipants ? '-' : model.event.maxParticipants}',
               style: Theme.of(context).textTheme.headline4,
             ),
           ),
@@ -464,12 +425,13 @@ class EventDetail extends StatelessWidget {
     UserModel participant,
     UserModel currentUser,
   ) {
+    final eventCubit = context.read<EventCubit>();
     if (!event.isPast &&
         currentUser == event.owner &&
         participant != currentUser) {
       return _buildConfirmationButton(() {
         showAlertDialog(context, () {
-          EventService.removeUserFromParticipants(participant.id, event.id);
+          eventCubit.removeParticipant(participant);
         }, "Are sure you want to delete this user from the event?");
       });
     }
@@ -514,11 +476,13 @@ class EventDetail extends StatelessWidget {
       return Row();
     }
 
+    final eventCubit = context.read<EventCubit>();
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         _buildConfirmationButton(() {
           showAlertDialog(context, () {
+            eventCubit.moveToParticipants(participant);
             EventService.addUserToParticipants(participant.id, event.id);
           }, "Are sure you want to add this user to the event?");
         }, disallow: false),

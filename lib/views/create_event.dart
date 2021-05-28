@@ -4,6 +4,7 @@ import 'package:sport_buddy/bloc/event_cubit.dart';
 import 'package:sport_buddy/bloc/user_cubit.dart';
 import 'package:sport_buddy/components/activity_dropdown.dart';
 import 'package:sport_buddy/components/gradient_button.dart';
+import 'package:sport_buddy/model/event_detail_model.dart';
 import 'package:sport_buddy/model/event_model.dart';
 import 'package:sport_buddy/screens/event_detail.dart';
 import 'package:sport_buddy/services/event_service.dart';
@@ -28,14 +29,14 @@ class CreateEvent extends StatelessWidget {
         title: editMode ? Text('Edit Event') : Text('New Event'),
       ),
       bottomNavigationBar: _buildBottomButton(context),
-      body: BlocBuilder<EventCubit, EventModel>(
+      body: BlocBuilder<EventCubit, EventDetailModel>(
           builder: (context, model) => Center(
                 child: ListView(
                   padding: EdgeInsets.all(20.0),
                   children: [
-                    _buildEventDetail(context, model),
-                    _buildParticipants(context, model),
-                    _buildEventDescription(context, model),
+                    _buildEventDetail(context, model.event),
+                    _buildParticipants(context, model.event),
+                    _buildEventDescription(context, model.event),
                   ],
                 ),
               )),
@@ -65,28 +66,28 @@ class CreateEvent extends StatelessWidget {
 
     if (_isFormFilledEnough(context)) {
       if (editMode) {
-        EventService.updateEvent(eventCubit.state);
+        EventService.updateEvent(eventCubit.state.event);
         Navigator.pop(context);
         Navigator.pop(context);
         await Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => BlocProvider<EventCubit>(
-              create: (context) => EventCubit.fromEventModel(eventCubit.state),
+              create: (context) => EventCubit.fromEventModel(eventCubit.state.event),
               child: EventDetail(),
             ),
           ),
         );
       } else {
         eventCubit.updateOwner(userCubit.state);
-        EventService.addEvent(eventCubit.state).then((event) {
+        EventService.addEvent(eventCubit.state.event).then((event) {
           eventCubit.setEvent(event);
           Navigator.pop(context);
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => BlocProvider<EventCubit>(
-                create: (context) => EventCubit.fromEventModel(eventCubit.state),
+                create: (context) => EventCubit.fromEventModel(eventCubit.state.event),
                 child: EventDetail(),
               ),
             ),
@@ -100,7 +101,7 @@ class CreateEvent extends StatelessWidget {
 
   bool _isFormFilledEnough(BuildContext context) {
     final eventCubit = context.read<EventCubit>();
-    return eventCubit.state.name != '';
+    return eventCubit.state.event.name != '';
   }
 
   Widget _buildEventDetail(BuildContext context, EventModel model) {
@@ -228,6 +229,8 @@ class CreateEvent extends StatelessWidget {
 
   Widget _buildParticipants(BuildContext context, EventModel model) {
     final eventCubit = context.read<EventCubit>();
+    final event = eventCubit.state.event;
+
     return Container(
       height: 100,
       child: Column(children: [
@@ -240,9 +243,9 @@ class CreateEvent extends StatelessWidget {
             ),
             _buildParticipantsSlider(context),
             Text(
-                eventCubit.state.unlimitedParticipants
+                event.unlimitedParticipants
                     ? ''
-                    : eventCubit.state.maxParticipants.toString(),
+                    : event.maxParticipants.toString(),
                 style: Theme.of(context).textTheme.headline6),
           ],
         ),
@@ -253,7 +256,7 @@ class CreateEvent extends StatelessWidget {
                 Text('Unlimited', style: Theme.of(context).textTheme.headline6),
           ),
           Switch(
-            value: eventCubit.state.unlimitedParticipants,
+            value: event.unlimitedParticipants,
             onChanged: (newVal) {
               eventCubit.updateUnlimitedParticipants(newVal);
             },
@@ -266,19 +269,21 @@ class CreateEvent extends StatelessWidget {
   Widget _buildParticipantsSlider(BuildContext context) {
     double _width = MediaQuery.of(context).size.width;
     final eventCubit = context.read<EventCubit>();
+    final event = eventCubit.state.event;
+
     return Container(
       width: _width * 0.6,
       child: Slider(
-        activeColor: eventCubit.state.unlimitedParticipants
+        activeColor: event.unlimitedParticipants
             ? Colors.grey
             : Theme.of(context).primaryColor,
-        inactiveColor: eventCubit.state.unlimitedParticipants
+        inactiveColor: event.unlimitedParticipants
             ? Colors.grey
             : Color(0xffef8585),
-        value: eventCubit.state.maxParticipants.toDouble(),
+        value: event.maxParticipants.toDouble(),
         min: 2,
         max: 30,
-        label: eventCubit.state.maxParticipants.toString(),
+        label: event.maxParticipants.toString(),
         onChanged: (double value) {
           eventCubit.updateMaxParticipants(value);
         },
