@@ -116,7 +116,8 @@ class EventDetail extends StatelessWidget {
     showAlertDialog(context, () {
       EventService.deleteEvent(eventId);
       Navigator.pop(context);
-    }, "Are sure you want to completely delete this event?");
+      showSnackbar(context, 'Event deleted');
+    }, 'Are sure you want to completely delete this event?');
   }
 
   Widget _buildPendingButton() {
@@ -432,7 +433,7 @@ class EventDetail extends StatelessWidget {
       return _buildConfirmationButton(() {
         showAlertDialog(context, () {
           eventCubit.removeParticipant(participant);
-        }, "Are sure you want to delete this user from the event?");
+        }, 'Are sure you want to delete this user from the event?');
       });
     }
 
@@ -484,13 +485,13 @@ class EventDetail extends StatelessWidget {
           showAlertDialog(context, () {
             eventCubit.moveToParticipants(participant);
             EventService.addUserToParticipants(participant.id, event.id);
-          }, "Are sure you want to add this user to the event?");
+          }, 'Are sure you want to add this user to the event?');
         }, disallow: false),
         _buildConfirmationButton(() {
           showAlertDialog(context, () {
             EventService.removeUserFromPendingParticipants(
                 participant.id, event.id);
-          }, "Are sure you want to delete this user request?");
+          }, 'Are sure you want to delete this user request?');
         })
       ],
     );
@@ -499,11 +500,11 @@ class EventDetail extends StatelessWidget {
   Future<String> getParticipantPicture(String participantId) async {
     FirebaseStorage storage = FirebaseStorage.instance;
     var downloadUrl = '';
-    final storageRef = storage.ref().child("user/profile/$participantId");
+    final storageRef = storage.ref().child('user/profile/$participantId');
     try {
       downloadUrl = await storageRef.getDownloadURL();
     } catch (e) {
-      print("User do not have any picture");
+      print('User do not have any picture');
     }
     return downloadUrl;
   }
