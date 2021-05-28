@@ -23,7 +23,7 @@ class EventDetail extends StatelessWidget {
       builder: (context, model) => Scaffold(
         appBar: AppBar(
           title: Text('Event Detail'),
-          actions: (model.event.isPast) ? [] : [_editEvent(context)],
+          actions: (_canEdit(context, model)) ? [_editEvent(context)] : [],
         ),
         bottomNavigationBar: (model.event.isPast)
             ? null
@@ -43,6 +43,11 @@ class EventDetail extends StatelessWidget {
     );
   }
 
+  bool _canEdit(BuildContext context, EventDetailModel model) {
+    final currentUser = context.read<UserCubit>().state;
+    return !model.event.isPast && model.event.owner == currentUser;
+  }
+
   Widget _editEvent(BuildContext context) {
     return IconButton(
       icon: Icon(
@@ -56,10 +61,14 @@ class EventDetail extends StatelessWidget {
   }
 
   void _openEditEvent(BuildContext context) async {
+    final eventCubit = context.read<EventCubit>();
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => CreateEvent(true),
+        builder: (context) => BlocProvider<EventCubit>(
+          create: (context) => EventCubit.fromEventModel(eventCubit.state.event),
+          child: CreateEvent(true),
+        ),
       ),
     );
   }
@@ -284,7 +293,6 @@ class EventDetail extends StatelessWidget {
 
   Widget _buildEventParticipants(BuildContext context, EventDetailModel model) {
     final currentUser = context.read<UserCubit>().state;
-
     return Column(
       children: [
         _buildParticipantHeadline(
@@ -484,13 +492,11 @@ class EventDetail extends StatelessWidget {
         _buildConfirmationButton(() {
           showAlertDialog(context, () {
             eventCubit.moveToParticipants(participant);
-            EventService.addUserToParticipants(participant.id, event.id);
           }, 'Are sure you want to add this user to the event?');
         }, disallow: false),
         _buildConfirmationButton(() {
           showAlertDialog(context, () {
-            EventService.removeUserFromPendingParticipants(
-                participant.id, event.id);
+            eventCubit.removePendingParticipant(participant);
           }, 'Are sure you want to delete this user request?');
         })
       ],

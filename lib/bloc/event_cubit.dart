@@ -248,30 +248,29 @@ class EventCubit extends Cubit<EventDetailModel> {
     ));
   }
 
+
   Future<void> updateOwner(UserModel owner) async {
-    if (state.event.owner != null) {
-      EventService.removeUserFromParticipants(
-          state.event.owner.id, state.event.id);
-    }
-    EventService.addUserToParticipants(owner.id, state.event.id);
     emit(
       EventDetailModel(
         event: EventModel(
-          id: state.event.id,
-          name: state.event.name,
-          description: state.event.description,
-          activity: state.event.activity,
-          time: state.event.time,
-          location: state.event.location,
-          owner: owner,
-          maxParticipants: state.event.maxParticipants,
-          unlimitedParticipants: state.event.unlimitedParticipants,
-        ),
-        participants: state.participants,
-        pendingParticipants: state.pendingParticipants,
+        id: state.event.id,
+        name: state.event.name,
+        description: state.event.description,
+        activity: state.event.activity,
+        time: state.event.time,
+        location: state.event.location,
+        owner: owner,
+        maxParticipants: state.event.maxParticipants,
+        unlimitedParticipants: state.event.unlimitedParticipants,
       ),
-    );
+        participants: [...state.participants, owner],
+        pendingParticipants: state.pendingParticipants,
+    ));
   }
+
+
+
+
 
   void setId(String id) {
     emit(

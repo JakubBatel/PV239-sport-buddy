@@ -82,7 +82,9 @@ class CreateEvent extends StatelessWidget {
         eventCubit.updateOwner(userCubit.state);
         EventService.addEvent(eventCubit.state.event).then((event) {
           eventCubit.setEvent(event);
+          eventCubit.setId(event.id);
           Navigator.pop(context);
+          print("creating.. eventID" + eventCubit.state.event.id);
           Navigator.push(
             context,
             MaterialPageRoute(

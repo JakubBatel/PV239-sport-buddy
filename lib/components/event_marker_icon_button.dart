@@ -17,12 +17,16 @@ class EventMarkerIconButton extends StatelessWidget {
         activity: event.activity,
       ),
       onPressed: () {
-        final eventBloc = BlocProvider.of<EventCubit>(context);
-        eventBloc.setEvent(event);
+        final eventCubit = context.read<EventCubit>();
+        eventCubit.setEvent(event);
+        eventCubit.setId(event.id);
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => EventDetail(),
+            builder: (context) => BlocProvider<EventCubit>(
+              create: (context) => EventCubit.fromEventModel(event),
+              child: EventDetail(),
+            ),
           ),
         );
       },
