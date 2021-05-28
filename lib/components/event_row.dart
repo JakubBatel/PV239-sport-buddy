@@ -54,7 +54,7 @@ class EventRow extends StatelessWidget {
           "Participants: " +
               participantsSnapshot.data.length.toString() +
               "/" +
-              event.maxParticipants.toString(),
+              (event.unlimitedParticipants ? '-' : event.maxParticipants.toString()),
         );
       },
     );

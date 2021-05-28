@@ -50,7 +50,6 @@ class EventService {
 
   static Future<EventModel> addEvent(EventModel event) async {
     final ownerRef = usersCollection.doc(event.owner.id);
-
     final docRef = await eventsCollection.add(
       {
         'name': event.name,
@@ -130,6 +129,7 @@ class EventService {
   }
 
   static Future<List<UserModel>> fetchParticipants(String eventId) async {
+    print("eventId  "+ eventId);
     final eventSnapshot = await eventsCollection.doc(eventId).get();
     final participantsRefs = eventSnapshot.get('participants').cast<DocumentReference>();
     return _fetchUsers(participantsRefs);
@@ -159,7 +159,7 @@ class EventService {
     String userId,
     String eventId,
   ) async {
-    DocumentReference userRef = usersCollection.doc();
+    DocumentReference userRef = usersCollection.doc(userId);
     return eventsCollection.doc(eventId).update({
       'pendingParticipants': FieldValue.arrayUnion([userRef])
     });
