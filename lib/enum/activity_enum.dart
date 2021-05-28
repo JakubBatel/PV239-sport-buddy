@@ -6,7 +6,7 @@ enum Activity {
   football,
   hockey,
   other,
-  pingpong,
+  ping_pong,
   rollerblade,
   rugby,
   run,

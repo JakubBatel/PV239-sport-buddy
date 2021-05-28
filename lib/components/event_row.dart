@@ -13,31 +13,31 @@ class EventRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 90,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Padding(
-              padding: EdgeInsets.all(10.0),
-              child: ActivityIcon(
-                activity: event.activity,
-                size: 50,
-              ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Padding(
+            padding: EdgeInsets.all(10.0),
+            child: ActivityIcon(
+              activity: event.activity,
+              size: 50,
             ),
-            Text(
-              event.name,
-              style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
-            ),
-            Spacer(),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                _buildNumberOfParticipants(),
-                SizedBox(height: 8),
-                Text(DateFormat.yMMMd().format(event.time))
-              ],
-            ),
-          ],
+          ),
+          Text(
+            event.name,
+            style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+          ),
+          Spacer(),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              _buildNumberOfParticipants(),
+              SizedBox(height: 8),
+              Text(DateFormat.yMMMd().format(event.time))
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -51,10 +51,12 @@ class EventRow extends StatelessWidget {
         }
 
         return Text(
-          "Participants: " +
+          'Participants: ' +
               participantsSnapshot.data.length.toString() +
-              "/" +
-              (event.unlimitedParticipants ? '-' : event.maxParticipants.toString()),
+              '/' +
+              (event.unlimitedParticipants
+                  ? '-'
+                  : event.maxParticipants.toString()),
         );
       },
     );

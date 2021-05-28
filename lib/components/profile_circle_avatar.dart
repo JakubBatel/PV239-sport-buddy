@@ -1,8 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ProfileCircleAvatar extends StatelessWidget {
-
   final String pictureUrl;
   final double radius;
 

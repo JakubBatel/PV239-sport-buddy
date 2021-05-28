@@ -7,6 +7,7 @@ class ActivityDropdown extends StatefulWidget {
   final String selected;
 
   const ActivityDropdown(this.selected);
+
   @override
   State<StatefulWidget> createState() => _ActivityDropdownState(selected);
 }
@@ -15,7 +16,9 @@ class _ActivityDropdownState extends State<ActivityDropdown> {
   String _selected;
 
   _ActivityDropdownState(selected) {
-    this._selected = _activityJson.firstWhere((element) => element['name'] == selected)['id'].toString();
+    this._selected = _activityJson
+        .firstWhere((element) => element['name'] == selected)['id']
+        .toString();
     if (this._selected == '') this._selected = '1';
   }
 

@@ -90,7 +90,7 @@ class EventService {
         'longitude': event.location.longitude,
         'time': event.time,
         'maxParticipants':
-        event.unlimitedParticipants ? 0 : event.maxParticipants,
+            event.unlimitedParticipants ? 0 : event.maxParticipants,
       },
     );
   }
@@ -130,14 +130,16 @@ class EventService {
 
   static Future<List<UserModel>> fetchParticipants(String eventId) async {
     final eventSnapshot = await eventsCollection.doc(eventId).get();
-    final participantsRefs = eventSnapshot.get('participants').cast<DocumentReference>();
+    final participantsRefs =
+        eventSnapshot.get('participants').cast<DocumentReference>();
     return _fetchUsers(participantsRefs);
   }
 
   static Future<List<UserModel>> fetchPendingParticipants(
       String eventId) async {
     final eventSnapshot = await eventsCollection.doc(eventId).get();
-    final participantsRefs = eventSnapshot.get('pendingParticipants').cast<DocumentReference>();
+    final participantsRefs =
+        eventSnapshot.get('pendingParticipants').cast<DocumentReference>();
     return _fetchUsers(participantsRefs);
   }
 
@@ -182,7 +184,6 @@ class EventService {
     return eventsCollection.doc(eventId).update({
       'participants': FieldValue.arrayUnion([userRef])
     });
-
   }
 
   static Future<void> removeUserFromParticipants(

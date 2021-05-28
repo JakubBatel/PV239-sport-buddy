@@ -8,12 +8,6 @@ class UserService {
       FirebaseFirestore.instance.collection('events');
 
   static Future<UserModel> addUser(UserModel user) async {
-    /*final docRef = await usersCollection.add(
-      {
-        'name': user.name,
-        'profilePicture': user.profilePicture,
-      },
-    );*/
     await usersCollection.doc(user.id).set(
       {
         'name': user.name,

@@ -66,7 +66,8 @@ class EventDetail extends StatelessWidget {
       context,
       MaterialPageRoute(
         builder: (context) => BlocProvider<EventCubit>(
-          create: (context) => EventCubit.fromEventModel(eventCubit.state.event),
+          create: (context) =>
+              EventCubit.fromEventModel(eventCubit.state.event),
           child: CreateEvent(true),
         ),
       ),
@@ -140,14 +141,13 @@ class EventDetail extends StatelessWidget {
   }
 
   Widget _buildLeaveButton(
-      BuildContext context,
+    BuildContext context,
     EventModel event,
     UserModel currentUser,
   ) {
     final eventCubit = context.read<EventCubit>();
     return GradientButton(
-      onPressed: () =>
-          eventCubit.removeParticipant(currentUser),
+      onPressed: () => eventCubit.removeParticipant(currentUser),
       child: Text(
         'Leave event',
         style: TextStyle(color: Colors.white),
@@ -156,14 +156,13 @@ class EventDetail extends StatelessWidget {
   }
 
   Widget _buildJoinButton(
-      BuildContext context,
+    BuildContext context,
     EventModel event,
     UserModel currentUser,
   ) {
     final eventCubit = context.read<EventCubit>();
     return GradientButton(
-      onPressed: () =>
-          eventCubit.addPendingParticipant(currentUser),
+      onPressed: () => eventCubit.addPendingParticipant(currentUser),
       child: Text(
         'Join event',
         style: TextStyle(color: Colors.white),

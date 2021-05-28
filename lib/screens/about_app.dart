@@ -14,7 +14,7 @@ class AboutApp extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text("App created as school project"),
+            Text('App created as school project'),
             Spacer(),
             HtmlWidget("""
 <div>Icons made by <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>

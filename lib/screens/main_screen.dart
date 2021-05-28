@@ -15,8 +15,6 @@ import 'package:sport_buddy/model/location_model.dart';
 import 'package:sport_buddy/model/map_data_model.dart';
 import 'package:sport_buddy/screens/filter_settings_screen.dart';
 import 'package:sport_buddy/screens/profile_screen.dart';
-import 'package:sport_buddy/screens/upcoming_events.dart';
-import 'package:sport_buddy/views/create_event.dart';
 
 class MainScreen extends StatelessWidget {
   final mapController = MapController();
@@ -62,7 +60,7 @@ class MainScreen extends StatelessWidget {
 
   Widget _buildGpsButton(BuildContext context) {
     return FloatingActionButton(
-      heroTag: "btn1",
+      heroTag: 'btn1',
       child: Icon(
         Icons.gps_fixed,
         size: 30,
@@ -77,7 +75,7 @@ class MainScreen extends StatelessWidget {
 
   Widget _buildAddButton(BuildContext context) {
     return FloatingActionButton(
-      heroTag: "btn2",
+      heroTag: 'btn2',
       child: Icon(
         Icons.add,
         size: 40,

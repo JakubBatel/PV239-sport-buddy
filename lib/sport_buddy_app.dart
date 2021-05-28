@@ -39,6 +39,9 @@ class SportBuddyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.red,
           textTheme: TextTheme(
+            headline3: TextStyle(
+              fontSize: 30.0,
+            ),
             headline4: TextStyle(
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
@@ -56,7 +59,7 @@ class SportBuddyApp extends StatelessWidget {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthError) {
-          showSnackbar(context, "Auth error");
+          showSnackbar(context, 'Auth error');
         }
       },
       child: BlocBuilder<AuthBloc, AuthState>(

@@ -46,7 +46,7 @@ class UpcomingEvents extends StatelessWidget {
 
             if (events.isEmpty) {
               return Center(
-                child: Text("You have no upcoming events"),
+                child: Text('You have no upcoming events'),
               );
             }
             return ListView(padding: EdgeInsets.all(15.0), children: events);

@@ -36,8 +36,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   Stream<LoginState> _mapLoginWithEmailToState(
       LoginInWithEmailButtonPressed event) async* {
     yield LoginLoading();
-    final result = await AuthService.signInWithEmailAndPassword(
-        event.email, event.password);
+    await AuthService.signInWithEmailAndPassword(event.email, event.password);
     final user = await AuthService.getCurrentUser();
     if (user != null) {
       _authenticationBloc.add(UserLoggedIn(user: user));
@@ -51,7 +50,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   Stream<LoginState> _mapLoginWithGoogleToState(
       LoginWithGoogleButtonPressed event) async* {
     yield LoginLoading();
-    final result = await AuthService.signInWithGoogle();
+    await AuthService.signInWithGoogle();
     final user = await AuthService.getCurrentUser();
     if (user != null) {
       _authenticationBloc.add(UserLoggedIn(user: user));
@@ -65,8 +64,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   Stream<LoginState> _mapRegisterWithEmailToState(
       RegisterWithEmailButtonPressed event) async* {
     yield LoginLoading();
-    final result = await AuthService.registerWithEmailAndPassword(
-        event.email, event.password);
+    await AuthService.registerWithEmailAndPassword(event.email, event.password);
     final user = await AuthService.getCurrentUser();
     if (user != null) {
       _authenticationBloc.add(UserLoggedIn(user: user));
@@ -80,7 +78,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   Stream<LoginState> _mapLoginWithFacebookToState(
       LoginWithFacebookButtonPressed event) async* {
     yield LoginLoading();
-    final result = await AuthService.signInWithFacebook();
+    await AuthService.signInWithFacebook();
     final user = await AuthService.getCurrentUser();
     if (user != null) {
       _authenticationBloc.add(UserLoggedIn(user: user));

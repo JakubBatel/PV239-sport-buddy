@@ -248,11 +248,9 @@ class EventCubit extends Cubit<EventDetailModel> {
     ));
   }
 
-
   Future<void> updateOwner(UserModel owner) async {
-    emit(
-      EventDetailModel(
-        event: EventModel(
+    emit(EventDetailModel(
+      event: EventModel(
         id: state.event.id,
         name: state.event.name,
         description: state.event.description,
@@ -263,14 +261,10 @@ class EventCubit extends Cubit<EventDetailModel> {
         maxParticipants: state.event.maxParticipants,
         unlimitedParticipants: state.event.unlimitedParticipants,
       ),
-        participants: [...state.participants, owner],
-        pendingParticipants: state.pendingParticipants,
+      participants: [...state.participants, owner],
+      pendingParticipants: state.pendingParticipants,
     ));
   }
-
-
-
-
 
   void setId(String id) {
     emit(
@@ -327,7 +321,8 @@ class EventCubit extends Cubit<EventDetailModel> {
           maxParticipants: state.event.maxParticipants,
           unlimitedParticipants: state.event.unlimitedParticipants,
         ),
-        participants: state.participants.where((p) => p != participant).toList(),
+        participants:
+            state.participants.where((p) => p != participant).toList(),
         pendingParticipants: state.pendingParticipants,
       ),
     );
@@ -355,7 +350,8 @@ class EventCubit extends Cubit<EventDetailModel> {
   }
 
   void removePendingParticipant(UserModel participant) {
-    EventService.removeUserFromPendingParticipants(participant.id, state.event.id);
+    EventService.removeUserFromPendingParticipants(
+        participant.id, state.event.id);
     emit(
       EventDetailModel(
         event: EventModel(
@@ -370,13 +366,15 @@ class EventCubit extends Cubit<EventDetailModel> {
           unlimitedParticipants: state.event.unlimitedParticipants,
         ),
         participants: state.participants,
-        pendingParticipants: state.pendingParticipants.where((p) => p != participant).toList(),
+        pendingParticipants:
+            state.pendingParticipants.where((p) => p != participant).toList(),
       ),
     );
   }
 
   void moveToParticipants(UserModel participant) {
-    EventService.removeUserFromPendingParticipants(participant.id, state.event.id);
+    EventService.removeUserFromPendingParticipants(
+        participant.id, state.event.id);
     EventService.addUserToParticipants(participant.id, state.event.id);
     emit(
       EventDetailModel(
@@ -392,7 +390,8 @@ class EventCubit extends Cubit<EventDetailModel> {
           unlimitedParticipants: state.event.unlimitedParticipants,
         ),
         participants: [...state.participants, participant],
-        pendingParticipants: state.pendingParticipants.where((p) => p != participant).toList(),
+        pendingParticipants:
+            state.pendingParticipants.where((p) => p != participant).toList(),
       ),
     );
   }

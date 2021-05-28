@@ -10,8 +10,11 @@ class UserModel {
   Future<List<EventModel>> get events => EventService.fetchUsersEvents(id);
 
   @override
-  bool operator==(Object other) =>
-    other is UserModel && id == other.id && name == other.name && profilePicture == other.profilePicture;
+  bool operator ==(Object other) =>
+      other is UserModel &&
+      id == other.id &&
+      name == other.name &&
+      profilePicture == other.profilePicture;
 
   @override
   int get hashCode => hashObjects([id, name, profilePicture]);
@@ -21,5 +24,4 @@ class UserModel {
     this.name,
     this.profilePicture,
   });
-
 }

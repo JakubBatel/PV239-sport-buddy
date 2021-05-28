@@ -6,9 +6,5 @@ class EventDetailModel {
   final List<UserModel> participants;
   final List<UserModel> pendingParticipants;
 
-  EventDetailModel({
-    this.event,
-    this.participants,
-    this.pendingParticipants
-  });
+  EventDetailModel({this.event, this.participants, this.pendingParticipants});
 }

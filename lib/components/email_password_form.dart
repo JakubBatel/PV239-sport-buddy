@@ -170,7 +170,7 @@ class EmailPasswordFormState extends State<EmailPasswordForm> {
   }
 
   String _validateEmail(String email) {
-    if (email == "") {
+    if (email == '') {
       return 'Email is required.';
     }
     return null;

@@ -43,8 +43,7 @@ class MapDataCubit extends Cubit<MapDataModel> {
   }
 
   void fetchEvents() async {
-    final events = await EventService.fetchEventsWithinRadius(
-        state.center, 10); // TODO figure out good radius
+    final events = await EventService.fetchEventsWithinRadius(state.center, 10);
 
     emit(
       MapDataModel(

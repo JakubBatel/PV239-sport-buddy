@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
 
 showAlertDialog(BuildContext context, Function action, String description) {
-
   // set up the buttons
   Widget cancelButton = MaterialButton(
-    child: Text("Cancel"),
-    onPressed:  () {Navigator.of(context).pop();}
-  );
+      child: Text("Cancel"),
+      onPressed: () {
+        Navigator.of(context).pop();
+      });
   Widget continueButton = MaterialButton(
-    child: Text("Continue"),
-    onPressed:  () {
-      Navigator.of(context).pop();
-      action();
-    }
-  );
+      child: Text("Continue"),
+      onPressed: () {
+        Navigator.of(context).pop();
+        action();
+      });
 
   // set up the AlertDialog
   AlertDialog alert = AlertDialog(
@@ -35,13 +34,12 @@ showAlertDialog(BuildContext context, Function action, String description) {
 }
 
 showErrorDialog(BuildContext context, String description) {
-
   // set up the buttons
   Widget cancelButton = MaterialButton(
       child: Text("Ok"),
-      onPressed:  () {Navigator.of(context).pop();}
-  );
-
+      onPressed: () {
+        Navigator.of(context).pop();
+      });
 
   // set up the AlertDialog
   AlertDialog alert = AlertDialog(

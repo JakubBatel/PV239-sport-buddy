@@ -62,8 +62,8 @@ class ProfileScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Center(
-                child: Text(model.name,
-                    style: Theme.of(context).textTheme.headline3),
+              child: Text(model.name,
+                  style: Theme.of(context).textTheme.headline3),
             ),
           ],
         )
@@ -85,15 +85,14 @@ class ProfileScreen extends StatelessWidget {
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
             Center(
                 child: Container(
-                        width: _width * 0.60,
-                        child: TextFormField(
-                          initialValue: model.name,
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.headline3,
-                          onChanged: (text) => userCubit.updateUserName(text),
-                        ),
-                      )
-            ),
+              width: _width * 0.60,
+              child: TextFormField(
+                initialValue: model.name,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.headline3,
+                onChanged: (text) => userCubit.updateUserName(text),
+              ),
+            )),
           ]),
         ],
       ),
@@ -122,7 +121,7 @@ class ProfileScreen extends StatelessWidget {
       Align(
         alignment: Alignment.centerLeft,
         child: Text(
-          "Past Events:",
+          'Past Events:',
           style: Theme.of(context).textTheme.headline4,
         ),
       ),

@@ -73,7 +73,8 @@ class CreateEvent extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (context) => BlocProvider<EventCubit>(
-              create: (context) => EventCubit.fromEventModel(eventCubit.state.event),
+              create: (context) =>
+                  EventCubit.fromEventModel(eventCubit.state.event),
               child: EventDetail(),
             ),
           ),
@@ -84,12 +85,12 @@ class CreateEvent extends StatelessWidget {
           eventCubit.setEvent(event);
           eventCubit.setId(event.id);
           Navigator.pop(context);
-          print("creating.. eventID" + eventCubit.state.event.id);
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => BlocProvider<EventCubit>(
-                create: (context) => EventCubit.fromEventModel(eventCubit.state.event),
+                create: (context) =>
+                    EventCubit.fromEventModel(eventCubit.state.event),
                 child: EventDetail(),
               ),
             ),
@@ -97,7 +98,7 @@ class CreateEvent extends StatelessWidget {
         });
       }
     } else {
-      showErrorDialog(context, "Name can't be empty!");
+      showErrorDialog(context, 'Name cannot be empty!');
     }
   }
 
@@ -166,8 +167,10 @@ class CreateEvent extends StatelessWidget {
           ),
         ),
         Column(children: [
-          Text(model.location.latitude.toString(), style: Theme.of(context).textTheme.headline6),
-          Text(model.location.longitude.toString(), style: Theme.of(context).textTheme.headline6),
+          Text(model.location.latitude.toString(),
+              style: Theme.of(context).textTheme.headline6),
+          Text(model.location.longitude.toString(),
+              style: Theme.of(context).textTheme.headline6),
         ])
       ],
     );
@@ -279,9 +282,8 @@ class CreateEvent extends StatelessWidget {
         activeColor: event.unlimitedParticipants
             ? Colors.grey
             : Theme.of(context).primaryColor,
-        inactiveColor: event.unlimitedParticipants
-            ? Colors.grey
-            : Color(0xffef8585),
+        inactiveColor:
+            event.unlimitedParticipants ? Colors.grey : Color(0xffef8585),
         value: event.maxParticipants.toDouble(),
         min: 2,
         max: 30,

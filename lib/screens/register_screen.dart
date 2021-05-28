@@ -5,11 +5,9 @@ import 'package:sport_buddy/bloc/auth_bloc.dart';
 import 'package:sport_buddy/bloc/login_bloc.dart';
 import 'package:sport_buddy/components/email_password_form.dart';
 import 'package:sport_buddy/components/loading.dart';
-import 'package:sport_buddy/model/event/auth_event.dart';
 import 'package:sport_buddy/model/event/login_event.dart';
 import 'package:sport_buddy/model/state/auth_state.dart';
 import 'package:sport_buddy/model/state/login_state.dart';
-import 'package:sport_buddy/services/auth_service.dart';
 import 'package:sport_buddy/utils/alert_dialog.dart';
 
 class RegisterScreen extends StatelessWidget {
@@ -72,7 +70,7 @@ class RegisterScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(
-          "Register",
+          'Register',
           style: TextStyle(
             color: Colors.red,
             fontSize: 24.0,
@@ -81,7 +79,7 @@ class RegisterScreen extends StatelessWidget {
         ),
         SizedBox(height: 32.0),
         EmailPasswordForm(
-          buttonText: "Register",
+          buttonText: 'Register',
           clickAction: (email, password) {
             final loginBloc = BlocProvider.of<LoginBloc>(context);
 
@@ -96,7 +94,7 @@ class RegisterScreen extends StatelessWidget {
         SizedBox(height: 8.0),
         MaterialButton(
           child: Text(
-            "Already have a account",
+            'Already have a account',
             style: TextStyle(color: Colors.red),
           ),
           onPressed: () => {Navigator.pop(context)},

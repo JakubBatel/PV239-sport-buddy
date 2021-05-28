@@ -31,8 +31,10 @@ class AuthService {
         return null;
       }
 
-      final facebookAuthCredential = FacebookAuthProvider.credential(result.token);
-      return await FirebaseAuth.instance.signInWithCredential(facebookAuthCredential);
+      final facebookAuthCredential =
+          FacebookAuthProvider.credential(result.token);
+      return await FirebaseAuth.instance
+          .signInWithCredential(facebookAuthCredential);
     } catch (e) {
       print(e.toString());
       return null;
@@ -85,7 +87,7 @@ class AuthService {
         name = FirebaseAuth.instance.currentUser.email;
       }
       if (name == null) {
-        name = "User";
+        name = 'User';
       }
 
       return await UserService.addUser(
