@@ -6,6 +6,7 @@ import 'package:sport_buddy/bloc/user_cubit.dart';
 import 'package:sport_buddy/components/event_row.dart';
 import 'package:sport_buddy/components/loading.dart';
 import 'package:sport_buddy/model/event_model.dart';
+import 'package:sport_buddy/model/user_model.dart';
 import 'package:sport_buddy/screens/event_detail.dart';
 
 class UpcomingEvents extends StatelessWidget {
@@ -19,31 +20,37 @@ class UpcomingEvents extends StatelessWidget {
   }
 
   Widget _buildContent(BuildContext context) {
-    final user = BlocProvider.of<UserCubit>(context).state;
+    return BlocBuilder<UserCubit, UserModel>(
+      builder: (context, user) {
+        return FutureBuilder(
+          future: user.events,
+          builder: (context, eventsSnapshot) {
+            if (eventsSnapshot.hasError) {
+              return Text(eventsSnapshot.error.toString());
+            }
+            if (!eventsSnapshot.hasData) {
+              return Loading();
+            }
 
-    return FutureBuilder(
-      future: user.events,
-      builder: (context, eventsSnapshot) {
-        if (eventsSnapshot.hasError) {
-          return Text(eventsSnapshot.error.toString());
-        }
-        if (!eventsSnapshot.hasData) {
-          return Loading();
-        }
+            final events = eventsSnapshot.data
+                .where((event) => DateTime.now().isBefore(event.time))
+                .map<Widget>(
+                  (event) => GestureDetector(
+                    onTap: () {
+                      _openEventDetail(context, event);
+                    },
+                    child: EventRow(event),
+                  ),
+                )
+                .toList();
 
-        return ListView(
-          padding: EdgeInsets.all(15.0),
-          children: eventsSnapshot.data
-              .where((event) => DateTime.now().isBefore(event.time))
-              .map<Widget>(
-                (event) => GestureDetector(
-                  onTap: () {
-                    _openEventDetail(context, event);
-                  },
-                  child: EventRow(event),
-                ),
-              )
-              .toList(),
+            if (events.isEmpty) {
+              return Center(
+                child: Text("You have no upcoming events"),
+              );
+            }
+            return ListView(padding: EdgeInsets.all(15.0), children: events);
+          },
         );
       },
     );

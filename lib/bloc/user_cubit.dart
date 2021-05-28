@@ -71,9 +71,6 @@ class UserCubit extends Cubit<UserModel> {
     emit(userModel);
   }
 
-
-
-
   void setPictureUrl(currentUserId, name) async {
 
     final storage = FirebaseStorage.instance;
