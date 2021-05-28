@@ -73,7 +73,6 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildUserInfo(BuildContext context) {
     final userCubit = context.read<UserCubit>();
-    print(userCubit.state.id);
     double _width = MediaQuery.of(context).size.width;
 
     return BlocBuilder<UserCubit, UserModel>(

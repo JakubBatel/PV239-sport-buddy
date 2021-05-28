@@ -50,6 +50,9 @@ class UpcomingEvents extends StatelessWidget {
   }
 
   void _openEventDetail(BuildContext context, EventModel event) {
+    final eventCubit = context.read<EventCubit>();
+    eventCubit.setEvent(event);
+    eventCubit.setId(event.id);
     Navigator.push(
       context,
       MaterialPageRoute(

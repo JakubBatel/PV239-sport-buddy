@@ -129,7 +129,6 @@ class EventService {
   }
 
   static Future<List<UserModel>> fetchParticipants(String eventId) async {
-    print("eventId  "+ eventId);
     final eventSnapshot = await eventsCollection.doc(eventId).get();
     final participantsRefs = eventSnapshot.get('participants').cast<DocumentReference>();
     return _fetchUsers(participantsRefs);
