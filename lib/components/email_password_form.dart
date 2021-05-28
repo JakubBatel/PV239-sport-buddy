@@ -8,8 +8,8 @@ import 'package:sport_buddy/model/state/login_state.dart';
 import 'gradient_button.dart';
 
 class EmailPasswordForm extends StatefulWidget {
-  Function clickAction;
-  String buttonText;
+  final Function clickAction;
+  final String buttonText;
 
   EmailPasswordForm(
       {Key key, @required this.buttonText, @required this.clickAction})

@@ -80,7 +80,20 @@ class EventService {
   }
 
   static Future<void> updateEvent(EventModel event) async {
-    // TODO
+    final docRef = eventsCollection.doc(event.id);
+
+    await docRef.update(
+      {
+        'name': event.name,
+        'description': event.description,
+        'activity': getActivityName(event.activity),
+        'latitude': event.location.latitude,
+        'longitude': event.location.longitude,
+        'time': event.time,
+        'maxParticipants':
+        event.unlimitedParticipants ? 0 : event.maxParticipants,
+      },
+    );
   }
 
   static Future<EventModel> fetchEvent(String eventId) async {
@@ -170,6 +183,7 @@ class EventService {
     return eventsCollection.doc(eventId).update({
       'participants': FieldValue.arrayUnion([userRef])
     });
+
   }
 
   static Future<void> removeUserFromParticipants(

@@ -43,7 +43,9 @@ class ProfileScreen extends StatelessWidget {
             child: ListView(
               padding: EdgeInsets.all(20.0),
               children: [
-                (model == null) ? _buildUserInfo(context) : _buildProfileInfo(context),
+                (model == null)
+                    ? _buildUserInfo(context)
+                    : _buildProfileInfo(context),
                 SizedBox(height: 20),
                 _buildPastEvents(context),
               ],
@@ -60,11 +62,8 @@ class ProfileScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Center(
-              child: Padding(
-                padding: EdgeInsets.only(left: 40),
                 child: Text(model.name,
                     style: Theme.of(context).textTheme.headline3),
-              ),
             ),
           ],
         )
@@ -84,35 +83,19 @@ class ProfileScreen extends StatelessWidget {
           IconButton(
               icon: Icon(Icons.add_a_photo),
               onPressed: () => _changePhoto(context)),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Center(
-                child: Padding(
-                  padding: EdgeInsets.only(left: 40),
-                  child: userCubit.editUser
-                      ? Container(
-                          width: _width * 0.60,
-                          child: TextFormField(
-                            initialValue: model.name,
-                            textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.headline3,
-                            onChanged: (text) => userCubit.updateUserName(text),
-                          ),
-                        )
-                      : Text(model.name,
-                          style: Theme.of(context).textTheme.headline3),
-                ),
-              ),
-              userCubit.editUser
-                  ? IconButton(
-                      icon: Icon(Icons.done_outlined),
-                      onPressed: () => {userCubit.changeEdit()})
-                  : IconButton(
-                      icon: Icon(Icons.mode_edit),
-                      onPressed: () => {userCubit.changeEdit()}),
-            ],
-          ),
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Center(
+                child: Container(
+                        width: _width * 0.60,
+                        child: TextFormField(
+                          initialValue: model.name,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.headline3,
+                          onChanged: (text) => userCubit.updateUserName(text),
+                        ),
+                      )
+            ),
+          ]),
         ],
       ),
     );
@@ -197,8 +180,8 @@ class ProfileScreen extends StatelessWidget {
         .ref()
         .child('user/profile/${userCubit.state.id}');
 
-    var uploadTask = storageRef.putFile(File(pickedFile.path));
-    var url = await storageRef.getDownloadURL();
+    final uploadTask = storageRef.putFile(File(pickedFile.path));
+    final url = await storageRef.getDownloadURL();
     uploadTask.whenComplete(() => userCubit.updatePicturePath(url));
   }
 }

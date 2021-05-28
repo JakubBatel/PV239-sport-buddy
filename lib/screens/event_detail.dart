@@ -123,7 +123,9 @@ class EventDetail extends StatelessWidget {
 
   Widget _buildDeleteButton(BuildContext context, EventModel event) {
     return GradientButton(
-      onPressed: (){_deleteEvent(context, event.id);},
+      onPressed: () {
+        _deleteEvent(context, event.id);
+      },
       child: Text(
         'Cancel event',
         style: TextStyle(color: Colors.white),
@@ -135,8 +137,8 @@ class EventDetail extends StatelessWidget {
     showAlertDialog(context, () {
       EventService.deleteEvent(eventId);
       Navigator.pop(context);
-    }, "Are sure you want to completely delete this event?");
-
+      showSnackbar(context, 'Event deleted');
+    }, 'Are sure you want to completely delete this event?');
   }
 
   Widget _buildPendingButton() {
@@ -374,7 +376,7 @@ class EventDetail extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(right: 15.0),
             child: Text(
-              '${participants.length}/${model.unlimitedParticipants ?  '-' : model.maxParticipants}',
+              '${participants.length}/${model.unlimitedParticipants ? '-' : model.maxParticipants}',
               style: Theme.of(context).textTheme.headline4,
             ),
           ),
@@ -470,7 +472,7 @@ class EventDetail extends StatelessWidget {
       return _buildConfirmationButton(() {
         showAlertDialog(context, () {
           EventService.removeUserFromParticipants(participant.id, event.id);
-        }, "Are sure you want to delete this user from the event?");
+        }, 'Are sure you want to delete this user from the event?');
       });
     }
 
@@ -519,14 +521,14 @@ class EventDetail extends StatelessWidget {
       children: [
         _buildConfirmationButton(() {
           showAlertDialog(context, () {
-            EventService.addUserToParticipants(participant.id, event.id);
-          }, "Are sure you want to add this user to the event?");
+            EventService.moveUserFromPendingToParticipants(participant.id, event.id);
+          }, 'Are sure you want to add this user to the event?');
         }, disallow: false),
         _buildConfirmationButton(() {
           showAlertDialog(context, () {
             EventService.removeUserFromPendingParticipants(
                 participant.id, event.id);
-          }, "Are sure you want to delete this user request?");
+          }, 'Are sure you want to delete this user request?');
         })
       ],
     );
@@ -535,11 +537,11 @@ class EventDetail extends StatelessWidget {
   Future<String> getParticipantPicture(String participantId) async {
     FirebaseStorage storage = FirebaseStorage.instance;
     var downloadUrl = '';
-    final storageRef = storage.ref().child("user/profile/$participantId");
+    final storageRef = storage.ref().child('user/profile/$participantId');
     try {
       downloadUrl = await storageRef.getDownloadURL();
     } catch (e) {
-      print("User do not have any picture");
+      print('User do not have any picture');
     }
     return downloadUrl;
   }

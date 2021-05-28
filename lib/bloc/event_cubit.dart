@@ -180,7 +180,7 @@ class EventCubit extends Cubit<EventModel> {
     ));
   }
 
-  Future<void> updateOwner(UserModel owner) async {
+  /*Future<void> updateOwner(UserModel owner) async {
     if (state.owner != null) {
       EventService.removeUserFromParticipants(state.owner.id, state.id);
     }
@@ -198,7 +198,25 @@ class EventCubit extends Cubit<EventModel> {
         unlimitedParticipants: state.unlimitedParticipants,
       ),
     );
+  }*/
+
+  Future<void> updateOwner(UserModel owner) async {
+    emit(
+      EventModel(
+        id: state.id,
+        name: state.name,
+        description: state.description,
+        activity: state.activity,
+        time: state.time,
+        location: state.location,
+        owner: owner,
+        maxParticipants: state.maxParticipants,
+        unlimitedParticipants: state.unlimitedParticipants,
+      ),
+    );
   }
+
+
 
   setId(String id) {
     emit(
@@ -215,4 +233,8 @@ class EventCubit extends Cubit<EventModel> {
       ),
     );
   }
+
+
+
+
 }
